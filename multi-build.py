@@ -26,7 +26,7 @@ def replace_name(old_names: list[str], new_names: list[str], files: list[str] = 
             p = Path(path)
             p.write_text(
                 re.sub(
-                    fr'(?<![\\/]){old_name}\b',
+                    fr'(?<![\\/\w]){old_name}\b',
                     new_name,
                     p.read_text(encoding="utf-8"),
                     flags=re.M

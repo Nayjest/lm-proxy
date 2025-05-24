@@ -37,3 +37,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{ include = "lm_proxy"}]
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.3"

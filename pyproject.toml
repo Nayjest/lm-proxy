@@ -1,0 +1,39 @@
+[project]
+name = "lm-proxy"
+version = "0.0.2"
+description = "LLM inference proxy server"
+readme = "README.md"
+keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxt-server"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "ai-microcore~=4.0.0.dev11"
+]
+
+requires-python = ">=3.10"
+
+authors = [
+    { name = "Vitalii Stepanenko", email = "mail@vitalii.in" },
+]
+maintainers = [
+    { name = "Vitalii Stepanenko", email = "mail@vitalii.in" },
+]
+license = { file = "LICENSE" }
+
+[project.urls]
+"Source Code" = "https://github.com/Nayjest/lm-proxy"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "lm_proxy"}]

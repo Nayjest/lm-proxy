@@ -1,0 +1,10 @@
+__pycache__
+.idea/
+venv
+.env*
+.pytest_cache
+storage
+dist
+docs
+.aico
+!.aico/project.json

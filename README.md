@@ -7,7 +7,7 @@
 
 # LM-Proxy
 
-LM-Proxy is OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc.
+**LM-Proxy** is OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc.
 
 **Development Status**: bookmark it and go away, it is still in early development.
 
@@ -18,8 +18,8 @@ LM-Proxy is OpenAI-compatible http proxy server for inferencing various LLMs cap
 
 ## 🚀 Quickstart
 ```bash
-# Install LLM Console via pip
-pip install <me>
+# Install LM-Proxy via pip
+pip install lm-proxy
 
 ```
 

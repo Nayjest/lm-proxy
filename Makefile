@@ -8,7 +8,7 @@ install:
 	pip install -e .
 
 pkg:
-	python build.py
+	python multi-build.py
 build: pkg
 
 clear-dist:

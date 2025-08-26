@@ -1,3 +1,6 @@
+run:
+	fastapi run lm_proxy
+start: run
 cs:
 	flake8 .
 black:

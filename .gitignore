@@ -2,6 +2,7 @@ __pycache__
 .idea/
 venv
 .env*
+!.env.template
 .pytest_cache
 storage
 dist

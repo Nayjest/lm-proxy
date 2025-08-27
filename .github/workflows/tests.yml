@@ -28,8 +28,6 @@ jobs:
         echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
     - name: Test with pytest
       env:
-        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-        LLM_API_TYPE: openai
-        MODEL: "gpt-4.1"
+        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         pytest

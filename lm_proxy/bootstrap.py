@@ -1,11 +1,15 @@
+import os
 import sys
 import logging
 from datetime import datetime
 
-from dotenv import load_dotenv
 import microcore as mc
+from microcore import ui
+from microcore.configuration import get_bool_from_env
+from dotenv import load_dotenv
 
 from .config import Config
+
 
 def setup_logging(log_level: int = logging.INFO):
     class CustomFormatter(logging.Formatter):
@@ -28,28 +32,35 @@ def setup_logging(log_level: int = logging.INFO):
 class Env:
     config: Config
     connections: dict[str, mc.types.LLMAsyncFunctionType]
+    debug: bool
 
-    @staticmethod
-    def bootstrap(config_file: str = 'config.toml') -> 'Env':
-        setup_logging()
-        logging.info("Bootstrapping lm_proxy application...")
 
-        env = Env()
-        load_dotenv('.env', override=True)
-        env.config = Config.load(config_file)
-        env.connections = dict()
+env = Env()
 
-        for conn_name, conn_config in env.config.connections.items():
-            logging.info(f"Initializing '{conn_name}' connection...")
-            try:
-                mc.configure(
-                    **conn_config,
-                    EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
-                )
-            except mc.LLMConfigError as e:
-                raise ValueError(f"Error in configuration for connection '{conn_name}': {e}")
 
-            env.connections[conn_name] = mc.env().llm_async_function
-        logging.info(f"Done initializing {len(env.connections)} connections.")
-        mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info
-        return env
+def bootstrap(config_file: str = 'config.toml'):
+    load_dotenv('.env', override=True)
+    env.debug = '--debug' in sys.argv or get_bool_from_env('LM_PROXY_DEBUG', False)
+    setup_logging(logging.DEBUG if env.debug else logging.INFO)
+    logging.info(
+        f"Bootstrapping {ui.yellow('lm_proxy')} "
+        f"using configuration: {ui.blue(config_file)} "
+        f"{'[DEBUG: ON]' if env.debug else ''}..."
+    )
+
+    env.config = Config.load(config_file)
+    env.connections = dict()
+
+    for conn_name, conn_config in env.config.connections.items():
+        logging.info(f"Initializing '{conn_name}' connection...")
+        try:
+            mc.configure(
+                **conn_config,
+                EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
+            )
+        except mc.LLMConfigError as e:
+            raise ValueError(f"Error in configuration for connection '{conn_name}': {e}")
+
+        env.connections[conn_name] = mc.env().llm_async_function
+    logging.info(f"Done initializing {len(env.connections)} connections.")
+    mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info

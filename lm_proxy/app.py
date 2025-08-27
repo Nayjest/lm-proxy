@@ -17,14 +17,13 @@ from my_nlq.cli_app import cli_app
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
 import typer
+import uvicorn
 
-from .bootstrap import Env
+from .bootstrap import env, bootstrap
 from .config import Config
 
 
 cli_app = typer.Typer()
-config_file: str = "config.toml"
-env: Env = None
 
 
 def resolve_connection_and_model(config: Config, external_model: str) -> tuple[str, str]:
@@ -46,29 +45,22 @@ def resolve_connection_and_model(config: Config, external_model: str) -> tuple[s
     )
 
 
-# make run-server default command
+# run-server is a default command of cli-app
 @cli_app.callback(invoke_without_command=True)
 def run_server(
     config: str = typer.Option(None, help="Path to the configuration file"),
+    debug: bool = typer.Option(False, help="Enable debug mode (more verbose logging)"),
 ):
-    if config:
-        global config_file
-        config_file = config
-    from uvicorn_start import uvicorn_start
-    uvicorn_start()
+    bootstrap(config or 'config.toml')
+    uvicorn.run(
+        "lm_proxy.app:app",
+        host=env.config.host,
+        port=env.config.port,
+        reload=env.config.dev_autoreload,
+    )
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global env
-    env = Env.bootstrap(config_file)
-    yield
-
-app = FastAPI(
-    title="LM-Proxy",
-    description="OpenAI-compatible proxy server for LLM inference",
-    lifespan=lifespan,
-)
+app = FastAPI(title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference")
 
 
 class ChatCompletionRequest(BaseModel):
@@ -154,6 +146,12 @@ async def chat_completions(request: ChatCompletionRequest) -> Response:
         env.config,
         llm_params.get("model", "default_model")
     )
+    logging.debug(
+        "Resolved routing for [%s] --> connection: %s, model: %s",
+            request.model,
+            connection,
+            llm_params["model"]
+    )
     async_llm_func = env.connections[connection]
 
     logging.info("Querying LLM... params: %s", llm_params)
@@ -178,4 +176,4 @@ async def chat_completions(request: ChatCompletionRequest) -> Response:
 
 
 if __name__ == "__main__":
-    run_server()
+    cli_app()

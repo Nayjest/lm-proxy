@@ -44,3 +44,7 @@ packages = [{ include = "lm_proxy"}]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
+
+[tool.poetry.scripts]
+lm-proxy = "lm_proxy.app:cli_app"
+lm_proxy = "lm_proxy.app:cli_app"

@@ -1,7 +1,8 @@
-import os
 import sys
 import logging
+import inspect
 from datetime import datetime
+
 
 import microcore as mc
 from microcore import ui
@@ -54,13 +55,16 @@ def bootstrap(config_file: str = 'config.toml'):
     for conn_name, conn_config in env.config.connections.items():
         logging.info(f"Initializing '{conn_name}' connection...")
         try:
-            mc.configure(
-                **conn_config,
-                EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
-            )
+            if inspect.iscoroutinefunction(conn_config):
+                env.connections[conn_name] = conn_config
+            else:
+                mc.configure(
+                    **conn_config,
+                    EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
+                )
+                env.connections[conn_name] = mc.env().llm_async_function
         except mc.LLMConfigError as e:
             raise ValueError(f"Error in configuration for connection '{conn_name}': {e}")
 
-        env.connections[conn_name] = mc.env().llm_async_function
     logging.info(f"Done initializing {len(env.connections)} connections.")
     mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info

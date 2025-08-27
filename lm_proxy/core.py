@@ -140,8 +140,8 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
             },
         )
     api_key = read_api_key(raw_request)
-    group = (env.config.check_api_key)(api_key)
-    if group is None:
+    group: str | bool | None = (env.config.check_api_key)(api_key)
+    if not group:
         raise HTTPException(
             status_code=403,
             detail={

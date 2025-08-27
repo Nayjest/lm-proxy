@@ -1,0 +1,28 @@
+host="0.0.0.0"
+port=8000
+# dev_autoreload=true
+check_api_key="lm_proxy.core.check_api_key"
+[connections]
+
+[connections.openai]
+api_type = "open_ai"
+api_base = "https://api.openai.com/v1/"
+api_key  = "env:OPENAI_API_KEY"
+
+[connections.google]
+api_type = "google_ai_studio"
+api_key  = "env:GOOGLE_API_KEY"
+
+[connections.anthropic]
+api_type = "anthropic"
+api_key  = "env:ANTHROPIC_API_KEY"
+[routing]
+"gpt*" = "openai.*"
+"claude*" = "anthropic.*"
+"gemini*" = "google.*"
+"*" = "openai.gpt-5"
+[groups.default]
+api_keys = [
+    "KEY1",
+    "KEY2"
+]

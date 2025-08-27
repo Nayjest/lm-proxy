@@ -1,5 +1,6 @@
 run:
 	fastapi run lm_proxy
+	# alternative: python -m lm_proxy
 start: run
 cs:
 	flake8 .
@@ -25,3 +26,5 @@ upload: publish
 test:
 	pytest --log-cli-level=INFO
 tests: test
+integration-test:
+	pytest tests/test_integration.py -v

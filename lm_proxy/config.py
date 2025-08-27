@@ -64,7 +64,6 @@ class Config(BaseModel):
             with open(config_path, "rb") as f:
                 config_data = tomllib.load(f)
 
-
         # Process environment variables in api_key fields
         for conn_name, conn_config in config_data.get("connections", {}).items():
             for key, value in conn_config.items():

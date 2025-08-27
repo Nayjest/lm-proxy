@@ -5,3 +5,4 @@ exclude =
     __pycache__,
     .venv,
     .aico/*
+    tests

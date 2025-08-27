@@ -44,7 +44,7 @@ def test_streaming_response(server_config_fn: ServerFixture):
     configure_mc(server_config_fn)
     collected_text = []
     mc.llm(
-        "Conut from 1 to 5, each number as word on a new line",
+        "Count from 1 to 5, each number as word on a new line",
         callback=lambda chunk: collected_text.append(str(chunk).lower())
     )
     full_response = ''.join(collected_text)

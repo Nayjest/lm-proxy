@@ -4,5 +4,5 @@ exclude =
     .git,
     __pycache__,
     .venv,
-    .aico/*
+    .aico/*,
     tests

@@ -4,15 +4,14 @@ This module defines Pydantic models that match the structure of config.toml.
 """
 import os
 import tomllib
-from typing import Dict, Optional, Literal, Any, Union
 from pydantic import BaseModel, Field
-import tomllib
+
 
 class Config(BaseModel):
     """Main configuration model matching config.toml structure."""
     host: str = "0.0.0.0"
     port: int = 8000
-    connections: Dict[str, dict]
+    connections: dict[str, dict]
     routing: dict[str, str] = Field(default_factory=dict)
 
     @staticmethod

@@ -117,7 +117,7 @@ async def process_stream(async_llm_func, prompt, llm_params):
 
     try:
         # Initial chunk: role
-        yield make_chunk(delta={'role':'assistant'})
+        yield make_chunk(delta={'role': 'assistant'})
 
         while not task.done():
             try:

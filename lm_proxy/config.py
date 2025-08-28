@@ -31,6 +31,7 @@ class Config(BaseModel):
     dev_autoreload: bool = False
     connections: dict[str, Union[dict, Callable]]
     routing: dict[str, str] = Field(default_factory=dict)
+    """ model_name_pattern* => connection_name.< model | * >, example: {"gpt-*": "oai.*"} """
     groups: dict[str, Group] = Field(default_factory=dict)
     check_api_key: Union[str, Callable] = Field(default="lm_proxy.core.check_api_key")
 

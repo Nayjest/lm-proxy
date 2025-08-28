@@ -1,18 +1,20 @@
-import os
 import sys
 import pytest
 import subprocess
 import time
 import signal
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Any
+
 
 @dataclass
 class ServerFixture:
     port: int
     process: any
-    model_name: str
+    process: Any
     api_key: str
+
 
 @pytest.fixture(scope="session")
 def server_config_fn():

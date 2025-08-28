@@ -155,7 +155,7 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
             },
         )
 
-    llm_params = request.dict(exclude=['messages'], exclude_none=True)
+    llm_params = request.model_dump(exclude={'messages'}, exclude_none=True)
 
     connection, llm_params["model"] = resolve_connection_and_model(
         env.config,

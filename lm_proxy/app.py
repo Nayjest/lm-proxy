@@ -20,6 +20,7 @@ def run_server(
         host=env.config.host,
         port=env.config.port,
         reload=env.config.dev_autoreload,
+        factory=True,
     )
 
 

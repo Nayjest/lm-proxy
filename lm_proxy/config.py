@@ -7,7 +7,7 @@ from typing import Union, Callable
 import tomllib
 import importlib.util
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from microcore.utils import resolve_callable
 
 
@@ -24,6 +24,7 @@ class Group(BaseModel):
 
 class Config(BaseModel):
     """Main configuration model matching config.toml structure."""
+    model_config = ConfigDict(extra="forbid")
     enabled: bool = True
     host: str = "0.0.0.0"
     port: int = 8000
@@ -32,9 +33,6 @@ class Config(BaseModel):
     routing: dict[str, str] = Field(default_factory=dict)
     groups: dict[str, Group] = Field(default_factory=dict)
     check_api_key: Union[str, Callable] = Field(default="lm_proxy.core.check_api_key")
-
-    class Config:
-        extra = "forbid"
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -59,10 +57,11 @@ class Config(BaseModel):
             config_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(config_module)
             return config_module.config
-
         elif config_path.endswith(".toml"):
             with open(config_path, "rb") as f:
                 config_data = tomllib.load(f)
+        else:
+            raise ValueError(f"Unsupported configuration file extension: {config_path}")
 
         # Process environment variables in api_key fields
         for conn_name, conn_config in config_data.get("connections", {}).items():

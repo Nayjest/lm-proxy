@@ -35,18 +35,19 @@ class Env:
     connections: dict[str, mc.types.LLMAsyncFunctionType]
     debug: bool
 
-    def init(self, config: Config | str, debug: bool = False):
-        self.debug = debug
+    @staticmethod
+    def init(config: Config | str, debug: bool = False):
+        env.debug = debug
 
         if isinstance(config, Config):
             env.config = config
         elif isinstance(config, str):
             env.config = Config.load(config)
         else:
-            raise ValueError("config_file must be a string or Config instance")
+            raise ValueError("config must be a string (file path) or Config instance")
 
         # initialize connections
-        self.connections = dict()
+        env.connections = dict()
         for conn_name, conn_config in env.config.connections.items():
             logging.info(f"Initializing '{conn_name}' LLM proxy connection...")
             try:
@@ -57,7 +58,7 @@ class Env:
                         **conn_config,
                         EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
                     )
-                    self.connections[conn_name] = mc.env().llm_async_function
+                    env.connections[conn_name] = mc.env().llm_async_function
             except mc.LLMConfigError as e:
                 raise ValueError(f"Error in configuration for connection '{conn_name}': {e}")
 
@@ -77,4 +78,4 @@ def bootstrap(config: str | Config = 'config.toml'):
         f"using configuration: {'dynamic' if isinstance(config, Config) else ui.blue(config)} "
         f"{'[DEBUG: ON]' if debug else ''}..."
     )
-    env.init(config, debug=debug)
+    Env.init(config, debug=debug)

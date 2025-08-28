@@ -57,10 +57,11 @@ class Config(BaseModel):
             config_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(config_module)
             return config_module.config
-
         elif config_path.endswith(".toml"):
             with open(config_path, "rb") as f:
                 config_data = tomllib.load(f)
+        else:
+            raise ValueError(f"Unsupported configuration file extension: {config_path}")
 
         # Process environment variables in api_key fields
         for conn_name, conn_config in config_data.get("connections", {}).items():

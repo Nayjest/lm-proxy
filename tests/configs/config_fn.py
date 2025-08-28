@@ -8,8 +8,8 @@ sys.path.append(str(root))
 from lm_proxy.config import Config, Group  # noqa
 
 
-def check_api_key(api_key: str) -> str:
-    return "default" if api_key == "py-test" else False
+def check_api_key(api_key: str) -> str | None:
+    return "default" if api_key == "py-test" else None
 
 
 mc.configure(

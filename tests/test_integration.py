@@ -2,6 +2,7 @@ import microcore as mc
 import requests
 from tests.conftest import ServerFixture
 
+
 def configure_mc(cfg: ServerFixture):
     mc.configure(
         LLM_API_TYPE='openai',
@@ -10,11 +11,13 @@ def configure_mc(cfg: ServerFixture):
         MODEL=cfg.model_name,  # Will be routed according to test_config.toml
     )
 
+
 def test_france_capital_query(server_config_fn: ServerFixture):
     configure_mc(server_config_fn)
     response = mc.llm("What is the capital of France?\n (!) Respond with 1 word.")
     assert "paris" == response.lower().strip(), f"Expected 'Paris' in response, got: {response}"
-#
+
+
 def test_direct_api_call(server_config_fn: ServerFixture):
     """Test directly calling the API without microcore."""
     cfg = server_config_fn
@@ -35,16 +38,17 @@ def test_direct_api_call(server_config_fn: ServerFixture):
     data = response.json()
     assert "choices" in data, f"Missing 'choices' in response: {data}"
     assert len(data["choices"]) > 0, "No choices returned"
-    assert "message" in data["choices"][0], f"Missing 'message' in first choice: {data['choices'][0]}"
+    assert "message" in data["choices"][0], \
+        f"Missing 'message' in first choice: {data['choices'][0]}"
     assert "Paris" in data["choices"][0]["message"]["content"], \
-           f"Expected 'Paris' in response, got: {data['choices'][0]['message']['content']}"
+        f"Expected 'Paris' in response, got: {data['choices'][0]['message']['content']}"
 
 
 def test_streaming_response(server_config_fn: ServerFixture):
     configure_mc(server_config_fn)
     collected_text = []
     mc.llm(
-        "Count from 1 to 5, each number as word on a new line",
+        "Count from 1 to 5, each number as english word (one, two, ...) on a new line",
         callback=lambda chunk: collected_text.append(str(chunk).lower())
     )
     full_response = ''.join(collected_text)

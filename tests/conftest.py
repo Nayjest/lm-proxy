@@ -1,11 +1,11 @@
-import os
 import sys
 import pytest
 import subprocess
 import time
 import signal
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 
 @dataclass
 class ServerFixture:
@@ -13,6 +13,7 @@ class ServerFixture:
     process: any
     model_name: str
     api_key: str
+
 
 @pytest.fixture(scope="session")
 def server_config_fn():

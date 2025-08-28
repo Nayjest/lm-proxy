@@ -1,18 +1,20 @@
-import os
 import sys
 from pathlib import Path
+import microcore as mc
 
 root = Path(__file__).resolve().parents[3]
 sys.path.append(str(root))
 
-from lm_proxy.config import Config, Group
+from lm_proxy.config import Config, Group  # noqa
+
 
 def check_api_key(api_key: str) -> str:
     return "default" if api_key == "py-test" else False
 
-import microcore as mc
+
 mc.configure(
     DOT_ENV_FILE=".env",
+    EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE,
 )
 
 config = Config(

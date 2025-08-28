@@ -5,13 +5,12 @@ import time
 import signal
 from pathlib import Path
 from dataclasses import dataclass
-
-
+from typing import Any
 @dataclass
 class ServerFixture:
     port: int
     process: any
-    model_name: str
+    process: Any
     api_key: str
 
 

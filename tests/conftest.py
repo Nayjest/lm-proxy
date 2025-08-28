@@ -6,6 +6,8 @@ import signal
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
+
+
 @dataclass
 class ServerFixture:
     port: int

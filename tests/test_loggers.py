@@ -3,7 +3,7 @@ import json
 import microcore as mc
 
 from lm_proxy.core import ChatCompletionRequest
-from lm_proxy.loggers import BaseLogger, LogEntry
+from lm_proxy.loggers import LogEntry
 from lm_proxy.loggers.core import log_non_blocking
 from lm_proxy.config import Config
 from lm_proxy.bootstrap import bootstrap
@@ -41,7 +41,6 @@ async def test_custom_config():
 
 
 async def test_json(tmp_path):
-    logs = []
     bootstrap(
         Config(
             connections={},

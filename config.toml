@@ -1,7 +1,10 @@
 host="0.0.0.0"
 port=8000
 # dev_autoreload=true
+
+# Validates a Client API key against configured groups and returns the matching group.
 check_api_key="lm_proxy.core.check_api_key"
+
 [connections]
 
 [connections.openai]
@@ -16,13 +19,34 @@ api_key  = "env:GOOGLE_API_KEY"
 [connections.anthropic]
 api_type = "anthropic"
 api_key  = "env:ANTHROPIC_API_KEY"
+
 [routing]
 "gpt*" = "openai.*"
 "claude*" = "anthropic.*"
 "gemini*" = "google.*"
 "*" = "openai.gpt-5"
+
 [groups.default]
 api_keys = [
     "KEY1",
     "KEY2"
 ]
+
+# optional, logs successful LLM requests
+[[loggers]]
+class = 'lm_proxy.loggers.BaseLogger'
+[loggers.log_writer]
+class = 'lm_proxy.loggers.log_writers.JsonLogWriter'
+file_name = 'storage/json.log'
+[loggers.entry_transformer]
+class = 'lm_proxy.loggers.LogEntryTransformer'
+completion_tokens = "response.usage.completion_tokens"
+prompt_tokens = "response.usage.prompt_tokens"
+prompt = "request.messages"
+response = "response"
+group = "group"
+connection = "connection"
+api_key_id = "api_key_id"
+remote_addr = "remote_addr"
+created_at = "created_at"
+duration = "duration"

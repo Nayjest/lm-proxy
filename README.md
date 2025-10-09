@@ -112,6 +112,10 @@ api_key = "env:OPENAI_API_KEY"
 api_type = "google_ai_studio"
 api_key = "env:GOOGLE_API_KEY"
 
+[connections.anthropic]
+api_type = "anthropic"
+api_key  = "env:ANTHROPIC_API_KEY"
+
 # Routing rules (model_pattern = "connection.model")
 [routing]
 "gpt*" = "openai.*"     # Route all GPT models to OpenAI
@@ -125,6 +129,25 @@ api_keys = [
     "KEY1",
     "KEY2"
 ]
+
+# optional
+[[loggers]]
+class = 'lm_proxy.loggers.BaseLogger'
+[loggers.log_writer]
+class = 'lm_proxy.loggers.log_writers.JsonLogWriter'
+file_name = 'storage/json.log'
+[loggers.entry_transformer]
+class = 'lm_proxy.loggers.LogEntryTransformer'
+completion_tokens = "response.usage.completion_tokens"
+prompt_tokens = "response.usage.prompt_tokens"
+prompt = "request.messages"
+response = "response"
+group = "group"
+connection = "connection"
+api_key_id = "api_key_id"
+remote_addr = "remote_addr"
+created_at = "created_at"
+duration = "duration"
 ```
 
 ### Environment Variables
@@ -137,6 +160,28 @@ api_key = "env:OPENAI_API_KEY"
 ```
 
 Load these from a `.env` file or set them in your environment before starting the server.
+
+
+## 🔑 Proxy API Keys vs. Provider API Keys
+
+LM-Proxy utilizes two distinct types of API keys to facilitate secure and efficient request handling.
+
+- **Proxy API Key (Virtual API Key, Client API Key):**  
+A unique key generated and managed within the LM-Proxy.  
+Clients use these keys to authenticate their requests to the proxy's API endpoints.  
+Each Client API Key is associated with a specific group, which defines the scope of access and permissions for the client's requests.  
+These keys allow users to securely interact with the proxy without direct access to external service credentials.
+
+
+
+- **Provider API Key (Upstream API Key):**
+A key provided by external LLM inference providers (e.g., OpenAI, Anthropic, Mistral, etc.) and configured within the LM-Proxy.  
+The proxy uses these keys to authenticate and forward validated client requests to the respective external services.  
+Provider API Keys remain hidden from end users, ensuring secure and transparent communication with provider APIs.
+
+This distinction ensures a clear separation of concerns: 
+Virtual API Keys manage user authentication and access within the proxy, 
+while Upstream API Keys handle secure communication with external providers.
 
 ## 🔌 API Usage
 

@@ -1,6 +1,6 @@
 [project]
 name = "lm-proxy"
-version = "0.2.2"
+version = "0.3.0"
 description = "\"LM-Proxy\" is OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc."
 readme = "README.md"
 keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxy-server"]
@@ -43,7 +43,11 @@ package-mode = true
 packages = [{ include = "lm_proxy"}]
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.4.3"
+pytest = "~=8.4.2"
+pytest-asyncio = "~=1.2.0"
 
 [tool.poetry.scripts]
 lm-proxy = "lm_proxy.app:cli_app"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

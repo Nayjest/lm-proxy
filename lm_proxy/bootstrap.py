@@ -55,12 +55,13 @@ class Env:
                     env.connections[conn_name] = conn_config
                 else:
                     mc.configure(
-                        **conn_config,
-                        EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
+                        **conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
                     )
                     env.connections[conn_name] = mc.env().llm_async_function
             except mc.LLMConfigError as e:
-                raise ValueError(f"Error in configuration for connection '{conn_name}': {e}")
+                raise ValueError(
+                    f"Error in configuration for connection '{conn_name}': {e}"
+                )
 
         logging.info(f"Done initializing {len(env.connections)} connections.")
 
@@ -68,9 +69,9 @@ class Env:
 env = Env()
 
 
-def bootstrap(config: str | Config = 'config.toml'):
-    load_dotenv('.env', override=True)
-    debug = '--debug' in sys.argv or get_bool_from_env('LM_PROXY_DEBUG', False)
+def bootstrap(config: str | Config = "config.toml"):
+    load_dotenv(".env", override=True)
+    debug = "--debug" in sys.argv or get_bool_from_env("LM_PROXY_DEBUG", False)
     setup_logging(logging.DEBUG if debug else logging.INFO)
     mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info
     logging.info(

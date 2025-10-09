@@ -14,7 +14,7 @@ def run_server(
     config: str = typer.Option(None, help="Path to the configuration file"),
     debug: bool = typer.Option(False, help="Enable debug mode (more verbose logging)"),
 ):
-    bootstrap(config or 'config.toml')
+    bootstrap(config or "config.toml")
     uvicorn.run(
         "lm_proxy.app:web_app",
         host=env.config.host,
@@ -25,7 +25,9 @@ def run_server(
 
 
 def web_app():
-    app = FastAPI(title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference")
+    app = FastAPI(
+        title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference"
+    )
     app.add_api_route(
         path="/v1/chat/completions",
         endpoint=chat_completions,

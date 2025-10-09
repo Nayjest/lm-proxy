@@ -112,6 +112,10 @@ api_key = "env:OPENAI_API_KEY"
 api_type = "google_ai_studio"
 api_key = "env:GOOGLE_API_KEY"
 
+[connections.anthropic]
+api_type = "anthropic"
+api_key  = "env:ANTHROPIC_API_KEY"
+
 # Routing rules (model_pattern = "connection.model")
 [routing]
 "gpt*" = "openai.*"     # Route all GPT models to OpenAI
@@ -171,7 +175,7 @@ These keys allow users to securely interact with the proxy without direct access
 
 
 - **Provider API Key (Upstream API Key):**
-A key provided by external LLM inference providers (e.g., OpenAI, Anthropic, Mistral, etc) and configured within the LM-Proxy.  
+A key provided by external LLM inference providers (e.g., OpenAI, Anthropic, Mistral, etc.) and configured within the LM-Proxy.  
 The proxy uses these keys to authenticate and forward validated client requests to the respective external services.  
 Provider API Keys remain hidden from end users, ensuring secure and transparent communication with provider APIs.
 

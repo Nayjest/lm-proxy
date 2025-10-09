@@ -20,12 +20,8 @@ class LogEntry:
     connection: str = field(default=None)
     api_key_id: Optional[str] = field(default=None)
     remote_addr: Optional[str] = field(default=None)
-    created_at: Optional[str] = field(default=None)
+    created_at: Optional[datetime] = field(default_factory=datetime.now)
     duration: Optional[float] = field(default=None)
-
-    def __post_init__(self):
-        if not self.created_at:
-            self.created_at = datetime.now()
 
     def to_dict(self) -> dict:
         data = self.__dict__.copy()

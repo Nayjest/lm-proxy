@@ -12,7 +12,9 @@ class JsonLogWriter(AbstractLogWriter):
     file_name: str
 
     def __post_init__(self):
-        os.makedirs(os.path.dirname(self.file_name), exist_ok=True)
+        dir_path = os.path.dirname(self.file_name)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
         # Create the file if it doesn't exist
         with open(self.file_name, "a", encoding="utf-8"):
             pass

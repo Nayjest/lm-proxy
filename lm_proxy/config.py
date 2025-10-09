@@ -43,7 +43,7 @@ class Config(BaseModel):
     groups: dict[str, Group] = Field(default_factory=dict)
     check_api_key: Union[str, Callable] = Field(default="lm_proxy.core.check_api_key")
     loggers: list[Union[str, Callable, dict]] = Field(default_factory=list)
-    encription_key: str = Field(
+    encryption_key: str = Field(
         default="Eclipse", description="Key for encrypting sensitive data"
     )
 

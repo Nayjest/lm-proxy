@@ -11,7 +11,6 @@ from typing import Any
 @dataclass
 class ServerFixture:
     port: int
-    process: any
     process: Any
     api_key: str
     model: str = field(default=None)

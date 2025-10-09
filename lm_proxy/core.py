@@ -146,7 +146,7 @@ def api_key_id(api_key: Optional[str]) -> str | None:
     if not api_key:
         return None
     return hashlib.md5(
-        (api_key + env.config.encription_key).encode("utf-8")
+        (api_key + env.config.encryption_key).encode("utf-8")
     ).hexdigest()
 
 

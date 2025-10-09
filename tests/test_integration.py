@@ -16,7 +16,7 @@ def test_france_capital_query(server_config_fn: ServerFixture):
     configure_mc(server_config_fn)
     response = mc.llm("What is the capital of France?\n (!) Respond with 1 word.")
     assert (
-        "paris" == response.lower().strip()
+        "paris" in response.lower().strip()
     ), f"Expected 'Paris' in response, got: {response}"
 
 

@@ -21,13 +21,9 @@ config = Config(
     port=8123,
     host="127.0.0.1",
     check_api_key=check_api_key,
-    connections={
-        "py_oai": mc.env().llm_async_function
-    },
+    connections={"py_oai": mc.env().llm_async_function},
     routing={
         "*": "py_oai.gpt-3.5-turbo",
     },
-    groups={
-        "default": Group(connections="*")
-    }
+    groups={"default": Group(connections="*")},
 )

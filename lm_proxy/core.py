@@ -149,9 +149,9 @@ def read_api_key(request: Request) -> str:
     return ""
 
 
-def check_api_key(api_key: Optional[str]) -> Optional[Group]:
+def check_api_key(api_key: Optional[str]) -> Optional[str]:
     """
-    Validates an Client API key against configured groups and returns the matching group.
+    Validates an Client API key against configured groups and returns the matching group name.
 
     Args:
         api_key (Optional[str]): The Virtual / Client API key to validate.

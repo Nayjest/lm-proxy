@@ -10,6 +10,29 @@
 **LM-Proxy** is an OpenAI-compatible HTTP proxy server for various Large Language Models (LLMs) inference. 
 It provides a unified interface for working with different AI providers through a single API endpoint that follows the OpenAI format.
 Stream like OpenAI, authenticate with your own API keys, and keep clients unchanged.
+
+## Table of Contents
+- [Features](#-features)
+- [Getting Started](#-getting-started)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+- [Configuration](#-configuration)
+  - [Basic Structure](#basic-structure)
+  - [Environment Variables](#environment-variables)
+- [Proxy API Keys vs. Provider API Keys](#-proxy-api-keys-vs-provider-api-keys)
+- [API Usage](#-api-usage)
+  - [Chat Completions Endpoint](#chat-completions-endpoint)
+  - [Models List Endpoint](#models-list-endpoint)
+- [User Groups Configuration](#-user-groups-configuration)
+  - [Basic Group Definition](#basic-group-definition)
+  - [Group-based Access Control](#group-based-access-control)
+  - [Connection Restrictions](#connection-restrictions)
+  - [Custom API Key Validation](#custom-api-key-validation)
+- [Advanced Usage](#-advanced-usage)
+  - [Dynamic Model Routing](#dynamic-model-routing)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## ✨ Features
 
 - **Provider Agnostic**: Connect to OpenAI, Anthropic, Google AI, local models, and more using a single API
@@ -273,12 +296,17 @@ api_key  = "env:ANTHROPIC_API_KEY"
   "object": "list",
   "data": [
     {
-      "id": "<model-name>",
+      "id": "gpt-6",
       "object": "model",
       "created": 1686935002,
       "owned_by": "organization-owner"
     },
-    ...
+    {
+      "id": "claude-5-sonnet",
+      "object": "model",
+      "created": 1686935002,
+      "owned_by": "organization-owner"
+    }
   ],
 }
 ```

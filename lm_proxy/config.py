@@ -37,7 +37,8 @@ class Group(BaseModel):
         """Check if the group allows access to the specified connection."""
         if self.allowed_connections == "*":
             return True
-        return connection_name in self.allowed_connections
+        allowed = [c.strip() for c in self.allowed_connections.split(",") if c.strip()]
+        return connection_name in allowed
 
 
 class Config(BaseModel):

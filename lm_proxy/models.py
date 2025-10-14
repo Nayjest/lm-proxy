@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 
 from .bootstrap import env
 from .core import check, parse_routing_rule
-from .config import ModelListingMode
+from .config import ModelListingMode, Group
 
 
 async def models(request: Request) -> JSONResponse:

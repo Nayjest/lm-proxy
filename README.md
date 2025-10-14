@@ -250,7 +250,13 @@ POST /v1/chat/completions
 
 ### Models List Endpoint
 
+
 List and describe all models available through the API.
+
+
+```http
+GET /v1/models
+```
 
 The **LM-proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
 Routing keys can reference both **exact model names** and **model name patterns** (e.g., `"gpt*"`, `"claude*"`, etc.).

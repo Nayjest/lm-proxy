@@ -307,7 +307,7 @@ api_key  = "env:ANTHROPIC_API_KEY"
       "created": 1686935002,
       "owned_by": "organization-owner"
     }
-  ],
+  ]
 }
 ```
 

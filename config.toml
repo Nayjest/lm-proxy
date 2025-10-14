@@ -1,3 +1,5 @@
+# This is configuration example
+
 host="0.0.0.0"
 port=8000
 # dev_autoreload=true

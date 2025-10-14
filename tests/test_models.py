@@ -1,14 +1,9 @@
 import json
 
-import microcore as mc
 from starlette.requests import Request
 
-from lm_proxy.core import ChatCompletionRequest
-from lm_proxy.loggers import LogEntry
-from lm_proxy.loggers.core import log_non_blocking
 from lm_proxy.config import Config, ModelListingMode
 from lm_proxy.bootstrap import bootstrap
-from lm_proxy.utils import CustomJsonEncoder
 from lm_proxy.models import models
 from lm_proxy.bootstrap import env
 
@@ -18,7 +13,7 @@ async def test_models_endpoint():
         return "dummy response"
 
     bootstrap(
-        config := Config(
+        Config(
             connections={
                 "A": dummy_inference,
                 "B": dummy_inference,

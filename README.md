@@ -212,7 +212,7 @@ LM-Proxy implements the OpenAI chat completions API endpoint. You can use any Op
 
 ### Chat Completions Endpoint
 
-```
+```http
 POST /v1/chat/completions
 ```
 

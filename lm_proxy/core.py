@@ -15,7 +15,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response, StreamingResponse
 
 from .bootstrap import env
-from .config import Config, Group
+from .config import Config
 from .loggers import log_non_blocking
 from .utils import get_client_ip
 
@@ -156,7 +156,7 @@ def check_api_key(api_key: Optional[str]) -> Optional[str]:
     Args:
         api_key (Optional[str]): The Virtual / Client API key to validate.
     Returns:
-        Optional[Group]: The Group object if the API key is valid and found in a group,
+        Optional[str]: The group name if the API key is valid and found in a group,
         None otherwise.
     """
     for group_name, group in env.config.groups.items():

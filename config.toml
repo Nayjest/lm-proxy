@@ -5,6 +5,8 @@ port=8000
 # Validates a Client API key against configured groups and returns the matching group.
 check_api_key="lm_proxy.core.check_api_key"
 
+model_listing_mode = "as_is"
+
 [connections]
 
 [connections.openai]

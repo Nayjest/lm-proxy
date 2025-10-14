@@ -283,12 +283,58 @@ api_key  = "env:ANTHROPIC_API_KEY"
 }
 ```
 
+## 🔒 User Groups Configuration
 
-## 🛠️ Advanced Usage
+The `[groups]` section in the configuration defines access control rules for different user groups.  
+Each group can have its own set of virtual API keys and permitted connections.
+
+### Basic Group Definition
+
+```toml
+[groups.default]
+api_keys = ["KEY1", "KEY2"]
+allowed_connections = "*"  # Allow access to all connections
+```
+
+### Group-based Access Control
+
+You can create multiple groups to segment your users and control their access:
+
+```toml
+# Admin group with full access
+[groups.admin]
+api_keys = ["ADMIN_KEY_1", "ADMIN_KEY_2"]
+allowed_connections = "*"  # Access to all connections
+
+# Regular users with limited access
+[groups.users]
+api_keys = ["USER_KEY_1", "USER_KEY_2"]
+allowed_connections = "openai,anthropic"  # Only allowed to use specific connections
+
+# Free tier with minimal access
+[groups.free]
+api_keys = ["FREE_KEY_1", "FREE_KEY_2"]
+allowed_connections = "openai"  # Only allowed to use OpenAI connection
+```
+
+### Connection Restrictions
+
+The `allowed_connections` parameter controls which upstream providers a group can access:
+
+- `"*"` - Group can use all configured connections
+- `"openai,anthropic"` - Comma-separated list of specific connections the group can use
+
+This allows fine-grained control over which users can access which AI providers, enabling features like:
+
+- Restricting expensive models to premium users
+- Creating specialized access tiers for different user groups
+- Implementing usage quotas per group
+- Billing and cost allocation by user group
 
 ### Custom API Key Validation
 
-You can implement your own API key validation function:
+For more advanced authentication needs,
+you can implement a custom validator function:
 
 ```python
 # my_validators.py
@@ -314,7 +360,11 @@ Then reference it in your config:
 ```toml
 check_api_key = "my_validators.validate_api_key"
 ```
+> **NOTE**
+> In this case, the `api_keys` lists in groups are ignored, and the custom function is responsible for all validation logic.
 
+
+## 🛠️ Advanced Usage
 ### Dynamic Model Routing
 
 The routing section allows flexible pattern matching with wildcards:

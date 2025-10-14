@@ -22,8 +22,6 @@ config = Config(
     host="127.0.0.1",
     check_api_key=check_api_key,
     connections={"py_oai": mc.env().llm_async_function},
-    routing={
-        "*": "py_oai.gpt-3.5-turbo",
-    },
+    routing={"*": "py_oai.gpt-3.5-turbo", "my-gpt": "py_oai.gpt-3.5-turbo"},
     groups={"default": Group(connections="*")},
 )

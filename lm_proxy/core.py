@@ -34,18 +34,41 @@ class ChatCompletionRequest(BaseModel):
     user: Optional[str] = None
 
 
+def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
+    """
+    Parses a routing rule in the format 'connection.model' or 'connection.*'.
+    Returns a tuple of (connection_name, model_part).
+    Args:
+        rule (str): The routing rule string.
+        config (Config): The configuration object containing defined connections.
+    Raises:
+        ValueError: If the rule format is invalid or the connection is unknown.
+    """
+    if "." not in rule:
+        raise ValueError(
+            f"Invalid routing rule '{rule}'. Expected format: 'connection.model' or 'connection.*'"
+        )
+    connection_name, model_part = rule.split(".", 1)
+    if connection_name not in config.connections:
+        raise ValueError(
+            f"Routing selected unknown connection '{connection_name}'. "
+            f"Defined connections: {', '.join(config.connections.keys()) or '(none)'}"
+        )
+    return connection_name, model_part
+
+
 def resolve_connection_and_model(
     config: Config, external_model: str
 ) -> tuple[str, str]:
+    """
+    Resolves the connection name and model name based on routing rules.
+    Args:
+        config (Config): The configuration object containing routing rules.
+        external_model (str): The external model name from the request.
+    """
     for model_match, rule in config.routing.items():
         if fnmatch.fnmatchcase(external_model, model_match):
-            connection_name, model_part = rule.split(".", 1)
-            if connection_name not in config.connections:
-                raise ValueError(
-                    f"Routing selected unknown connection '{connection_name}'. "
-                    f"Defined connections: {', '.join(config.connections.keys()) or '(none)'}"
-                )
-
+            connection_name, model_part = parse_routing_rule(rule, config)
             resolved_model = external_model if model_part == "*" else model_part
             return connection_name, resolved_model
 
@@ -150,12 +173,15 @@ def api_key_id(api_key: Optional[str]) -> str | None:
     ).hexdigest()
 
 
-async def chat_completions(
-    request: ChatCompletionRequest, raw_request: Request
-) -> Response:
+async def check(request: Request) -> tuple[str, str]:
     """
-    Endpoint for chat completions that mimics OpenAI's API structure.
-    Streams the response from the LLM using microcore.
+    API key and service availability check for endpoints.
+    Args:
+        request (Request): The incoming HTTP request object.
+    Returns:
+        tuple[str, str]: A tuple containing the group name and the API key.
+    Raises:
+        HTTPException: If the service is disabled or the API key is invalid.
     """
     if not env.config.enabled:
         raise HTTPException(
@@ -169,14 +195,8 @@ async def chat_completions(
                 }
             },
         )
-    api_key = read_api_key(raw_request)
+    api_key = read_api_key(request)
     group: str | bool | None = (env.config.check_api_key)(api_key)
-    log_entry = LogEntry(
-        request=request,
-        api_key_id=api_key_id(api_key),
-        group=group if isinstance(group, str) else None,
-        remote_addr=get_client_ip(raw_request),
-    )
     if not group:
         raise HTTPException(
             status_code=403,
@@ -190,13 +210,28 @@ async def chat_completions(
                 }
             },
         )
+    return group, api_key
 
+
+async def chat_completions(
+    request: ChatCompletionRequest, raw_request: Request
+) -> Response:
+    """
+    Endpoint for chat completions that mimics OpenAI's API structure.
+    Streams the response from the LLM using microcore.
+    """
+    group, api_key = await check(raw_request)
     llm_params = request.model_dump(exclude={"messages"}, exclude_none=True)
-
     connection, llm_params["model"] = resolve_connection_and_model(
         env.config, llm_params.get("model", "default_model")
     )
-    log_entry.connection = connection
+    log_entry = LogEntry(
+        request=request,
+        api_key_id=api_key_id(api_key),
+        group=group if isinstance(group, str) else None,
+        remote_addr=get_client_ip(raw_request),
+        connection=connection,
+    )
     logging.debug(
         "Resolved routing for [%s] --> connection: %s, model: %s",
         request.model,

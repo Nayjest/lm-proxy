@@ -187,13 +187,13 @@ while Upstream API Keys handle secure communication with external providers.
 
 LM-Proxy implements the OpenAI chat completions API endpoint. You can use any OpenAI-compatible client to interact with it.
 
-### Endpoint
+### Chat Completions Endpoint
 
 ```
 POST /v1/chat/completions
 ```
 
-### Request Format
+#### Request Format
 
 ```json
 {
@@ -207,7 +207,7 @@ POST /v1/chat/completions
 }
 ```
 
-### Response Format
+#### Response Format
 
 ```json
 {
@@ -223,6 +223,66 @@ POST /v1/chat/completions
   ]
 }
 ```
+
+
+### Models List Endpoint
+
+List and describe all models available through the API.
+
+The **LM-proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
+Routing keys can reference both **exact model names** and **model name patterns** (e.g., `"gpt*"`, `"claude*"`, etc.).
+
+By default, wildcard patterns are displayed as-is in the models list (e.g., `"gpt*"`, `"claude*"`).  
+This behavior can be customized via the `model_listing_mode` configuration option:
+
+```
+model_listing_mode = "as_is" | "ignore_wildcards" | "expand_wildcards"
+```
+
+Available modes:
+
+- **`as_is`** *(default)* — Lists all entries exactly as defined in the routing configuration, including wildcard patterns.  
+- **`ignore_wildcards`** — Excludes wildcard patterns, showing only explicitly defined model names.  
+- **`expand_wildcards`** — Expands wildcard patterns by querying each connected backend for available models *(feature not yet implemented)*.
+
+To obtain a complete and accurate model list in the current implementation,
+all supported models must be explicitly defined in the routing configuration, for example:
+```toml
+[routing]
+"gpt-4" = "my_openai_connection.*"
+"gpt-5" = "my_openai_connection.*"
+"gpt-8"= "my_openai_connection.gpt-3.5-turbo"
+"claude-4.5-sonnet" = "my_anthropic_connection.claude-sonnet-4-5-20250929"
+"claude-4.1-opus" = "my_anthropic_connection.claude-opus-4-1-20250805"
+[connections]
+[connections.my_openai_connection]
+api_type = "open_ai"
+api_base = "https://api.openai.com/v1/"
+api_key  = "env:OPENAI_API_KEY"
+[connections.my_anthropic_connection]
+api_type = "anthropic"
+api_key  = "env:ANTHROPIC_API_KEY"
+```
+
+
+
+#### Response Format
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "<model-name>",
+      "object": "model",
+      "created": 1686935002,
+      "owned_by": "organization-owner"
+    },
+    ...
+  ],
+}
+```
+
 
 ## 🛠️ Advanced Usage
 

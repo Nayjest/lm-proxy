@@ -4,6 +4,7 @@ import uvicorn
 
 from .bootstrap import env, bootstrap
 from .core import chat_completions
+from .models import models
 
 cli_app = typer.Typer()
 
@@ -32,6 +33,11 @@ def web_app():
         path="/v1/chat/completions",
         endpoint=chat_completions,
         methods=["POST"],
+    )
+    app.add_api_route(
+        path="/v1/models",
+        endpoint=models,
+        methods=["GET"],
     )
     return app
 

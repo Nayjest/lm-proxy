@@ -61,3 +61,15 @@ def test_streaming_response(server_config_fn: ServerFixture):
     for i in ["one", "two", "three", "four", "five"]:
         assert i in full_response, f"Expected '{i}' in response, got: {full_response}"
     assert len(collected_text) >= 1
+
+
+def test_models(server_config_fn: ServerFixture):
+    """Test directly calling the API without microcore."""
+    cfg = server_config_fn
+    from openai import OpenAI
+
+    client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
+    models = client.models.list()
+    assert len(models.data) == 2, "Wrong models returned"
+    model_ids = {model.id for model in models.data}
+    assert model_ids == {"my-gpt", "*"}

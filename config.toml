@@ -1,9 +1,13 @@
+# This is a lm-proxy configuration example
+
 host="0.0.0.0"
 port=8000
 # dev_autoreload=true
 
 # Validates a Client API key against configured groups and returns the matching group.
 check_api_key="lm_proxy.core.check_api_key"
+
+model_listing_mode = "as_is"
 
 [connections]
 

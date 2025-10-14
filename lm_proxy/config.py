@@ -4,6 +4,7 @@ This module defines Pydantic models that match the structure of config.toml.
 """
 
 import os
+from enum import StrEnum
 from typing import Union, Callable
 import tomllib
 import importlib.util
@@ -14,6 +15,20 @@ from microcore.utils import resolve_callable
 from .utils import resolve_instance_or_callable
 
 
+class ModelListingMode(StrEnum):
+    """
+    Enum for model listing modes in the /v1/models endpoint.
+    """
+
+    # Show all models from API provider matching the patterns (not implemented yet)
+    EXPAND_WILDCARDS = "expand_wildcards"
+    # Ignore wildcard models, show only exact model names
+    # (keys of the config.routing dict not containing * or ?)
+    IGNORE_WILDCARDS = "ignore_wildcards"
+    # Show everything as is, including wildcard patterns
+    AS_IS = "as_is"
+
+
 class Group(BaseModel):
     api_keys: list[str] = Field(default_factory=list)
     allowed_connections: str = Field(default="*")  # Comma-separated list or "*"
@@ -22,7 +37,8 @@ class Group(BaseModel):
         """Check if the group allows access to the specified connection."""
         if self.allowed_connections == "*":
             return True
-        return connection_name in self.allowed_connections
+        allowed = [c.strip() for c in self.allowed_connections.split(",") if c.strip()]
+        return connection_name in allowed
 
 
 class Config(BaseModel):
@@ -44,7 +60,11 @@ class Config(BaseModel):
     check_api_key: Union[str, Callable] = Field(default="lm_proxy.core.check_api_key")
     loggers: list[Union[str, Callable, dict]] = Field(default_factory=list)
     encryption_key: str = Field(
-        default="Eclipse", description="Key for encrypting sensitive data"
+        default="Eclipse", description="Key for encrypting sensitive data (must be explicitly set)"
+    )
+    model_listing_mode: ModelListingMode = Field(
+        default=ModelListingMode.AS_IS,
+        description="How to handle wildcard models in /v1/models endpoint",
     )
 
     def __init__(self, **data):

@@ -1,3 +1,7 @@
+<h1 align="center"><a href="#">LM-Proxy</a></h1>
+<p align="center">
+  <b>Lightweight, OpenAI-compatible HTTP proxy server</b><br>unifying access to multiple <b>Large Language Model providers</b> and local inference <br>through a single, standardized API endpoint.  
+</p>
 <p align="center">
   <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>
   <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
@@ -6,16 +10,11 @@
   <a href="https://github.com/Nayjest/lm-proxy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Nayjest/lm-proxy?color=d08aff" alt="License"></a>
 </p>
 
-
-# LM-Proxy
-
-**LM-Proxy** is a lightweight, OpenAI-compatible HTTP proxy server that unifies access to multiple Large Language Model providers and local inference through a single, standardized API endpoint.  
-
-Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microcore), it seamlessly integrates cloud providers like Google, Anthropic, and OpenAI, as well as local PyTorch-based inference, while maintaining full compatibility with OpenAI's API format.  
+Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microcore), **LM-Proxy** seamlessly integrates cloud providers like Google, Anthropic, and OpenAI, as well as local PyTorch-based inference, while maintaining full compatibility with OpenAI's API format.  
 
 It works as a drop-in replacement for OpenAI's API, allowing you to switch between cloud providers and local models without modifying your existing client code.  
 
-LM-Proxy supports real-time token streaming, secure API key management for cloud providers, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase provider-agnostic.
+**LM-Proxy** supports **real-time token streaming**, **secure Virual API key management**, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase **provider-agnostic**.
 
 
 ## Table of Contents

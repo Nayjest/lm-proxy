@@ -1,6 +1,6 @@
 [project]
 name = "lm-proxy"
-version = "1.0.0"
+version = "1.1.0"
 description = "\"LM-Proxy\" is OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc."
 readme = "README.md"
 keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxy-server"]

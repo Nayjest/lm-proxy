@@ -1,3 +1,5 @@
+import logging
+from typing import Optional
 from fastapi import FastAPI
 import typer
 import uvicorn
@@ -12,17 +14,33 @@ cli_app = typer.Typer()
 # run-server is a default command of cli-app
 @cli_app.callback(invoke_without_command=True)
 def run_server(
-    config: str = typer.Option(None, help="Path to the configuration file"),
-    debug: bool = typer.Option(False, help="Enable debug mode (more verbose logging)"),
+    config: Optional[str] = typer.Option(None, help="Path to the configuration file"),
+    debug: Optional[bool] = typer.Option(
+        None, help="Enable debug mode (more verbose logging)"
+    ),
+    env_file: Optional[str] = typer.Option(
+        ".env",
+        "--env",
+        "--env-file",
+        "--env_file",
+        help="Set the .env file to load ENV vars from",
+    ),
 ):
-    bootstrap(config or "config.toml")
-    uvicorn.run(
-        "lm_proxy.app:web_app",
-        host=env.config.host,
-        port=env.config.port,
-        reload=env.config.dev_autoreload,
-        factory=True,
-    )
+    try:
+        bootstrap(config=config or "config.toml", env_file=env_file, debug=debug)
+        uvicorn.run(
+            "lm_proxy.app:web_app",
+            host=env.config.host,
+            port=env.config.port,
+            reload=env.config.dev_autoreload,
+            factory=True,
+        )
+    except Exception as e:
+        if env.debug:
+            raise
+        else:
+            logging.error(e)
+            raise typer.Exit(code=1)
 
 
 def web_app():

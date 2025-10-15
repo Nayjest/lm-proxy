@@ -1,6 +1,7 @@
 """
 Models list endpoint
 """
+
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 

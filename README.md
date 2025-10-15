@@ -14,7 +14,7 @@ Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microco
 
 It works as a drop-in replacement for OpenAI's API, allowing you to switch between cloud providers and local models without modifying your existing client code.  
 
-**LM-Proxy** supports **real-time token streaming**, **secure Virual API key management**, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase **provider-agnostic**.
+**LM-Proxy** supports **real-time token streaming**, **secure Virtual API key management**, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase **provider-agnostic**.
 
 
 ## Table of Contents
@@ -191,15 +191,43 @@ duration = "duration"
 
 ### Environment Variables
 
-You can use environment variables in your configuration file by prefixing values with `env:`:
+You can reference environment variables in your configuration file by prefixing values with `env:`.  
+
+For example:
 
 ```toml
 [connections.openai]
 api_key = "env:OPENAI_API_KEY"
 ```
 
-Load these from a `.env` file or set them in your environment before starting the server.
+At runtime, LM-Proxy automatically retrieves the value of the target variable
+(OPENAI_API_KEY) from your operating system’s environment or from a .env file, if present.
 
+###  .env Files
+
+By default, LM-Proxy looks for a `.env` file in the current working directory
+and loads environment variables from it.
+
+You can refer to the [.env.template](https://github.com/Nayjest/lm-proxy/blob/main/.env.template)
+ file for an example:
+```dotenv
+OPENAI_API_KEY=sk-u........
+GOOGLE_API_KEY=AI........
+ANTHROPIC_API_KEY=sk-ant-api03--vE........
+
+# "1", "TRUE", "YES", "ON", "ENABLED", "Y", "+" are true, case-insensitive.
+# See https://github.com/Nayjest/ai-microcore/blob/v4.4.3/microcore/configuration.py#L36
+LM_PROXY_DEBUG=no
+```
+
+You can also control `.env` file usage with the `--env` command-line option:
+
+```bash
+# Use a custom .env file path
+lm-proxy --env="path/to/your/.env"
+# Disable .env loading
+lm-proxy --env=""
+```
 
 ## 🔑 Proxy API Keys vs. Provider API Keys
 
@@ -274,7 +302,7 @@ List and describe all models available through the API.
 GET /v1/models
 ```
 
-The **LM-proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
+The **LM-Proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
 Routing keys can reference both **exact model names** and **model name patterns** (e.g., `"gpt*"`, `"claude*"`, etc.).
 
 By default, wildcard patterns are displayed as-is in the models list (e.g., `"gpt*"`, `"claude*"`).  

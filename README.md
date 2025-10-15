@@ -273,7 +273,7 @@ List and describe all models available through the API.
 GET /v1/models
 ```
 
-The **LM-proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
+The **LM-Proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
 Routing keys can reference both **exact model names** and **model name patterns** (e.g., `"gpt*"`, `"claude*"`, etc.).
 
 By default, wildcard patterns are displayed as-is in the models list (e.g., `"gpt*"`, `"claude*"`).  

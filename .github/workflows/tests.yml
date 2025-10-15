@@ -31,3 +31,34 @@ jobs:
         LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         pytest
+    
+        - name: Test with pytest
+      if: matrix.python-version != '3.13'
+      env:
+        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        pytest
+    - name: Test with pytest +coverage
+      if: matrix.python-version == '3.13'
+      env:
+        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        pytest --cov=lm_proxy --cov-report=xml
+    - name: Generate coverage badge
+      if: matrix.python-version == '3.13' && (github.event_name == 'push' || github.event_name == 'pull_request')
+      uses: tj-actions/coverage-badge-py@v2
+      with:
+        output: 'coverage.svg'
+    - name: Commit coverage badge
+      if: matrix.python-version == '3.13' && (github.event_name == 'push' || github.event_name == 'pull_request')
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin
+        git checkout ${{ github.head_ref || github.ref_name }} --
+        git add coverage.svg
+        git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

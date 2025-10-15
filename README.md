@@ -17,6 +17,7 @@ LM-Proxy supports real-time token streaming, secure API key management for cloud
 
 
 ## Table of Contents
+- [Overview](#lm-proxy)
 - [Features](#-features)
 - [Getting Started](#-getting-started)
   - [Installation](#installation)

@@ -1,9 +1,11 @@
 <p align="center">
-  <img src="https://img.shields.io/github/license/Nayjest/lm-proxy?color=blue" alt="License">
   <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>
   <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <img src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/coverage.svg" alt="Code Coverage">
   <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml/badge.svg" alt="Code Style"></a>
+  <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>
 </p>
+
 
 # LM-Proxy
 

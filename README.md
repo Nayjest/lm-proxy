@@ -456,6 +456,11 @@ The routing section allows flexible pattern matching with wildcards:
 "custom*" = "local.llama-7b"        # Map any "custom*" to a specific local model
 "*" = "openai.gpt-3.5-turbo"        # Default fallback for unmatched models
 ```
+### Advanced Configuration Examples
+
+- [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
+  This example demonstrates how to set up a load balancer that randomly
+distributes requests across multiple language model servers using the lm_proxy.
 
 ## 🤝 Contributing
 

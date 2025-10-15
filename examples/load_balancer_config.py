@@ -12,6 +12,7 @@ Steps to run:
 lm-proxy --config load_balancer_config.py
 ```
 """
+
 import logging
 import os
 import random
@@ -19,7 +20,8 @@ from dotenv import load_dotenv
 from lm_proxy.config import Config, Group
 from lm_proxy.bootstrap import env
 
-load_dotenv('.env')
+load_dotenv(".env")
+
 
 async def load_balancer(*args, **kwargs):
     connection_name = random.choice(
@@ -28,6 +30,7 @@ async def load_balancer(*args, **kwargs):
     logging.info(f"Load balancer selected connection: {connection_name}")
     kwargs.pop("model", None)  # remove model to avoid confusion
     return await env.connections[connection_name](*args, **kwargs)
+
 
 config = Config(
     connections=dict(
@@ -42,7 +45,7 @@ config = Config(
             "api_type": "anthropic",
             "api_key": os.getenv("ANTHROPIC_API_KEY"),
             "model": "claude-3-5-haiku-20241022",
-        }
+        },
     ),
     routing={"*": "load_balancer.*"},
     groups=dict(default=Group(connections="load_balancer", api_keys=["KEY1"])),

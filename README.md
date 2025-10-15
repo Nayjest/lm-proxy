@@ -33,7 +33,7 @@ LM-Proxy supports real-time token streaming, secure API key management for cloud
   - [Group-based Access Control](#group-based-access-control)
   - [Connection Restrictions](#connection-restrictions)
   - [Custom API Key Validation](#custom-api-key-validation)
-- [Advanced Usage](#advanced-usage)
+- [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
 - [Contributing](#-contributing)
 - [License](#-license)

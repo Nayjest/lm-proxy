@@ -37,6 +37,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Custom API Key Validation](#custom-api-key-validation)
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
+  - [Load Balancing Example](#load-balancing-example)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -456,6 +457,11 @@ The routing section allows flexible pattern matching with wildcards:
 "custom*" = "local.llama-7b"        # Map any "custom*" to a specific local model
 "*" = "openai.gpt-3.5-turbo"        # Default fallback for unmatched models
 ```
+### Load Balancing Example
+
+- [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
+  This example demonstrates how to set up a load balancer that randomly
+distributes requests across multiple language model servers using the lm_proxy.
 
 ## 🤝 Contributing
 

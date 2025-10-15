@@ -86,6 +86,8 @@ api_key = "env:ANTHROPIC_API_KEY"
 [groups.default]
 api_keys = ["YOUR_API_KEY_HERE"]
 ```
+> **Note**
+> To enhance security, consider storing upstream API keys in operating system environment variables rather than embedding them directly in the configuration file. You can reference these variables in the configuration using the env:<VAR_NAME> syntax.
 
 #### 2. Start the server:
 

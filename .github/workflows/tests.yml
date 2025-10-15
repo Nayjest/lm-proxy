@@ -27,12 +27,6 @@ jobs:
         poetry install
         echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
     - name: Test with pytest
-      env:
-        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      run: |
-        pytest
-    
-        - name: Test with pytest
       if: matrix.python-version != '3.13'
       env:
         LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}

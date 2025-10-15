@@ -69,14 +69,18 @@ class Env:
 env = Env()
 
 
-def bootstrap(config: str | Config = "config.toml"):
-    load_dotenv(".env", override=True)
-    debug = "--debug" in sys.argv or get_bool_from_env("LM_PROXY_DEBUG", False)
+def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debug=None):
+    if env_file:
+        load_dotenv(env_file, override=True)
+    if debug is None:
+        debug = "--debug" in sys.argv or get_bool_from_env("LM_PROXY_DEBUG", False)
     setup_logging(logging.DEBUG if debug else logging.INFO)
     mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info
     logging.info(
-        f"Bootstrapping {ui.yellow('lm_proxy')} "
-        f"using configuration: {'dynamic' if isinstance(config, Config) else ui.blue(config)} "
-        f"{'[DEBUG: ON]' if debug else ''}..."
+        f"Bootstrapping {ui.yellow('lm_proxy')}: "
+        f"config_file={'dynamic' if isinstance(config, Config) else ui.blue(config)}"
+        f"{' debug=on' if debug else ''}"
+        f"{' env_file=' + ui.blue(env_file) if env_file else ''}"
+        f"..."
     )
     Env.init(config, debug=debug)

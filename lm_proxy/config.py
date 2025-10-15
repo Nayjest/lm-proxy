@@ -60,7 +60,8 @@ class Config(BaseModel):
     check_api_key: Union[str, Callable] = Field(default="lm_proxy.core.check_api_key")
     loggers: list[Union[str, Callable, dict]] = Field(default_factory=list)
     encryption_key: str = Field(
-        default="Eclipse", description="Key for encrypting sensitive data (must be explicitly set)"
+        default="Eclipse",
+        description="Key for encrypting sensitive data (must be explicitly set)",
     )
     model_listing_mode: ModelListingMode = Field(
         default=ModelListingMode.AS_IS,

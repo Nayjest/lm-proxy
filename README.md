@@ -14,7 +14,7 @@ Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microco
 
 It works as a drop-in replacement for OpenAI's API, allowing you to switch between cloud providers and local models without modifying your existing client code.  
 
-**LM-Proxy** supports **real-time token streaming**, **secure Virual API key management**, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase **provider-agnostic**.
+**LM-Proxy** supports **real-time token streaming**, **secure Virtual API key management**, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase **provider-agnostic**.
 
 
 ## Table of Contents
@@ -200,8 +200,8 @@ For example:
 api_key = "env:OPENAI_API_KEY"
 ```
 
-At runtime, LM-Proxy automatically retrieves the value of target variable
-(OPENAI_API_KEY) from your operating system’s environment or from a .env file if present.
+At runtime, LM-Proxy automatically retrieves the value of the target variable
+(OPENAI_API_KEY) from your operating system’s environment or from a .env file, if present.
 
 ###  .env Files
 
@@ -302,7 +302,7 @@ List and describe all models available through the API.
 GET /v1/models
 ```
 
-The **LM-proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
+The **LM-Proxy** dynamically builds the models list based on routing rules defined in `config.routing`.  
 Routing keys can reference both **exact model names** and **model name patterns** (e.g., `"gpt*"`, `"claude*"`, etc.).
 
 By default, wildcard patterns are displayed as-is in the models list (e.g., `"gpt*"`, `"claude*"`).  

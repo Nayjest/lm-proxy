@@ -7,9 +7,14 @@
 
 # LM-Proxy
 
-**LM-Proxy** is an OpenAI-compatible HTTP proxy server for various Large Language Models (LLMs) inference. 
-It provides a unified interface for working with different AI providers through a single API endpoint that follows the OpenAI format.
-Stream like OpenAI, authenticate with your own API keys, and keep clients unchanged.
+**LM-Proxy** is a lightweight, OpenAI-compatible HTTP proxy server that unifies access to multiple Large Language Model providers and local inference through a single, standardized API endpoint.  
+
+Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microcore), it seamlessly integrates cloud providers like Google, Anthropic, and OpenAI, as well as local PyTorch-based inference, while maintaining full compatibility with OpenAI's API format.  
+
+It works as a drop-in replacement for OpenAI's API, allowing you to switch between cloud providers and local models without modifying your existing client code.  
+
+LM-Proxy supports real-time token streaming, secure API key management for cloud providers, and can be used both as an importable Python library and as a standalone HTTP service. Whether you're building production applications or experimenting with different models, LM-Proxy eliminates integration complexity and keeps your codebase provider-agnostic.
+
 
 ## Table of Contents
 - [Features](#-features)
@@ -28,7 +33,7 @@ Stream like OpenAI, authenticate with your own API keys, and keep clients unchan
   - [Group-based Access Control](#group-based-access-control)
   - [Connection Restrictions](#connection-restrictions)
   - [Custom API Key Validation](#custom-api-key-validation)
-- [Advanced Usage](#-advanced-usage)
+- [Advanced Usage](#advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -44,6 +49,9 @@ Stream like OpenAI, authenticate with your own API keys, and keep clients unchan
 
 ## 🚀 Getting Started
 
+### Requirements
+Python 3.11 | 3.12 | 3.13
+
 ### Installation
 
 ```bash
@@ -52,7 +60,7 @@ pip install lm-proxy
 
 ### Quick Start
 
-1. Create a `config.toml` file:
+#### 1. Create a `config.toml` file:
 
 ```toml
 host = "0.0.0.0"
@@ -77,13 +85,17 @@ api_key = "env:ANTHROPIC_API_KEY"
 api_keys = ["YOUR_API_KEY_HERE"]
 ```
 
-2. Start the server:
+#### 2. Start the server:
 
 ```bash
 lm-proxy
 ```
+Alternatively, run it as a Python module:
+```bash
+python -m lm_proxy
+```
 
-3. Use it with any OpenAI-compatible client:
+#### 3. Use it with any OpenAI-compatible client:
 
 ```python
 from openai import OpenAI

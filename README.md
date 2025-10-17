@@ -1,6 +1,6 @@
 <h1 align="center"><a href="#">LM-Proxy</a></h1>
 <p align="center">
-  <b>Lightweight, OpenAI-compatible HTTP proxy server</b><br>unifying access to multiple <b>Large Language Model providers</b> and local inference <br>through a single, standardized API endpoint.  
+  <b>Lightweight, OpenAI-compatible HTTP proxy server / gateway</b><br>unifying access to multiple <b>Large Language Model providers</b> and local inference <br>through a single, standardized API endpoint.  
 </p>
 <p align="center">
   <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>

@@ -51,3 +51,6 @@ lm-proxy = "lm_proxy.app:cli_app"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+testpaths = [
+    "tests",
+]

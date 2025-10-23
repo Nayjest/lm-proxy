@@ -9,3 +9,5 @@ dist
 docs
 .aico
 !.aico/project.json
+.coverage
+coverage.xml

@@ -479,7 +479,7 @@ To enable debugging, set the `LM_PROXY_DEBUG` environment variable to a truthy v
 > **Tip** 💡  
 >Environment variables can also be defined in a `.env` file.
 
-Alternatively, you can enable or disable debugging via the command line-arguments:
+Alternatively, you can enable or disable debugging via the command-line arguments:
 - `--debug` to enable debugging
 - `--no-debug` to disable debugging
 

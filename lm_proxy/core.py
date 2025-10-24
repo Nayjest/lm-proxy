@@ -5,33 +5,17 @@ import logging
 import secrets
 import time
 import hashlib
-from typing import List, Optional
+from datetime import datetime
+from typing import Optional
 
-import microcore as mc
 from fastapi import HTTPException
-from lm_proxy.loggers import LogEntry
-from pydantic import BaseModel
+from lm_proxy.base_types import ChatCompletionRequest, RequestContext
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response, StreamingResponse
 
 from .bootstrap import env
 from .config import Config
-from .loggers import log_non_blocking
 from .utils import get_client_ip
-
-
-class ChatCompletionRequest(BaseModel):
-    model: str
-    messages: List[mc.Msg]
-    stream: Optional[bool] = None
-    max_tokens: Optional[int] = None
-    temperature: Optional[float] = None
-    top_p: Optional[float] = None
-    n: Optional[int] = None
-    stop: Optional[List[str]] = None
-    presence_penalty: Optional[float] = None
-    frequency_penalty: Optional[float] = None
-    user: Optional[str] = None
 
 
 def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
@@ -79,7 +63,7 @@ def resolve_connection_and_model(
 
 
 async def process_stream(
-    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: LogEntry
+    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
 ):
     prompt = request.messages
     queue = asyncio.Queue()
@@ -173,7 +157,7 @@ def api_key_id(api_key: Optional[str]) -> str | None:
     ).hexdigest()
 
 
-async def check(request: Request) -> tuple[str, str]:
+async def check(request: Request) -> tuple[str, str, dict]:
     """
     API key and service availability check for endpoints.
     Args:
@@ -196,7 +180,13 @@ async def check(request: Request) -> tuple[str, str]:
             },
         )
     api_key = read_api_key(request)
-    group: str | bool | None = (env.config.check_api_key)(api_key)
+    result = (env.config.api_key_check)(api_key)
+    if isinstance(result, tuple):
+        group, user_info = result
+    else:
+        group: str | bool | None = result
+        user_info = dict()
+
     if not group:
         raise HTTPException(
             status_code=403,
@@ -210,7 +200,7 @@ async def check(request: Request) -> tuple[str, str]:
                 }
             },
         )
-    return group, api_key
+    return group, api_key, user_info
 
 
 async def chat_completions(
@@ -220,17 +210,19 @@ async def chat_completions(
     Endpoint for chat completions that mimics OpenAI's API structure.
     Streams the response from the LLM using microcore.
     """
-    group, api_key = await check(raw_request)
+    group, api_key, user_info = await check(raw_request)
     llm_params = request.model_dump(exclude={"messages"}, exclude_none=True)
     connection, llm_params["model"] = resolve_connection_and_model(
         env.config, llm_params.get("model", "default_model")
     )
-    log_entry = LogEntry(
+    log_entry = RequestContext(
         request=request,
         api_key_id=api_key_id(api_key),
         group=group if isinstance(group, str) else None,
         remote_addr=get_client_ip(raw_request),
         connection=connection,
+        model=llm_params["model"],
+        user_info=user_info,
     )
     logging.debug(
         "Resolved routing for [%s] --> connection: %s, model: %s",
@@ -282,3 +274,26 @@ async def chat_completions(
             ]
         }
     )
+
+
+async def log(log_entry: RequestContext):
+    if log_entry.duration is None and log_entry.created_at:
+        log_entry.duration = (datetime.now() - log_entry.created_at).total_seconds()
+    for handler in env.loggers:
+        # check if it is async, then run both sync and async loggers in non-blocking way (sync too)
+        if asyncio.iscoroutinefunction(handler):
+            asyncio.create_task(handler(log_entry))
+        else:
+            try:
+                handler(log_entry)
+            except Exception as e:
+                logging.error("Error in logger handler: %s", e)
+                raise e
+
+
+async def log_non_blocking(
+    log_entry: RequestContext,
+) -> Optional[asyncio.Task]:
+    if env.loggers:
+        task = asyncio.create_task(log(log_entry))
+        return task

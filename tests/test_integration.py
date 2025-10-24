@@ -3,17 +3,17 @@ import requests
 from tests.conftest import ServerFixture
 
 
-def configure_mc(cfg: ServerFixture):
+def configure_mc_to_use_local_proxy(cfg: ServerFixture):
     mc.configure(
         LLM_API_TYPE="openai",
         LLM_API_BASE=f"http://127.0.0.1:{cfg.port}/v1",  # Test server port
         LLM_API_KEY=cfg.api_key,  # Not used but required
-        MODEL=cfg.model,  # Will be routed according to test_config.toml
+        MODEL=cfg.model,
     )
 
 
 def test_france_capital_query(server_config_fn: ServerFixture):
-    configure_mc(server_config_fn)
+    configure_mc_to_use_local_proxy(server_config_fn)
     response = mc.llm("What is the capital of France?\n (!) Respond with 1 word.")
     assert (
         "paris" in response.lower().strip()
@@ -51,7 +51,7 @@ def test_direct_api_call(server_config_fn: ServerFixture):
 
 
 def test_streaming_response(server_config_fn: ServerFixture):
-    configure_mc(server_config_fn)
+    configure_mc_to_use_local_proxy(server_config_fn)
     collected_text = []
     mc.llm(
         "Count from 1 to 5, each number as english word (one, two, ...) on a new line",

@@ -3,9 +3,8 @@ import json
 from starlette.requests import Request
 
 from lm_proxy.config import Config, ModelListingMode
-from lm_proxy.bootstrap import bootstrap
-from lm_proxy.models import models
-from lm_proxy.bootstrap import env
+from lm_proxy.bootstrap import bootstrap, env
+from lm_proxy.models_endpoint import models
 
 
 async def test_models_endpoint():

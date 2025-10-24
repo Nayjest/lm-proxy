@@ -1,6 +1,5 @@
 host = "127.0.0.1"
 port = 8787
-check_api_key = "tests.conftest.check_api_function"
 [connections]
 
 [connections.test_openai]

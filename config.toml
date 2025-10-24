@@ -40,7 +40,7 @@ api_keys = [
 [[loggers]]
 class = 'lm_proxy.loggers.BaseLogger'
 [loggers.log_writer]
-class = 'lm_proxy.loggers.log_writers.JsonLogWriter'
+class = 'lm_proxy.loggers.JsonLogWriter'
 file_name = 'storage/json.log'
 [loggers.entry_transformer]
 class = 'lm_proxy.loggers.LogEntryTransformer'

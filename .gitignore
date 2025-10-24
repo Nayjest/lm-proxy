@@ -7,7 +7,7 @@ venv
 storage
 dist
 docs
-.aico
+.aico/*
 !.aico/project.json
 .coverage
 coverage.xml

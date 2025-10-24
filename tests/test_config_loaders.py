@@ -19,6 +19,7 @@ def test_config_loaders():
     assert json.connections["test_openai"]["api_key"] == oai_key
 
     py = Config.load(root / "configs" / "config_fn.py")
+    assert isinstance(py, Config)
 
     # Expect an error for unsupported format
     with pytest.raises(ValueError):

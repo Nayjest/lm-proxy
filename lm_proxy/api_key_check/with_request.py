@@ -2,6 +2,7 @@ from typing import Optional
 from dataclasses import dataclass, field
 import requests
 
+
 @dataclass(slots=True)
 class CheckAPIKeyWithRequest:
     url: str = field()

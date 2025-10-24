@@ -38,6 +38,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
+- [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -462,6 +463,29 @@ The routing section allows flexible pattern matching with wildcards:
 - [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
   This example demonstrates how to set up a load balancer that randomly
 distributes requests across multiple language model servers using the lm_proxy.
+
+## 🔍 Debugging
+
+### Overview
+When **debugging mode** is enabled,
+LM-Proxy provides detailed logging information to help diagnose issues:
+- Stack traces for exceptions are shown in the console
+- logging level is set to DEBUG instead of INFO
+
+> **Warning** ⚠️  
+>Never enable debugging mode in production environments, as it may expose sensitive information to the application logs.
+### Enabling Debugging Mode
+To enable debugging, set the `LM_PROXY_DEBUG` environment variable to a truthy value (e.g., "1", "true", "yes").
+> **Tip** 💡  
+>Environment variables can also be defined in a `.env` file.
+
+Alternatively, you can enable or disable debugging via the command line-arguments:
+- `--debug` to enable debugging
+- `--no-debug` to disable debugging
+
+> **Note** ℹ️   
+> CLI arguments override environment variable settings.
+
 
 ## 🤝 Contributing
 

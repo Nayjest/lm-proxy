@@ -5,7 +5,7 @@ This module defines Pydantic models that match the structure of config.toml.
 
 import os
 from enum import StrEnum
-from typing import Union, Callable, Dict, Optional, Union
+from typing import Union, Callable, Dict, Optional
 from importlib.metadata import entry_points
 
 from pydantic import BaseModel, Field, ConfigDict

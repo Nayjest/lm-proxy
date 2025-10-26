@@ -205,7 +205,7 @@ api_key = "env:OPENAI_API_KEY"
 At runtime, LM-Proxy automatically retrieves the value of the target variable
 (OPENAI_API_KEY) from your operating system’s environment or from a .env file, if present.
 
-###  .env Files
+### .env Files
 
 By default, LM-Proxy looks for a `.env` file in the current working directory
 and loads environment variables from it.
@@ -470,14 +470,15 @@ distributes requests across multiple language model servers using the lm_proxy.
 When **debugging mode** is enabled,
 LM-Proxy provides detailed logging information to help diagnose issues:
 - Stack traces for exceptions are shown in the console
-- logging level is set to DEBUG instead of INFO
+- Logging level is set to DEBUG instead of INFO
 
 > **Warning** ⚠️  
->Never enable debugging mode in production environments, as it may expose sensitive information to the application logs.
+> Never enable debugging mode in production environments, as it may expose sensitive information to the application logs.
+
 ### Enabling Debugging Mode
 To enable debugging, set the `LM_PROXY_DEBUG` environment variable to a truthy value (e.g., "1", "true", "yes").
 > **Tip** 💡  
->Environment variables can also be defined in a `.env` file.
+> Environment variables can also be defined in a `.env` file.
 
 Alternatively, you can enable or disable debugging via the command-line arguments:
 - `--debug` to enable debugging

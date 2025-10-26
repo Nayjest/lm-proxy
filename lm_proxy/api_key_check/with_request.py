@@ -2,6 +2,8 @@ from typing import Optional
 from dataclasses import dataclass, field
 import requests
 
+from ..config import TApiKeyCheckFunc
+
 
 @dataclass(slots=True)
 class CheckAPIKeyWithRequest:
@@ -16,10 +18,10 @@ class CheckAPIKeyWithRequest:
     cache_size: int = field(default=1024 * 16)
     cache_ttl: int = field(default=60 * 5)  # 5 minutes
     timeout: int = field(default=5)  # seconds
-    _func: callable = field(init=False, repr=False)
+    _func: TApiKeyCheckFunc = field(init=False, repr=False)
 
     def __post_init__(self):
-        def check_func(api_key: str) -> dict | None:
+        def check_func(api_key: str) -> Optional[tuple[str, dict]]:
             try:
                 url = self.url.replace(self.key_placeholder, api_key)
                 headers = {
@@ -58,5 +60,5 @@ class CheckAPIKeyWithRequest:
         else:
             self._func = check_func
 
-    def __call__(self, api_key: str) -> dict | None:
+    def __call__(self, api_key: str) -> Optional[tuple[str, dict]]:
         return self._func(api_key)

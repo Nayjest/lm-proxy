@@ -5,7 +5,7 @@ This module defines Pydantic models that match the structure of config.toml.
 
 import os
 from enum import StrEnum
-from typing import Union, Callable, Dict
+from typing import Union, Callable, Dict, Optional, Union
 from importlib.metadata import entry_points
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -40,6 +40,10 @@ class Group(BaseModel):
         return connection_name in allowed
 
 
+TApiKeyCheckResult = Optional[Union[str, tuple[str, dict]]]
+TApiKeyCheckFunc = Callable[[str | None], TApiKeyCheckResult]
+
+
 class Config(BaseModel):
     """Main configuration model matching config.toml structure."""
 
@@ -59,7 +63,10 @@ class Config(BaseModel):
     routing: dict[str, str] = Field(default_factory=dict)
     """ model_name_pattern* => connection_name.< model | * >, example: {"gpt-*": "oai.*"} """
     groups: dict[str, Group] = Field(default_factory=lambda: {"default": Group()})
-    api_key_check: Union[str, Callable, dict] = Field(default="lm_proxy.core.check_api_key")
+    api_key_check: Union[str, TApiKeyCheckFunc, dict] = Field(
+        default="lm_proxy.api_key_check.check_api_key_in_config",
+        description="Function to check Virtual API keys",
+    )
     loggers: list[Union[str, dict, TLogger]] = Field(default_factory=list)
     encryption_key: str = Field(
         default="Eclipse",

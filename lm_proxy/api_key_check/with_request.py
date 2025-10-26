@@ -47,7 +47,7 @@ class CheckAPIKeyWithRequest:
 
         if self.use_cache:
             try:
-                import cachetools
+                import cachetools  # pylint: disable=import-outside-toplevel
             except ImportError as e:
                 raise ImportError(
                     "Missing optional dependency 'cachetools'. "

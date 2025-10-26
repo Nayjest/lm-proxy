@@ -1,3 +1,4 @@
+"""Core LM-Proxy logic"""
 import asyncio
 import fnmatch
 import json
@@ -9,10 +10,10 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
-from lm_proxy.base_types import ChatCompletionRequest, RequestContext
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response, StreamingResponse
 
+from .base_types import ChatCompletionRequest, RequestContext
 from .bootstrap import env
 from .config import Config
 from .utils import get_client_ip

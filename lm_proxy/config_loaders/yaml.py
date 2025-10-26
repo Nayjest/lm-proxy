@@ -2,8 +2,9 @@
 
 
 def load_yaml_config(config_path: str) -> dict:
+    """Loads a YAML configuration file and returns its contents as a dictionary."""
     try:
-        import yaml
+        import yaml  # pylint: disable=import-outside-toplevel
     except ImportError as e:
         raise ImportError(
             "Missing optional dependency 'PyYAML'. "

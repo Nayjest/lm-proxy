@@ -19,7 +19,7 @@ class AbstractLogEntryTransformer(abc.ABC):
 class AbstractLogWriter(abc.ABC):
     """Writes the logged data to a destination."""
     @abc.abstractmethod
-    def __call__(self, logged_data: dict) -> dict:
+    def __call__(self, logged_data: dict):
         raise NotImplementedError()
 
 

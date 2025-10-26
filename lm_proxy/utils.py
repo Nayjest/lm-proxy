@@ -36,9 +36,10 @@ def resolve_instance_or_callable(
             raise ValueError(
                 f"'{class_key}' key is missing in {debug_name or 'item'} config: {item}"
             )
-        class_name = item.pop(class_key)
+        args = dict(item)
+        class_name = args.pop(class_key)
         constructor = resolve_callable(class_name)
-        return constructor(**item)
+        return constructor(**args)
     if isinstance(item, str):
         fn = resolve_callable(item)
         return fn() if inspect.isclass(fn) else fn

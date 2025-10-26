@@ -89,17 +89,19 @@ env = Env()
 
 
 def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debug=None):
+    """Bootstraps the LM-Proxy environment."""
+    def log_bootstrap():
+        cfg_val = 'dynamic' if isinstance(config, Config) else ui.blue(config)
+        cfg_line = f"\n  - Config{ui.gray('......')}[ {cfg_val} ]"
+        env_line = f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]" if env_file else ""
+        dbg_line = f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""
+        logging.info(f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}")
+
     if env_file:
         load_dotenv(env_file, override=True)
     if debug is None:
         debug = "--debug" in sys.argv or get_bool_from_env("LM_PROXY_DEBUG", False)
     setup_logging(logging.DEBUG if debug else logging.INFO)
     mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info
-    logging.info(
-        f"Bootstrapping {ui.magenta('LM-Proxy')}..."
-        f"\n  - Config{ui.gray('......')}"
-        f"[ {'dynamic' if isinstance(config, Config) else ui.blue(config)} ]"
-        f"{'\n  - Env. File' + ui.gray('...') + '[ ' + ui.blue(env_file)+' ]' if env_file else ''}"
-        f"{'\n  - Debug' + ui.gray('.......') + '[ ' + ui.yellow('On')+' ]' if debug else ''}"
-    )
+    log_bootstrap()
     Env.init(config, debug=debug)

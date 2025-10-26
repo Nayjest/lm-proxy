@@ -34,7 +34,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Basic Group Definition](#basic-group-definition)
   - [Group-based Access Control](#group-based-access-control)
   - [Connection Restrictions](#connection-restrictions)
-  - [Custom API Key Validation](#custom-api-key-validation)
+  - [Virtual API Key Validation](#virtual-api-key-validation)
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
@@ -139,7 +139,7 @@ port = 8000       # Port to listen on
 dev_autoreload = false  # Enable for development
 
 # API key validation function (optional)
-check_api_key = "lm_proxy.core.check_api_key"
+api_key_check = "lm_proxy.api_key_check.check_api_key_in_config"
 
 # LLM Provider Connections
 [connections]
@@ -421,7 +421,7 @@ LM-proxy includes 2 built-in methods for validating Virtual API keys:
 
 The API key check method can be configured using the `api_key_check` configuration key.  
 Its value can be either a reference to a Python function in the format `my_module.sub_module1.sub_module2.fn_name`,
-or a object containing parameters for a class-based validator.  
+or an object containing parameters for a class-based validator.  
 
 In the .py config representation, the validator function can be passed directly as a callable.
 
@@ -436,7 +436,7 @@ method = "POST"
 url = "http://keycloak:8080/realms/master/protocol/openid-connect/userinfo"
 response_as_user_info = true  # interpret response JSON as user info object for further processing / logging
 use_cache = true  # requires installing cachetools if True: pip install cachetools
-cache_ttl = 60  # Cahe duration in seconds
+cache_ttl = 60  # Cache duration in seconds
 
 [api_key_check.headers]
 Authorization = "Bearer {api_key}"

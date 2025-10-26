@@ -33,6 +33,7 @@ def test_direct_api_call(server_config_fn: ServerFixture):
             "Content-Type": "application/json",
             "authorization": f"bearer {cfg.api_key}",
         },
+        timeout=120,
     )
 
     assert (

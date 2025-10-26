@@ -1,4 +1,4 @@
-# This is a lm-proxy configuration example
+# This is an lm-proxy configuration example
 
 host="0.0.0.0"
 port=8000

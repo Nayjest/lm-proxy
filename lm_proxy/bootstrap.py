@@ -1,8 +1,9 @@
+"""Initialization and bootstrapping."""
 import sys
 import logging
 import inspect
 from datetime import datetime
-
+from typing import TYPE_CHECKING
 
 import microcore as mc
 from microcore import ui
@@ -10,9 +11,14 @@ from microcore.configuration import get_bool_from_env
 from dotenv import load_dotenv
 
 from .config import Config
+from .utils import resolve_instance_or_callable
+
+if TYPE_CHECKING:
+    from .loggers import TLogger
 
 
 def setup_logging(log_level: int = logging.INFO):
+    """Setup logging format and level."""
     class CustomFormatter(logging.Formatter):
         def format(self, record):
             dt = datetime.fromtimestamp(record.created).strftime("%H:%M:%S")
@@ -31,20 +37,33 @@ def setup_logging(log_level: int = logging.INFO):
 
 
 class Env:
+    """Runtime environment singleton."""
     config: Config
     connections: dict[str, mc.types.LLMAsyncFunctionType]
     debug: bool
+    components: dict
+    loggers: list["TLogger"]
+
+    def _init_components(self):
+        self.components = dict()
+        for name, component_data in self.config.components.items():
+            self.components[name] = resolve_instance_or_callable(component_data)
+            logging.info(f"Loaded component '{name}'")
 
     @staticmethod
     def init(config: Config | str, debug: bool = False):
         env.debug = debug
 
-        if isinstance(config, Config):
-            env.config = config
-        elif isinstance(config, str):
-            env.config = Config.load(config)
-        else:
-            raise ValueError("config must be a string (file path) or Config instance")
+        if not isinstance(config, Config):
+            if isinstance(config, str):
+                config = Config.load(config)
+            else:
+                raise ValueError("config must be a string (file path) or Config instance")
+        env.config = config
+
+        env._init_components()
+
+        env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
 
         # initialize connections
         env.connections = dict()
@@ -70,17 +89,19 @@ env = Env()
 
 
 def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debug=None):
+    """Bootstraps the LM-Proxy environment."""
+    def log_bootstrap():
+        cfg_val = 'dynamic' if isinstance(config, Config) else ui.blue(config)
+        cfg_line = f"\n  - Config{ui.gray('......')}[ {cfg_val} ]"
+        env_line = f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]" if env_file else ""
+        dbg_line = f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""
+        logging.info(f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}")
+
     if env_file:
         load_dotenv(env_file, override=True)
     if debug is None:
         debug = "--debug" in sys.argv or get_bool_from_env("LM_PROXY_DEBUG", False)
     setup_logging(logging.DEBUG if debug else logging.INFO)
     mc.logging.LoggingConfig.OUTPUT_METHOD = logging.info
-    logging.info(
-        f"Bootstrapping {ui.yellow('lm_proxy')}: "
-        f"config_file={'dynamic' if isinstance(config, Config) else ui.blue(config)}"
-        f"{' debug=on' if debug else ''}"
-        f"{' env_file=' + ui.blue(env_file) if env_file else ''}"
-        f"..."
-    )
+    log_bootstrap()
     Env.init(config, debug=debug)

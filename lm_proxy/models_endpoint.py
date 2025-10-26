@@ -14,9 +14,9 @@ async def models(request: Request) -> JSONResponse:
     """
     Lists available models based on routing rules and group permissions.
     """
-    group_name, api_key = await check(request)
+    group_name, api_key, user_info = await check(request)
     group: Group = env.config.groups[group_name]
-    models = list()
+    models = []
     for model_pattern, route in env.config.routing.items():
         connection_name, _ = parse_routing_rule(route, env.config)
         if group.allows_connecting_to(connection_name):
@@ -28,11 +28,10 @@ async def models(request: Request) -> JSONResponse:
                         == ModelListingMode.IGNORE_WILDCARDS
                     ):
                         continue
-                    else:
-                        raise NotImplementedError(
-                            f"'{env.config.model_listing_mode}' model listing mode "
-                            f"is not implemented yet"
-                        )
+                    raise NotImplementedError(
+                        f"'{env.config.model_listing_mode}' model listing mode "
+                        f"is not implemented yet"
+                    )
             models.append(
                 dict(
                     id=model_pattern,

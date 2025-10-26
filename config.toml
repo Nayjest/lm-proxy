@@ -1,11 +1,11 @@
-# This is a lm-proxy configuration example
+# This is an lm-proxy configuration example
 
 host="0.0.0.0"
 port=8000
 # dev_autoreload=true
 
 # Validates a Client API key against configured groups and returns the matching group.
-check_api_key="lm_proxy.core.check_api_key"
+api_key_check="lm_proxy.api_key_check.check_api_key_in_config"
 
 model_listing_mode = "as_is"
 
@@ -40,7 +40,7 @@ api_keys = [
 [[loggers]]
 class = 'lm_proxy.loggers.BaseLogger'
 [loggers.log_writer]
-class = 'lm_proxy.loggers.log_writers.JsonLogWriter'
+class = 'lm_proxy.loggers.JsonLogWriter'
 file_name = 'storage/json.log'
 [loggers.entry_transformer]
 class = 'lm_proxy.loggers.LogEntryTransformer'

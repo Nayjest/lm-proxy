@@ -1,3 +1,6 @@
+"""
+LM-Proxy Application Entrypoint
+"""
 import logging
 from typing import Optional
 from fastapi import FastAPI
@@ -6,12 +9,11 @@ import uvicorn
 
 from .bootstrap import env, bootstrap
 from .core import chat_completions
-from .models import models
+from .models_endpoint import models
 
 cli_app = typer.Typer()
 
 
-# run-server is a default command of cli-app
 @cli_app.callback(invoke_without_command=True)
 def run_server(
     config: Optional[str] = typer.Option(None, help="Path to the configuration file"),
@@ -26,6 +28,9 @@ def run_server(
         help="Set the .env file to load ENV vars from",
     ),
 ):
+    """
+    Default command for CLI application: Run LM-Proxy web server
+    """
     try:
         bootstrap(config=config or "config.toml", env_file=env_file, debug=debug)
         uvicorn.run(
@@ -38,12 +43,14 @@ def run_server(
     except Exception as e:
         if env.debug:
             raise
-        else:
-            logging.error(e)
-            raise typer.Exit(code=1)
+        logging.error(e)
+        raise typer.Exit(code=1)
 
 
 def web_app():
+    """
+    Entrypoint for ASGI server
+    """
     app = FastAPI(
         title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference"
     )

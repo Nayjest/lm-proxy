@@ -34,10 +34,11 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Basic Group Definition](#basic-group-definition)
   - [Group-based Access Control](#group-based-access-control)
   - [Connection Restrictions](#connection-restrictions)
-  - [Custom API Key Validation](#custom-api-key-validation)
+  - [Virtual API Key Validation](#virtual-api-key-validation)
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
+- [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -138,7 +139,7 @@ port = 8000       # Port to listen on
 dev_autoreload = false  # Enable for development
 
 # API key validation function (optional)
-check_api_key = "lm_proxy.core.check_api_key"
+api_key_check = "lm_proxy.api_key_check.check_api_key_in_config"
 
 # LLM Provider Connections
 [connections]
@@ -204,7 +205,7 @@ api_key = "env:OPENAI_API_KEY"
 At runtime, LM-Proxy automatically retrieves the value of the target variable
 (OPENAI_API_KEY) from your operating system’s environment or from a .env file, if present.
 
-###  .env Files
+### .env Files
 
 By default, LM-Proxy looks for a `.env` file in the current working directory
 and loads environment variables from it.
@@ -410,7 +411,37 @@ This allows fine-grained control over which users can access which AI providers,
 - Implementing usage quotas per group
 - Billing and cost allocation by user group
 
-### Custom API Key Validation
+### Virtual API Key Validation
+
+#### Overview
+
+LM-proxy includes 2 built-in methods for validating Virtual API keys:
+ - `lm_proxy.api_key_check.check_api_key_in_config` - verifies API keys against those defined in the config file; used by default
+ - `lm_proxy.api_key_check.CheckAPIKeyWithRequest` - validates API keys via an external HTTP service
+
+The API key check method can be configured using the `api_key_check` configuration key.  
+Its value can be either a reference to a Python function in the format `my_module.sub_module1.sub_module2.fn_name`,
+or an object containing parameters for a class-based validator.  
+
+In the .py config representation, the validator function can be passed directly as a callable.
+
+#### Example configuration for external API key validation using HTTP request to Keycloak / OpenID Connect
+
+This example shows how to validate API keys against an external service (e.g., Keycloak):
+
+```toml
+[api_key_check]
+class = "lm_proxy.api_key_check.CheckAPIKeyWithRequest"
+method = "POST"
+url = "http://keycloak:8080/realms/master/protocol/openid-connect/userinfo"
+response_as_user_info = true  # interpret response JSON as user info object for further processing / logging
+use_cache = true  # requires installing cachetools if True: pip install cachetools
+cache_ttl = 60  # Cache duration in seconds
+
+[api_key_check.headers]
+Authorization = "Bearer {api_key}"
+```
+#### Custom API Key Validation / Extending functionality
 
 For more advanced authentication needs,
 you can implement a custom validator function:
@@ -437,7 +468,7 @@ def validate_api_key(api_key: str) -> str | None:
 Then reference it in your config:
 
 ```toml
-check_api_key = "my_validators.validate_api_key"
+api_key_check = "my_validators.validate_api_key"
 ```
 > **NOTE**
 > In this case, the `api_keys` lists in groups are ignored, and the custom function is responsible for all validation logic.
@@ -457,11 +488,38 @@ The routing section allows flexible pattern matching with wildcards:
 "custom*" = "local.llama-7b"        # Map any "custom*" to a specific local model
 "*" = "openai.gpt-3.5-turbo"        # Default fallback for unmatched models
 ```
+Keys are model name patterns (with `*` wildcard support), and values are connection/model mappings.
+Connection names reference those defined in the `[connections]` section.
+
 ### Load Balancing Example
 
 - [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
   This example demonstrates how to set up a load balancer that randomly
 distributes requests across multiple language model servers using the lm_proxy.
+
+## 🔍 Debugging
+
+### Overview
+When **debugging mode** is enabled,
+LM-Proxy provides detailed logging information to help diagnose issues:
+- Stack traces for exceptions are shown in the console
+- Logging level is set to DEBUG instead of INFO
+
+> **Warning** ⚠️  
+> Never enable debugging mode in production environments, as it may expose sensitive information to the application logs.
+
+### Enabling Debugging Mode
+To enable debugging, set the `LM_PROXY_DEBUG` environment variable to a truthy value (e.g., "1", "true", "yes").
+> **Tip** 💡  
+> Environment variables can also be defined in a `.env` file.
+
+Alternatively, you can enable or disable debugging via the command-line arguments:
+- `--debug` to enable debugging
+- `--no-debug` to disable debugging
+
+> **Note** ℹ️   
+> CLI arguments override environment variable settings.
+
 
 ## 🤝 Contributing
 

@@ -1,3 +1,4 @@
+"""Loader for Python configuration files."""
 import importlib.util
 from ..config import Config
 

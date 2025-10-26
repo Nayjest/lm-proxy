@@ -1,3 +1,6 @@
+"""YAML configuration loader."""
+
+
 def load_yaml_config(config_path: str) -> dict:
     try:
         import yaml

@@ -1,3 +1,4 @@
+"""JSON configuration loader."""
 import json
 
 

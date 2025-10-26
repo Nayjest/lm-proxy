@@ -1,3 +1,4 @@
+"""TOML configuration loader."""
 import tomllib
 
 

@@ -48,6 +48,7 @@ class RequestContext:
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
+        """Export to serializeable dictionary."""
         data = self.__dict__.copy()
         if self.request:
             data["request"] = self.request.model_dump(mode="json")

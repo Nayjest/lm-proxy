@@ -1,3 +1,4 @@
+"""LLM Request logging."""
 import abc
 import json
 import os
@@ -9,18 +10,21 @@ from .utils import CustomJsonEncoder, resolve_instance_or_callable, resolve_obj_
 
 
 class AbstractLogEntryTransformer(abc.ABC):
+    """Transform RequestContext into a dictionary of logged attributes."""
     @abc.abstractmethod
     def __call__(self, request_context: RequestContext) -> dict:
         raise NotImplementedError()
 
 
 class AbstractLogWriter(abc.ABC):
+    """Writes the logged data to a destination."""
     @abc.abstractmethod
     def __call__(self, logged_data: dict) -> dict:
         raise NotImplementedError()
 
 
 class LogEntryTransformer(AbstractLogEntryTransformer):
+    """Transforms RequestContext into a dictionary of logged attributes"""
     def __init__(self, **kwargs):
         self.mapping = kwargs
 
@@ -33,6 +37,7 @@ class LogEntryTransformer(AbstractLogEntryTransformer):
 
 @dataclass
 class BaseLogger:
+    """Base LLM request logger."""
     log_writer: AbstractLogWriter | str | dict
     entry_transformer: AbstractLogEntryTransformer | str | dict = field(default=None)
 
@@ -59,6 +64,7 @@ class BaseLogger:
 
 @dataclass
 class JsonLogWriter(AbstractLogWriter):
+    """Writes logged data to a JSON file."""
     file_name: str
 
     def __post_init__(self):

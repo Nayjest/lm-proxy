@@ -51,7 +51,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - **Dynamic Routing**: Route requests to different LLM providers based on model name patterns
 - **Stream Support**: Full streaming support for real-time responses
 - **API Key Management**: Configurable API key validation and access control
-- **Easy Configuration**: Simple TOML configuration files for setup
+- **Easy Configuration**: Simple TOML/YAML/JSON/Python configuration files for setup
 
 ## 🚀 Getting Started
 
@@ -90,7 +90,7 @@ api_key = "env:ANTHROPIC_API_KEY"
 [groups.default]
 api_keys = ["YOUR_API_KEY_HERE"]
 ```
-> **Note**
+> **Note** ℹ️
 > To enhance security, consider storing upstream API keys in operating system environment variables rather than embedding them directly in the configuration file. You can reference these variables in the configuration using the env:<VAR_NAME> syntax.
 
 #### 2. Start the server:
@@ -131,7 +131,7 @@ completion = client.chat.completions.create(
 
 ## 📝 Configuration
 
-LM-Proxy is configured through a TOML file that specifies connections, routing rules, and access control.
+LM-Proxy is configured through a TOML/YAML/JSON/Python file that specifies connections, routing rules, and access control.
 
 ### Basic Structure
 

@@ -39,6 +39,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
+  - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -497,6 +498,12 @@ Connection names reference those defined in the `[connections]` section.
 - [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
   This example demonstrates how to set up a load balancer that randomly
 distributes requests across multiple language model servers using the lm_proxy.
+
+### Google Vertex AI Configuration Example
+
+- [vertex-ai.toml](https://github.com/Nayjest/lm-proxy/blob/main/examples/vertex-ai.toml)
+  This example demonstrates how to connect LM-Proxy to Google Gemini model via Vertex AI API
+
 
 ## 🔍 Debugging
 

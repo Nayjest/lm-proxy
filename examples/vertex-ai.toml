@@ -1,4 +1,4 @@
-# Pre-requisites:
+# Steps:
 # 1. Install LM-Proxy:
 # > pip install lm-proxy
 # 2. Install Vertex AI API: 

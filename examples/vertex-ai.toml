@@ -1,20 +1,24 @@
+# Pre-requisites: Python v3.11 / v3.12 / v3.13
 # Steps:
 # 1. Install LM-Proxy:
-# > pip install lm-proxy
+#    > pip install lm-proxy
 # 2. Install Vertex AI API: 
-# > pip install vertexai
+#    > pip install vertexai
 # 3. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install
-# 4. Authenticate with Google Cloud: `gcloud auth application-default login`
-# 5. Set your Google Cloud project: `gcloud config set project <PROJECT_ID>`
-# 6. Save this config to a file named `vertex-ai.toml`
-# 7. Fill connections.vertex_ai.google_vertex_project_id
+# 4. Authenticate with Google Cloud:
+#    > gcloud auth application-default login
+# 5. Set your Google Cloud project:
+#    > gcloud config set project <PROJECT_ID>
+# 6. Save this config as `vertex-ai.toml`
+# 7. Fill in connections.vertex_ai.google_vertex_project_id and Virtual API Keys for usage in LLM client applications.
 # 8. Run LM-Proxy with this config:
-# > lm-proxy --config vertex-ai.toml
+#    > lm-proxy --config vertex-ai.toml
+
 [connections]
 [connections.vertex_ai]
 api_type = "google_vertex_ai"
 google_vertex_project_id = "<PROJECT_ID>"
-google_vertex_gcloud_auth  = true
+google_vertex_gcloud_auth = true
 google_vertex_response_validation = true
 model = "gemini-2.5-pro"
 
@@ -22,7 +26,8 @@ model = "gemini-2.5-pro"
 "gemini-2.5-pro" = "vertex_ai.gemini-2.5-pro"
 
 [groups.default]
+# Your Virual API Keys here
 api_keys = [
-    "KEY1",
-    "KEY2"
+  "KEY1",
+  "KEY2"
 ]

@@ -9,22 +9,26 @@ from .base_types import RequestContext
 from .utils import CustomJsonEncoder, resolve_instance_or_callable, resolve_obj_path
 
 
-class AbstractLogEntryTransformer(abc.ABC):
+class AbstractLogEntryTransformer(abc.ABC):  # pylint: disable=too-few-public-methods
     """Transform RequestContext into a dictionary of logged attributes."""
     @abc.abstractmethod
     def __call__(self, request_context: RequestContext) -> dict:
         raise NotImplementedError()
 
 
-class AbstractLogWriter(abc.ABC):
+class AbstractLogWriter(abc.ABC):  # pylint: disable=too-few-public-methods
     """Writes the logged data to a destination."""
     @abc.abstractmethod
     def __call__(self, logged_data: dict):
         raise NotImplementedError()
 
 
-class LogEntryTransformer(AbstractLogEntryTransformer):
-    """Transforms RequestContext into a dictionary of logged attributes"""
+class LogEntryTransformer(AbstractLogEntryTransformer):  # pylint: disable=too-few-public-methods
+    """
+    Transforms RequestContext into a dictionary of logged attributes.
+    The mapping is provided as keyword arguments, where keys are the names of the
+    logged attributes, and values are the paths to the attributes in RequestContext.
+    """
     def __init__(self, **kwargs):
         self.mapping = kwargs
 

@@ -16,7 +16,7 @@ async def models(request: Request) -> JSONResponse:
     """
     group_name, api_key, user_info = await check(request)
     group: Group = env.config.groups[group_name]
-    models = []
+    models_list = []
     for model_pattern, route in env.config.routing.items():
         connection_name, _ = parse_routing_rule(route, env.config)
         if group.allows_connecting_to(connection_name):
@@ -32,18 +32,18 @@ async def models(request: Request) -> JSONResponse:
                         f"'{env.config.model_listing_mode}' model listing mode "
                         f"is not implemented yet"
                     )
-            models.append(
-                dict(
-                    id=model_pattern,
-                    object="model",
-                    created=0,
-                    owned_by=connection_name,
-                )
+            models_list.append(
+                {
+                    "id": model_pattern,
+                    "object": "model",
+                    "created": 0,
+                    "owned_by": connection_name,
+                }
             )
 
     return JSONResponse(
         {
             "object": "list",
-            "data": models,
+            "data": models_list,
         }
     )

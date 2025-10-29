@@ -1,3 +1,6 @@
+"""
+API key check implementation using HTTP requests.
+"""
 from typing import Optional
 from dataclasses import dataclass, field
 import requests
@@ -6,15 +9,28 @@ from ..config import TApiKeyCheckFunc
 
 
 @dataclass(slots=True)
-class CheckAPIKeyWithRequest:
+class CheckAPIKeyWithRequest:  # pylint: disable=too-many-instance-attributes
+    """
+    Validates a Client API key by making an HTTP request to a specified URL.
+    """
     url: str = field()
     method: str = field(default="get")
     headers: dict = field(default_factory=dict)
     response_as_user_info: bool = field(default=False)
     group_field: Optional[str] = field(default=None)
+    """
+    Field in the JSON response to extract the user group.
+    """
     default_group: str = field(default="default")
+    """
+    User group to assign if group_field is not used.
+    """
     key_placeholder: str = field(default="{api_key}")
     use_cache: bool = field(default=False)
+    """
+    Whether to cache the results of API key checks.
+    Requires 'cachetools' package if set to True.
+    """
     cache_size: int = field(default=1024 * 16)
     cache_ttl: int = field(default=60 * 5)  # 5 minutes
     timeout: int = field(default=5)  # seconds

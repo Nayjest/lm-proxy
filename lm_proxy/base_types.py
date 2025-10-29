@@ -29,7 +29,7 @@ class ChatCompletionRequest(BaseModel):
 
 
 @dataclass
-class RequestContext:
+class RequestContext:  # pylint: disable=too-many-instance-attributes
     """
     Stores information about a single LLM request/response cycle for usage in middleware.
     """

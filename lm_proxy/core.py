@@ -66,6 +66,9 @@ def resolve_connection_and_model(
 async def process_stream(
     async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
 ):
+    """
+    Streams the response from the LLM function.
+    """
     prompt = request.messages
     queue = asyncio.Queue()
     stream_id = f"chatcmpl-{secrets.token_hex(12)}"
@@ -76,7 +79,7 @@ async def process_stream(
 
     def make_chunk(delta=None, content=None, finish_reason=None, error=None) -> str:
         if delta is None:
-            delta = dict(content=str(content)) if content is not None else dict()
+            delta = {"content": str(content)} if content is not None else {}
         obj = {
             "id": stream_id,
             "object": "chat.completion.chunk",
@@ -151,6 +154,9 @@ def check_api_key(api_key: Optional[str]) -> Optional[str]:
 
 
 def api_key_id(api_key: Optional[str]) -> str | None:
+    """
+    Generates a consistent hashed identifier for the given API key.
+    """
     if not api_key:
         return None
     return hashlib.md5(
@@ -186,7 +192,7 @@ async def check(request: Request) -> tuple[str, str, dict]:
         group, user_info = result
     else:
         group: str | bool | None = result
-        user_info = dict()
+        user_info = {}
 
     if not group:
         raise HTTPException(
@@ -277,24 +283,30 @@ async def chat_completions(
     )
 
 
-async def log(log_entry: RequestContext):
-    if log_entry.duration is None and log_entry.created_at:
-        log_entry.duration = (datetime.now() - log_entry.created_at).total_seconds()
+async def log(request_ctx: RequestContext):
+    """
+    Creates log records for current request using all configured log handlers.
+    """
+    if request_ctx.duration is None and request_ctx.created_at:
+        request_ctx.duration = (datetime.now() - request_ctx.created_at).total_seconds()
     for handler in env.loggers:
         # check if it is async, then run both sync and async loggers in non-blocking way (sync too)
         if asyncio.iscoroutinefunction(handler):
-            asyncio.create_task(handler(log_entry))
+            asyncio.create_task(handler(request_ctx))
         else:
             try:
-                handler(log_entry)
+                handler(request_ctx)
             except Exception as e:
                 logging.error("Error in logger handler: %s", e)
                 raise e
 
 
 async def log_non_blocking(
-    log_entry: RequestContext,
+    request_ctx: RequestContext,
 ) -> Optional[asyncio.Task]:
+    """
+    Non-blocking log function that schedules logging as an asynchronous task.
+    """
     if env.loggers:
-        task = asyncio.create_task(log(log_entry))
+        task = asyncio.create_task(log(request_ctx))
         return task

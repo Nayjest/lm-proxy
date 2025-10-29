@@ -40,6 +40,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
   - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
+  - [Using Tokens from OIDC Provider as Virtual/Client API Keys](#using-tokens-from-oidc-provider-as-virtualclient-api-keys)
 - [Add-on Components](#add-on-components)
   - [Database Connector](#database-connector) 
 - [Debugging](#-debugging)

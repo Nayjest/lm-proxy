@@ -507,6 +507,41 @@ distributes requests across multiple language model servers using the lm_proxy.
 - [vertex-ai.toml](https://github.com/Nayjest/lm-proxy/blob/main/examples/vertex-ai.toml)
   This example demonstrates how to connect LM-Proxy to Google Gemini model via Vertex AI API
 
+### Using Tokens from OIDC Provider as Virtual/Client API Keys
+
+You can configure LM-Proxy to validate tokens from OpenID Connect (OIDC) providers like Keycloak, Auth0, or Okta as API keys.
+
+The following configuration validates Keycloak access tokens by calling the userinfo endpoint:
+```toml
+[api_key_check]
+class = "lm_proxy.api_key_check.CheckAPIKeyWithRequest"
+method = "POST"
+url = "http://keycloak:8080/realms/master/protocol/openid-connect/userinfo"
+response_as_user_info = true
+use_cache = true
+cache_ttl = 60
+
+[api_key_check.headers]
+Authorization = "Bearer {api_key}"
+```
+
+**Configuration Parameters:**
+
+- `class` - The API key validation handler class ([lm_proxy.api_key_check.CheckAPIKeyWithRequest](https://github.com/Nayjest/lm-proxy/blob/main/lm_proxy/api_key_check/with_request.py))
+- `method` - HTTP method for the validation request (typically `POST` or `GET`)
+- `url` - The OIDC provider's userinfo endpoint URL
+- `response_as_user_info` - Parse the response as user information for further usage in LM-Proxy (extend logged info, determine user group, etc.)
+- `use_cache` - Enable caching of validation results (requires installing the `cachetools` package if enabled: `pip install cachetools`)
+- `cache_ttl` - Cache time-to-live in seconds (reduces load on identity provider)
+- `headers` - Dictionary of headers to send with the validation request
+
+> **Note**: The `{api_key}` placeholder can be used in headers or in the URL. LM-Proxy substitutes it with the API key from the client to perform the check.
+
+
+**Usage:**
+
+Clients pass their OIDC access token as the API key when making requests to LM-Proxy.
+
 ## 🧩 Add-on Components
 
 ### Database Connector

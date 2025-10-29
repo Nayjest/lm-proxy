@@ -52,12 +52,11 @@ def resolve_instance_or_callable(
 
 
 class CustomJsonEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder that handles datetime / date / time, pydantic models, etc.
+    """
     def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-        if isinstance(o, date):
-            return o.isoformat()
-        if isinstance(o, time):
+        if isinstance(o, datetime) or isinstance(o, date) or isinstance(o, time):
             return o.isoformat()
         if hasattr(o, "__dict__"):
             return o.__dict__
@@ -69,6 +68,9 @@ class CustomJsonEncoder(json.JSONEncoder):
 
 
 def get_client_ip(request: Request) -> str:
+    """
+    Extract the client's IP address from the request.
+    """
     # Try different headers in order of preference
     if forwarded_for := request.headers.get("X-Forwarded-For"):
         return forwarded_for.split(",")[0].strip()

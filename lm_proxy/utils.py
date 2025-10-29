@@ -28,7 +28,10 @@ def resolve_instance_or_callable(
     class_key: str = "class",
     debug_name: str = None,
     allow_types: list[type] = None,
-) -> Callable:
+) -> Callable | object | None:
+    """
+    Resolves an class instance or callable from various configuration formats.
+    """
     if item is None or item == "":
         return None
     if isinstance(item, dict):
@@ -47,8 +50,7 @@ def resolve_instance_or_callable(
         return item() if inspect.isclass(item) else item
     if allow_types and any(isinstance(item, t) for t in allow_types):
         return item
-    else:
-        raise ValueError(f"Invalid {debug_name or 'item'} config: {item}")
+    raise ValueError(f"Invalid {debug_name or 'item'} config: {item}")
 
 
 class CustomJsonEncoder(json.JSONEncoder):
@@ -56,7 +58,7 @@ class CustomJsonEncoder(json.JSONEncoder):
     Custom JSON encoder that handles datetime / date / time, pydantic models, etc.
     """
     def default(self, o):
-        if isinstance(o, datetime) or isinstance(o, date) or isinstance(o, time):
+        if isinstance(o, (datetime, date, time)):
             return o.isoformat()
         if hasattr(o, "__dict__"):
             return o.__dict__
@@ -98,6 +100,6 @@ def replace_env_strings_recursive(data: Any) -> Any:
     if isinstance(data, str) and data.startswith("env:"):
         env_var_name = data[4:]
         if env_var_name not in os.environ:
-            logging.warning(f"Environment variable '{env_var_name}' not found")
+            logging.warning("Environment variable '%s' not found", env_var_name)
         return os.environ.get(env_var_name, "")
     return data

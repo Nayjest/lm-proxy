@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 def setup_logging(log_level: int = logging.INFO):
     """Setup logging format and level."""
     class CustomFormatter(logging.Formatter):
+        """Custom log formatter with colouring."""
         def format(self, record):
             dt = datetime.fromtimestamp(record.created).strftime("%H:%M:%S")
             message, level_name = record.getMessage(), record.levelname
@@ -45,13 +46,14 @@ class Env:
     loggers: list["TLogger"]
 
     def _init_components(self):
-        self.components = dict()
+        self.components = {}
         for name, component_data in self.config.components.items():
             self.components[name] = resolve_instance_or_callable(component_data)
-            logging.info(f"Loaded component '{name}'")
+            logging.info("Component initialized: '%s'.", name)
 
     @staticmethod
     def init(config: Config | str, debug: bool = False):
+        """Initializes the LM-Proxy runtime environment singleton."""
         env.debug = debug
 
         if not isinstance(config, Config):
@@ -66,9 +68,9 @@ class Env:
         env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
 
         # initialize connections
-        env.connections = dict()
+        env.connections = {}
         for conn_name, conn_config in env.config.connections.items():
-            logging.info(f"Initializing '{conn_name}' LLM proxy connection...")
+            logging.info("Initializing '%s' LLM proxy connection...", conn_name)
             try:
                 if inspect.iscoroutinefunction(conn_config):
                     env.connections[conn_name] = conn_config
@@ -80,9 +82,9 @@ class Env:
             except mc.LLMConfigError as e:
                 raise ValueError(
                     f"Error in configuration for connection '{conn_name}': {e}"
-                )
+                ) from e
 
-        logging.info(f"Done initializing {len(env.connections)} connections.")
+        logging.info("Done initializing %d connections.", len(env.connections))
 
 
 env = Env()
@@ -95,7 +97,8 @@ def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debu
         cfg_line = f"\n  - Config{ui.gray('......')}[ {cfg_val} ]"
         env_line = f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]" if env_file else ""
         dbg_line = f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""
-        logging.info(f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}")
+        message = f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}"
+        logging.info(message)
 
     if env_file:
         load_dotenv(env_file, override=True)

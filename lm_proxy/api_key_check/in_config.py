@@ -1,3 +1,10 @@
+"""
+API Key check implementation that validates against configured groups.
+
+Checks if a provided API key exists within any of the defined groups.
+For using this function,
+set "api_key_check" configuration value to "lm_proxy.api_key_check.check_api_key_in_config".
+"""
 from typing import Optional
 from ..bootstrap import env
 

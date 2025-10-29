@@ -40,6 +40,8 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Dynamic Model Routing](#dynamic-model-routing)
   - [Load Balancing Example](#load-balancing-example)
   - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
+- [Add-on Components](#add-on-components)
+  - [Database Connector](#database-connector) 
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -52,6 +54,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - **Stream Support**: Full streaming support for real-time responses
 - **API Key Management**: Configurable API key validation and access control
 - **Easy Configuration**: Simple TOML/YAML/JSON/Python configuration files for setup
+- **Extensible by Design**: Minimal core with clearly defined extension points, enabling seamless customization and expansion without modifying the core system.
 
 ## 🚀 Getting Started
 
@@ -504,6 +507,16 @@ distributes requests across multiple language model servers using the lm_proxy.
 - [vertex-ai.toml](https://github.com/Nayjest/lm-proxy/blob/main/examples/vertex-ai.toml)
   This example demonstrates how to connect LM-Proxy to Google Gemini model via Vertex AI API
 
+## 🧩 Add-on Components
+
+### Database Connector
+
+[lm-proxy-db-connector](https://github.com/nayjest/lm-proxy-db-connector) is a lightweight SQLAlchemy-based connector that enables LM-Proxy to work with relational databases including PostgreSQL, MySQL/MariaDB, SQLite, Oracle, Microsoft SQL Server, and many others.
+
+**Key Features:**
+- Configure database connections directly through LM-Proxy configuration
+- Share database connections across components, extensions, and custom functions
+- Built-in database logger for structured logging of AI request data
 
 ## 🔍 Debugging
 

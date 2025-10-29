@@ -30,7 +30,7 @@ def resolve_instance_or_callable(
     allow_types: list[type] = None,
 ) -> Callable | object | None:
     """
-    Resolves an class instance or callable from various configuration formats.
+    Resolves a class instance or callable from various configuration formats.
     """
     if item is None or item == "":
         return None

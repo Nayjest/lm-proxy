@@ -37,6 +37,8 @@ def run_server(
             "lm_proxy.app:web_app",
             host=env.config.host,
             port=env.config.port,
+            ssl_keyfile=getattr(env.config, 'ssl_keyfile', None),
+            ssl_certfile=getattr(env.config, 'ssl_certfile', None),
             reload=env.config.dev_autoreload,
             factory=True,
         )
@@ -55,12 +57,12 @@ def web_app():
         title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference"
     )
     app.add_api_route(
-        path="/v1/chat/completions",
+        path=f"{env.config.api_prefix}/chat/completions",
         endpoint=chat_completions,
         methods=["POST"],
     )
     app.add_api_route(
-        path="/v1/models",
+        path=f"{env.config.api_prefix}/models",
         endpoint=models,
         methods=["GET"],
     )

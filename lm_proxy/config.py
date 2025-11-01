@@ -55,6 +55,12 @@ class Config(BaseModel):
     enabled: bool = True
     host: str = "0.0.0.0"
     port: int = 8000
+    ssl_keyfile: str = None
+    """ Path to SSL key file for HTTPS support, if None, HTTP is used. """
+    ssl_certfile: str = None
+    """ Path to SSL certificate file for HTTPS support, if None, HTTP is used. """
+    api_prefix: str = "/v1"
+    """ Prefix for API endpoints, default is /v1 """
     dev_autoreload: bool = False
     connections: dict[str, Union[dict, Callable]] = Field(
         ...,  # Required field (no default)

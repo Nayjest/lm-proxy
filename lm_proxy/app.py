@@ -37,8 +37,8 @@ def run_server(
             "lm_proxy.app:web_app",
             host=env.config.host,
             port=env.config.port,
-            ssl_keyfile=getattr(env.config, 'ssl_keyfile', None),
-            ssl_certfile=getattr(env.config, 'ssl_certfile', None),
+            ssl_keyfile=env.config.ssl_keyfile or None,
+            ssl_certfile=env.config.ssl_certfile or None,
             reload=env.config.dev_autoreload,
             factory=True,
         )

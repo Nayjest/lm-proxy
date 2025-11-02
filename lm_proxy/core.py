@@ -124,6 +124,10 @@ async def process_stream(
     yield make_chunk(finish_reason="stop")
     yield "data: [DONE]\n\n"
     await log_non_blocking(log_entry)
+    if log_entry.error:
+        if env.debug:
+            raise log_entry.error
+        logging.error(log_entry.error)
 
 
 def read_api_key(request: Request) -> str:

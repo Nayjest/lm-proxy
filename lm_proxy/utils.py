@@ -11,10 +11,16 @@ from starlette.requests import Request
 
 
 def resolve_obj_path(obj, path: str, default=None):
-    """Resolves dotted path supporting both attributes and dict keys."""
+    """
+    Resolves dotted path supporting
+    attributes, dict keys and list indices.
+    """
     for part in path.split("."):
         try:
             if isinstance(obj, dict):
+                obj = obj[part]
+            elif isinstance(obj, list):
+                part = int(part)  # Convert to int for list indexing
                 obj = obj[part]
             else:
                 obj = getattr(obj, part)

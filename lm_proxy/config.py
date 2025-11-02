@@ -81,7 +81,11 @@ class Config(BaseModel):
     )
     model_listing_mode: ModelListingMode = Field(
         default=ModelListingMode.AS_IS,
-        description="How to handle wildcard models in /v1/models endpoint",
+        description="How to handle wildcard models in /models endpoint",
+    )
+    model_info: dict[str, dict] = Field(
+        default_factory=dict,
+        description="Additional metadata for /models endpoint",
     )
     components: dict[str, Union[str, Callable, dict]] = Field(default_factory=dict)
 

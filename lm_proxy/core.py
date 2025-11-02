@@ -137,22 +137,6 @@ def read_api_key(request: Request) -> str:
     return ""
 
 
-def check_api_key(api_key: Optional[str]) -> Optional[str]:
-    """
-    Validates an Client API key against configured groups and returns the matching group name.
-
-    Args:
-        api_key (Optional[str]): The Virtual / Client API key to validate.
-    Returns:
-        Optional[str]: The group name if the API key is valid and found in a group,
-        None otherwise.
-    """
-    for group_name, group in env.config.groups.items():
-        if api_key in group.api_keys:
-            return group_name
-    return None
-
-
 def api_key_id(api_key: Optional[str]) -> str | None:
     """
     Generates a consistent hashed identifier for the given API key.
@@ -170,7 +154,7 @@ async def check(request: Request) -> tuple[str, str, dict]:
     Args:
         request (Request): The incoming HTTP request object.
     Returns:
-        tuple[str, str]: A tuple containing the group name and the API key.
+        tuple[str, str]: A tuple containing the group name, the API key and user_info object.
     Raises:
         HTTPException: If the service is disabled or the API key is invalid.
     """

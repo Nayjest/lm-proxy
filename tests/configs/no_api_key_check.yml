@@ -1,0 +1,7 @@
+host: "127.0.0.1"
+port: 8787
+api_key_check: "lm_proxy.api_key_check.AllowAll"
+connections:
+  test: "tests.conftest.llm_ok_connection"
+routing:
+  "*": "test"

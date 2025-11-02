@@ -16,7 +16,7 @@ from .loggers import TLogger
 
 class ModelListingMode(StrEnum):
     """
-    Enum for model listing modes in the /v1/models endpoint.
+    Enum for model listing modes in the /models endpoint.
     """
 
     # Show all models from API provider matching the patterns (not implemented yet)

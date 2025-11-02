@@ -19,10 +19,12 @@ async def test_disabled():
 
 async def test_403():
     bootstrap(Config(connections={}))
-    with pytest.raises(HTTPException, match="Incorrect API key"):
+    with pytest.raises(HTTPException) as excinfo:
         await check(Request(scope={
             "type": "http",
             "headers": [
                 (b"authorization", b"Bearer mykey"),
             ],
         }))
+    assert excinfo.value.status_code == 403
+    assert "Incorrect API key" in str(excinfo.value)

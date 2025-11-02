@@ -61,7 +61,7 @@ class Env:
             if isinstance(config, (str, PathLike)):
                 config = Config.load(config)
             else:
-                raise ValueError("config must be a string (file path) or Config instance")
+                raise ValueError("config must be a path (str or PathLike) or Config instance")
         env.config = config
 
         env._init_components()

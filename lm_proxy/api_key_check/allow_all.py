@@ -12,10 +12,10 @@ from dataclasses import dataclass
 class AllowAll:
     """
     A pass-through API key validator that accepts all keys without verification.
-    
+
     This validator is useful for development environments, testing scenarios, or
     applications where authentication is handled elsewhere in the stack.
-    
+
     Attributes:
         group: The group identifier assigned to all validated keys.
         capture_api_key: Whether to include the raw API key in the returned

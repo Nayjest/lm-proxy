@@ -120,8 +120,10 @@ async def process_stream(
             log_entry.error = e
             yield make_chunk(error={"message": str(e), "type": type(e).__name__})
 
-    # Final chunk: finish_reason
-    yield make_chunk(finish_reason="stop")
+    if log_entry.error:
+        yield make_chunk(finish_reason="error")
+    else:
+        yield make_chunk(finish_reason="stop")
     yield "data: [DONE]\n\n"
     await log_non_blocking(log_entry)
     if log_entry.error:

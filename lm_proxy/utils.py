@@ -24,7 +24,7 @@ def resolve_obj_path(obj, path: str, default=None):
                 obj = obj[part]
             else:
                 obj = getattr(obj, part)
-        except (AttributeError, KeyError, TypeError):
+        except (AttributeError, KeyError, TypeError, ValueError, IndexError):
             return default
     return obj
 

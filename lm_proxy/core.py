@@ -154,7 +154,7 @@ async def check(request: Request) -> tuple[str, str, dict]:
     Args:
         request (Request): The incoming HTTP request object.
     Returns:
-        tuple[str, str]: A tuple containing the group name, the API key and user_info object.
+        tuple[str, str, dict]: A tuple containing the group name, the API key and user_info object.
     Raises:
         HTTPException: If the service is disabled or the API key is invalid.
     """

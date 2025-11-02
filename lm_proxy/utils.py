@@ -70,7 +70,7 @@ class CustomJsonEncoder(json.JSONEncoder):
             return o.model_dump()
         if hasattr(o, "dict"):
             return o.dict()
-        if hasattr(o, "__dict"):
+        if hasattr(o, "__dict__"):
             return o.__dict__
         return super().default(o)
 

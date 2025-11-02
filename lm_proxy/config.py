@@ -62,7 +62,7 @@ class Config(BaseModel):
     api_prefix: str = "/v1"
     """ Prefix for API endpoints, default is /v1 """
     dev_autoreload: bool = False
-    connections: dict[str, Union[dict, Callable]] = Field(
+    connections: dict[str, Union[dict, Callable, str]] = Field(
         ...,  # Required field (no default)
         description="Dictionary of connection configurations",
         examples=[{"openai": {"api_key": "sk-..."}}],
@@ -93,7 +93,7 @@ class Config(BaseModel):
         )
 
     @staticmethod
-    def _load_raw(config_path: str = "config.toml") -> Union["Config", Dict]:
+    def _load_raw(config_path: str | os.PathLike = "config.toml") -> Union["Config", Dict]:
         config_ext = os.path.splitext(config_path)[1].lower().lstrip(".")
         for entry_point in entry_points(group="config.loaders"):
             if config_ext == entry_point.name:
@@ -104,7 +104,7 @@ class Config(BaseModel):
         raise ValueError(f"No loader found for configuration file extension: {config_ext}")
 
     @staticmethod
-    def load(config_path: str = "config.toml") -> "Config":
+    def load(config_path: str | os.PathLike = "config.toml") -> "Config":
         """
         Load configuration from a TOML or Python file.
 

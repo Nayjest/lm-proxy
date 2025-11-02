@@ -2,6 +2,7 @@
 import sys
 import logging
 import inspect
+from os import PathLike
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -52,12 +53,12 @@ class Env:
             logging.info("Component initialized: '%s'.", name)
 
     @staticmethod
-    def init(config: Config | str, debug: bool = False):
+    def init(config: Config | str | PathLike, debug: bool = False):
         """Initializes the LM-Proxy runtime environment singleton."""
         env.debug = debug
 
         if not isinstance(config, Config):
-            if isinstance(config, str):
+            if isinstance(config, (str, PathLike)):
                 config = Config.load(config)
             else:
                 raise ValueError("config must be a string (file path) or Config instance")
@@ -74,6 +75,8 @@ class Env:
             try:
                 if inspect.iscoroutinefunction(conn_config):
                     env.connections[conn_name] = conn_config
+                elif isinstance(conn_config, str):
+                    env.connections[conn_name] = resolve_instance_or_callable(conn_config)
                 else:
                     mc.configure(
                         **conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE

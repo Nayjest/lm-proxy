@@ -32,14 +32,16 @@ async def models(request: Request) -> JSONResponse:
                         f"'{env.config.model_listing_mode}' model listing mode "
                         f"is not implemented yet"
                     )
-            models_list.append(
-                {
+            model_data = {
                     "id": model_pattern,
                     "object": "model",
                     "created": 0,
                     "owned_by": connection_name,
                 }
-            )
+
+            if aux_info := env.config.model_info.get(model_pattern):
+                model_data.update(aux_info)
+            models_list.append(model_data)
 
     return JSONResponse(
         {

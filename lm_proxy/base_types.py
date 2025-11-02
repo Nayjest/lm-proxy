@@ -16,7 +16,9 @@ class ChatCompletionRequest(BaseModel):
     Request model for chat/completions endpoint.
     """
     model: str
-    messages: List[mc.Msg]
+    messages: List[mc.Msg | dict]
+    # | dict --> support of messages with lists of dicts
+    # defining distinct content-parts inside 'content' field
     stream: Optional[bool] = None
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None

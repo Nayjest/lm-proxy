@@ -16,7 +16,7 @@ from .loggers import TLogger
 
 class ModelListingMode(StrEnum):
     """
-    Enum for model listing modes in the /v1/models endpoint.
+    Enum for model listing modes in the /models endpoint.
     """
 
     # Show all models from API provider matching the patterns (not implemented yet)
@@ -55,8 +55,14 @@ class Config(BaseModel):
     enabled: bool = True
     host: str = "0.0.0.0"
     port: int = 8000
+    ssl_keyfile: str | None = None
+    """ Path to SSL key file for HTTPS support, if None, HTTP is used. """
+    ssl_certfile: str | None = None
+    """ Path to SSL certificate file for HTTPS support, if None, HTTP is used. """
+    api_prefix: str = "/v1"
+    """ Prefix for API endpoints, default is /v1 """
     dev_autoreload: bool = False
-    connections: dict[str, Union[dict, Callable]] = Field(
+    connections: dict[str, Union[dict, Callable, str]] = Field(
         ...,  # Required field (no default)
         description="Dictionary of connection configurations",
         examples=[{"openai": {"api_key": "sk-..."}}],
@@ -75,7 +81,11 @@ class Config(BaseModel):
     )
     model_listing_mode: ModelListingMode = Field(
         default=ModelListingMode.AS_IS,
-        description="How to handle wildcard models in /v1/models endpoint",
+        description="How to handle wildcard models in /models endpoint",
+    )
+    model_info: dict[str, dict] = Field(
+        default_factory=dict,
+        description="Additional metadata for /models endpoint",
     )
     components: dict[str, Union[str, Callable, dict]] = Field(default_factory=dict)
 
@@ -87,7 +97,7 @@ class Config(BaseModel):
         )
 
     @staticmethod
-    def _load_raw(config_path: str = "config.toml") -> Union["Config", Dict]:
+    def _load_raw(config_path: str | os.PathLike = "config.toml") -> Union["Config", Dict]:
         config_ext = os.path.splitext(config_path)[1].lower().lstrip(".")
         for entry_point in entry_points(group="config.loaders"):
             if config_ext == entry_point.name:
@@ -98,7 +108,7 @@ class Config(BaseModel):
         raise ValueError(f"No loader found for configuration file extension: {config_ext}")
 
     @staticmethod
-    def load(config_path: str = "config.toml") -> "Config":
+    def load(config_path: str | os.PathLike = "config.toml") -> "Config":
         """
         Load configuration from a TOML or Python file.
 

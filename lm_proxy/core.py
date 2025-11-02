@@ -120,10 +120,16 @@ async def process_stream(
             log_entry.error = e
             yield make_chunk(error={"message": str(e), "type": type(e).__name__})
 
-    # Final chunk: finish_reason
-    yield make_chunk(finish_reason="stop")
+    if log_entry.error:
+        yield make_chunk(finish_reason="error")
+    else:
+        yield make_chunk(finish_reason="stop")
     yield "data: [DONE]\n\n"
     await log_non_blocking(log_entry)
+    if log_entry.error:
+        if env.debug:
+            raise log_entry.error
+        logging.error(log_entry.error)
 
 
 def read_api_key(request: Request) -> str:
@@ -135,22 +141,6 @@ def read_api_key(request: Request) -> str:
     if auth and auth.lower().startswith("bearer "):
         return auth[7:].strip()
     return ""
-
-
-def check_api_key(api_key: Optional[str]) -> Optional[str]:
-    """
-    Validates an Client API key against configured groups and returns the matching group name.
-
-    Args:
-        api_key (Optional[str]): The Virtual / Client API key to validate.
-    Returns:
-        Optional[str]: The group name if the API key is valid and found in a group,
-        None otherwise.
-    """
-    for group_name, group in env.config.groups.items():
-        if api_key in group.api_keys:
-            return group_name
-    return None
 
 
 def api_key_id(api_key: Optional[str]) -> str | None:
@@ -170,7 +160,7 @@ async def check(request: Request) -> tuple[str, str, dict]:
     Args:
         request (Request): The incoming HTTP request object.
     Returns:
-        tuple[str, str]: A tuple containing the group name and the API key.
+        tuple[str, str, dict]: A tuple containing the group name, the API key and user_info object.
     Raises:
         HTTPException: If the service is disabled or the API key is invalid.
     """

@@ -6,6 +6,7 @@ import signal
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any
+import microcore as mc
 
 
 @dataclass
@@ -34,3 +35,7 @@ def server_config_fn():
     )
     server_process.send_signal(signal.SIGTERM)
     server_process.wait()
+
+
+async def llm_ok_connection(*args, **kwargs):
+    return mc.LLMResponse("ok")

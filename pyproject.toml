@@ -25,10 +25,10 @@ dependencies = [
 requires-python = ">=3.11,<4"
 
 authors = [
-    { name = "Vitalii Stepanenko", email = "mail@vitalii.in" },
+    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
 ]
 maintainers = [
-    { name = "Vitalii Stepanenko", email = "mail@vitalii.in" },
+    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
 ]
 license = { file = "LICENSE" }
 

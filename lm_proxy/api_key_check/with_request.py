@@ -69,7 +69,7 @@ class CheckAPIKeyWithRequest:  # pylint: disable=too-many-instance-attributes
                     "Missing optional dependency 'cachetools'. "
                     "Using 'lm_proxy.api_key_check.CheckAPIKeyWithRequest' with 'use_cache = true' "
                     "requires installing 'cachetools' package. "
-                    "\nPlease install it with following command: 'pip install cachetools'"
+                    "\nPlease install it with the following command: 'pip install cachetools'"
                 ) from e
             cache = cachetools.TTLCache(maxsize=self.cache_size, ttl=self.cache_ttl)
             self._func = cachetools.cached(cache)(check_func)

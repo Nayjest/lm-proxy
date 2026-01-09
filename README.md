@@ -421,7 +421,7 @@ This allows fine-grained control over which users can access which AI providers,
 
 #### Overview
 
-LM-proxy includes 2 built-in methods for validating Virtual API keys:
+LM-Proxy includes 2 built-in methods for validating Virtual API keys:
  - `lm_proxy.api_key_check.check_api_key_in_config` - verifies API keys against those defined in the config file; used by default
  - `lm_proxy.api_key_check.CheckAPIKeyWithRequest` - validates API keys via an external HTTP service
 

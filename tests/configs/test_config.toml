@@ -14,10 +14,12 @@ api_key = "env:GOOGLE_API_KEY"
 [connections.test_anthropic]
 api_type = "anthropic"
 api_key = "env:ANTHROPIC_API_KEY"
+
 [routing]
 "gpt*" = "test_openai.*"
 "claude*" = "test_anthropic.*"
 "gemini*" = "test_google.*"
 "*" = "test_openai.gpt-5"
+
 [groups.default]
 api_keys = []

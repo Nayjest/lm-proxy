@@ -86,7 +86,8 @@ def get_client_ip(request: Request) -> str:
         return real_ip
     if forwarded := request.headers.get("Forwarded"):
         # Parse Forwarded header (RFC 7239)
-        return forwarded.split("for=")[1].split(";")[0].strip()
+        if "for=" in forwarded:
+            return forwarded.split("for=")[1].split(";")[0].strip()
 
     # Fallback to direct client
     return request.client.host if request.client else "unknown"

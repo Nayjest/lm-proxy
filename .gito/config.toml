@@ -1,0 +1,6 @@
+exclude_files=[
+    'poetry.lock',
+]
+[prompt_vars]
+# Disable awards
+awards = ""

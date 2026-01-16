@@ -592,4 +592,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-© 2025 Vitalii Stepanenko
+© 2025–2026 [Vitalii Stepanenko](mailto:mail@vitaliy.in)

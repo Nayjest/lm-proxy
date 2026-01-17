@@ -1,4 +1,5 @@
 """Core LM-Proxy logic"""
+
 import asyncio
 import fnmatch
 import json
@@ -64,7 +65,10 @@ def resolve_connection_and_model(
 
 
 async def process_stream(
-    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
+    async_llm_func,
+    request: ChatCompletionRequest,
+    llm_params,
+    log_entry: RequestContext,
 ):
     """
     Streams the response from the LLM function.
@@ -260,17 +264,26 @@ async def chat_completions(
         raise
     await log_non_blocking(log_entry)
 
-    return JSONResponse(
-        {
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {"role": "assistant", "content": str(out)},
-                    "finish_reason": "stop",
-                }
-            ]
-        }
-    )
+    # Forward the response as-is if it's a dict/model, otherwise reconstruct
+    if hasattr(out, "model_dump"):
+        return JSONResponse(out.model_dump())
+    elif hasattr(out, "dict"):
+        return JSONResponse(out.dict())
+    elif isinstance(out, dict):
+        return JSONResponse(out)
+    else:
+        # Fallback: reconstruct response from string
+        return JSONResponse(
+            {
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": str(out)},
+                        "finish_reason": "stop",
+                    }
+                ]
+            }
+        )
 
 
 async def log(request_ctx: RequestContext):

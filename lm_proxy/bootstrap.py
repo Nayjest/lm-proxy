@@ -74,6 +74,15 @@ def create_llm_wrapper(
         except AttributeError as e:
             # Handle case where upstream returns non-JSON response (e.g., HTML)
             # microcore fails to parse and returns a string instead of response object
+            import logging
+
+            logging.error(
+                "Upstream provider returned non-JSON response. "
+                "Content-Type was likely 'text/html' instead of 'application/json'. "
+                "This is a provider issue, not a proxy issue. "
+                "Original error: %s",
+                e,
+            )
             raise ValueError(
                 f"Upstream provider returned invalid response format. "
                 f"This often happens when the API returns HTML error page instead of JSON. "

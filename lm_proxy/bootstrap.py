@@ -69,7 +69,16 @@ def create_llm_wrapper(
         merged_headers = merge_headers(extra_headers, request_headers)
         if merged_headers:
             kwargs["extra_headers"] = merged_headers
-        return await llm_func(prompt, **kwargs)
+        try:
+            return await llm_func(prompt, **kwargs)
+        except AttributeError as e:
+            # Handle case where upstream returns non-JSON response (e.g., HTML)
+            # microcore fails to parse and returns a string instead of response object
+            raise ValueError(
+                f"Upstream provider returned invalid response format. "
+                f"This often happens when the API returns HTML error page instead of JSON. "
+                f"Original error: {e}"
+            ) from e
 
     return wrapper
 

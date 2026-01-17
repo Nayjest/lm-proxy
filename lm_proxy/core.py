@@ -258,6 +258,23 @@ async def chat_completions(
         out = await async_llm_func(request.messages, **llm_params)
         log_entry.response = out
         logging.info("LLM response: %s", out)
+    except (AttributeError, ValueError) as e:
+        # Handle case where upstream returns non-JSON response (e.g., HTML error page)
+        # microcore fails to parse and returns a string, causing AttributeError
+        # We catch this and return a proper error response
+        error_msg = str(e)
+        logging.error("Upstream provider error: %s", error_msg)
+        log_entry.error = e
+        await log_non_blocking(log_entry)
+        return JSONResponse(
+            {
+                "error": {
+                    "message": f"Upstream provider returned invalid response: {error_msg}",
+                    "type": "upstream_error",
+                }
+            },
+            status_code=502,
+        )
     except Exception as e:
         log_entry.error = e
         await log_non_blocking(log_entry)

@@ -1,4 +1,5 @@
 """Core LM-Proxy logic"""
+
 import asyncio
 import fnmatch
 import json
@@ -64,7 +65,10 @@ def resolve_connection_and_model(
 
 
 async def process_stream(
-    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
+    async_llm_func,
+    request: ChatCompletionRequest,
+    llm_params,
+    log_entry: RequestContext,
 ):
     """
     Streams the response from the LLM function.
@@ -254,12 +258,43 @@ async def chat_completions(
         out = await async_llm_func(request.messages, **llm_params)
         log_entry.response = out
         logging.info("LLM response: %s", out)
+    except (AttributeError, ValueError) as e:
+        # Handle case where upstream returns non-JSON response (e.g., HTML error page)
+        # microcore fails to parse and returns a string, causing AttributeError
+        # We catch this and return a proper error response
+        error_msg = str(e)
+        logging.error("Upstream provider error: %s", error_msg)
+        log_entry.error = e
+        await log_non_blocking(log_entry)
+        return JSONResponse(
+            {
+                "error": {
+                    "message": f"Upstream provider returned invalid response: {error_msg}",
+                    "type": "upstream_error",
+                }
+            },
+            status_code=502,
+        )
     except Exception as e:
         log_entry.error = e
         await log_non_blocking(log_entry)
         raise
     await log_non_blocking(log_entry)
 
+    # Forward the response as-is if it's a dict/model, otherwise reconstruct
+    if hasattr(out, "model_dump"):
+        return JSONResponse(out.model_dump())
+    elif hasattr(out, "dict"):
+        try:
+            dict_out = out.dict()
+            if isinstance(dict_out, dict):
+                return JSONResponse(dict_out)
+        except (ValueError, TypeError, AttributeError) as e:
+            logging.debug("Failed to serialize out.dict(): %s, type=%s", e, type(out))
+    # Check if out itself is a dict (some responses return raw dict)
+    if isinstance(out, dict):
+        return JSONResponse(out)
+    # Fallback: reconstruct response from string
     return JSONResponse(
         {
             "choices": [

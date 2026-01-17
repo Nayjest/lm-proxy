@@ -285,22 +285,27 @@ async def chat_completions(
     if hasattr(out, "model_dump"):
         return JSONResponse(out.model_dump())
     elif hasattr(out, "dict"):
-        return JSONResponse(out.dict())
-    elif isinstance(out, dict):
+        try:
+            dict_out = out.dict()
+            if isinstance(dict_out, dict):
+                return JSONResponse(dict_out)
+        except (ValueError, TypeError, AttributeError) as e:
+            logging.debug("Failed to serialize out.dict(): %s, type=%s", e, type(out))
+    # Check if out itself is a dict (some responses return raw dict)
+    if isinstance(out, dict):
         return JSONResponse(out)
-    else:
-        # Fallback: reconstruct response from string
-        return JSONResponse(
-            {
-                "choices": [
-                    {
-                        "index": 0,
-                        "message": {"role": "assistant", "content": str(out)},
-                        "finish_reason": "stop",
-                    }
-                ]
-            }
-        )
+    # Fallback: reconstruct response from string
+    return JSONResponse(
+        {
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {"role": "assistant", "content": str(out)},
+                    "finish_reason": "stop",
+                }
+            ]
+        }
+    )
 
 
 async def log(request_ctx: RequestContext):

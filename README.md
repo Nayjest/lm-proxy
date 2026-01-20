@@ -242,7 +242,7 @@ lm-proxy --env=""
 LM-Proxy utilizes two distinct types of API keys to facilitate secure and efficient request handling.
 
 - **Proxy API Key (Virtual API Key, Client API Key):**  
-A unique key generated and managed within the LM-Proxy.  
+A unique key generated and managed within LM-Proxy.  
 Clients use these keys to authenticate their requests to the proxy's API endpoints.  
 Each Client API Key is associated with a specific group, which defines the scope of access and permissions for the client's requests.  
 These keys allow users to securely interact with the proxy without direct access to external service credentials.
@@ -592,4 +592,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-© 2025 Vitalii Stepanenko
+© 2025–2026 [Vitalii Stepanenko](mailto:mail@vitaliy.in)

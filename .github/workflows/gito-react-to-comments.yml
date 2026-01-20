@@ -50,7 +50,7 @@ jobs:
           };
 
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ github.repository }}
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -58,14 +58,14 @@ jobs:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with: { python-version: "3.13" }
 
     - name: Fetch Latest Gito Version
       id: gito-version
       run: pip index versions gito.bot 2>/dev/null | head -1 | sed -n 's/.* (\([^)]*\)).*/version=\1/p' >> $GITHUB_OUTPUT
 
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       id: cache
       with:
         path: |
@@ -75,15 +75,15 @@ jobs:
 
     - name: Install Gito
       if: steps.cache.outputs.cache-hit != 'true'
-      run: pip install gito.bot~=3.2
+      run: pip install gito.bot~=3.6
 
     - name: Run Gito react
       env:
         # LLM config is needed only if answer_github_comments = true in .gito/config.toml
         # Otherwise, use LLM_API_TYPE: none
-        LLM_API_TYPE: open_ai
-        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        MODEL: gpt-4.1
+        LLM_API_TYPE: anthropic
+        LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        MODEL: claude-opus-4-5
         JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         JIRA_URL: ${{ secrets.JIRA_URL }}
         JIRA_USER: ${{ secrets.JIRA_USER }}

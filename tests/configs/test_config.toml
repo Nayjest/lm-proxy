@@ -19,7 +19,7 @@ api_key = "env:ANTHROPIC_API_KEY"
 "gpt*" = "test_openai.*"
 "claude*" = "test_anthropic.*"
 "gemini*" = "test_google.*"
-"*" = "test_openai.gpt-5"
+"*" = "test_openai.gpt-5.2"
 
 [groups.default]
 api_keys = []

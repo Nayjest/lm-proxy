@@ -3,11 +3,11 @@ port: 8787
 
 connections:
   test_openai:
-    api_type: "open_ai"
+    api_type: "openai"
     api_base: "https://api.openai.com/v1/"
     api_key: "env:OPENAI_API_KEY"
   test_google:
-    api_type: "google_ai_studio"
+    api_type: "google"
     api_key: "env:GOOGLE_API_KEY"
   test_anthropic:
     api_type: "anthropic"

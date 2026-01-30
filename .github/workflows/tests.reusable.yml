@@ -9,6 +9,8 @@ on:
       update-badge:
         type: boolean
         default: false
+      environment:
+        type: string
 
 permissions:
   contents: write
@@ -16,6 +18,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
       matrix:

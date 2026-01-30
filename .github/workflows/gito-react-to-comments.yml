@@ -81,8 +81,10 @@ jobs:
         key: gito_v${{ steps.gito-version.outputs.version }}
 
     - name: Install Gito
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: pip install gito.bot~=4.0
+      # @todo: temp, testing
+      # if: steps.cache.outputs.cache-hit != 'true'
+      # run: pip install gito.bot~=4.0
+      run: pip install git+https://github.com/Nayjest/Gito.git@gitlab
 
     - name: Run Gito react
       env:
@@ -97,4 +99,4 @@ jobs:
         LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gito react-to-comment ${{ github.event.comment.id }}
+        gito react-to-comment ${{ github.event.comment.id }} --base-repo ${{ github.repository }}

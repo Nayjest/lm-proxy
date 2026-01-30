@@ -59,7 +59,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
-        repository: ${{ needs.check-pr.outputs.head_repo }}
+        repository: ${{ github.repository }}
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ needs.check-pr.outputs.head_ref }}
         fetch-depth: 0
@@ -81,10 +81,8 @@ jobs:
         key: gito_v${{ steps.gito-version.outputs.version }}
 
     - name: Install Gito
-      # @todo: temp, testing
-      # if: steps.cache.outputs.cache-hit != 'true'
-      # run: pip install gito.bot~=4.0
-      run: pip install git+https://github.com/Nayjest/Gito.git@react_to_comments_in_forks
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: pip install gito.bot~=4.0
 
     - name: Run Gito react
       env:
@@ -99,4 +97,4 @@ jobs:
         LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gito react-to-comment ${{ github.event.comment.id }} --base-repo ${{ github.repository }}
+        gito react-to-comment ${{ github.event.comment.id }}

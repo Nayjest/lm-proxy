@@ -41,7 +41,7 @@ jobs:
 
     - name: Install Gito
       if: steps.cache.outputs.cache-hit != 'true'
-      run: pip install gito.bot~=3.6
+      run: pip install gito.bot~=4.0
 
     - name: Run AI code review
       env:

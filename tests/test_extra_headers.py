@@ -46,17 +46,18 @@ class TestFilterSensitiveHeaders:
 
     def test_case_insensitive_filtering(self):
         """Test that header filtering is case-insensitive."""
-        headers = {
-            "AUTHORIZATION": "Bearer token",
-            "Content-Type": "application/json",
-            "X-Custom-Header": "value",
-        }
-        result = filter_sensitive_headers(headers)
-        assert "authorization" not in result
-        assert "AUTHORIZATION" not in result
-        assert "content-type" not in result
-        assert "Content-Type" not in result
-        assert result.get("X-Custom-Header") == "value"
+        auth_header_varitions = ["AUTHORIZATION", "Authorization", "authorization"]
+        for auth_header in auth_header_varitions:
+            headers = {
+                auth_header: "Bearer token",
+                "Content-Type": "application/json",
+                "X-Custom-Header": "value",
+            }
+            result = filter_sensitive_headers(headers)
+            assert not any(i in result for i in auth_header_varitions)
+            assert "content-type" not in result
+            assert "Content-Type" not in result
+            assert result.get("X-Custom-Header") == "value"
 
     def test_allow_custom_headers(self):
         """Test that custom X-* headers are preserved."""

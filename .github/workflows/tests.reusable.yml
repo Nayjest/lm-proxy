@@ -9,6 +9,12 @@ on:
       update-badge:
         type: boolean
         default: false
+      environment:
+        type: string
+        description: |
+          GitHub Actions environment to enforce deployment protection rules.
+          Use 'external-pr' for untrusted external PRs to require maintainer approval
+          before accessing secrets, preventing malicious code from exfiltrating credentials.
 
 permissions:
   contents: write
@@ -16,6 +22,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Enforces GitHub Actions environment protection rules (manual approval for external PRs)
+    environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
       matrix:

@@ -84,7 +84,7 @@ jobs:
       # @todo: temp, testing
       # if: steps.cache.outputs.cache-hit != 'true'
       # run: pip install gito.bot~=4.0
-      run: pip install git+https://github.com/Nayjest/Gito.git@gitlab
+      run: pip install git+https://github.com/Nayjest/Gito.git@react_to_comments_in_forks
 
     - name: Run Gito react
       env:

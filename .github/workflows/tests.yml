@@ -1,4 +1,4 @@
-name: Tests and Coverage Badge
+name: Tests / Coverage
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  test-internal:
+  test-trusted-src:
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
@@ -22,14 +22,16 @@ jobs:
       update-badge: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     secrets: inherit
 
-  test-external:
+  test-fork-pr:
     if: |
       github.event_name == 'pull_request_target' &&
       github.event.pull_request.head.repo.full_name != github.repository
     uses: ./.github/workflows/tests.reusable.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
-      # Environment requiring mandatory code check by maintainers
-      # to mitigate exfiltrating secrets using malicious code in PRs.
+      # "external-pr" GitHub env. requires workflow execution approval by maintainers
+      # to mitigate exfiltration attacks via malicious PR code.
+      # (!) Always carefully review external PRs before approving workflow runs.
+      # Blocks exfiltration attacks via malicious PR code
       environment: external-pr
     secrets: inherit  # Required for passing secrets to reusable workflow.

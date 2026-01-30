@@ -1,0 +1,63 @@
+name: Test Suite Run and Coverage Badge Update
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      update-badge:
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.ref }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        poetry install
+        echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+    - name: Test with pytest
+      if: matrix.python-version != '3.13'
+      env:
+        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        pytest
+    - name: Test with pytest +coverage
+      if: matrix.python-version == '3.13'
+      env:
+        LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        pytest --cov=lm_proxy --cov-report=xml
+    - name: Generate coverage badge
+      if: matrix.python-version == '3.13' && inputs.update-badge
+      uses: tj-actions/coverage-badge-py@v2
+      with:
+        output: 'coverage.svg'
+    - name: Commit coverage badge
+      if: matrix.python-version == '3.13' && inputs.update-badge
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add coverage.svg
+        git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

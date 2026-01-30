@@ -11,10 +11,10 @@ on:
         default: false
       environment:
         type: string
-      description: |
-        GitHub Actions environment to enforce deployment protection rules.
-        Use 'external-pr' for untrusted external PRs to require maintainer approval
-        before accessing secrets, preventing malicious code from exfiltrating credentials.
+        description: |
+          GitHub Actions environment to enforce deployment protection rules.
+          Use 'external-pr' for untrusted external PRs to require maintainer approval
+          before accessing secrets, preventing malicious code from exfiltrating credentials.
 
 permissions:
   contents: write

@@ -1,0 +1,21 @@
+# Redirects to localhost with extra headers
+port: 8125
+connections:
+  my_local_server:
+    api_type: "openai"
+    # Expect a local server deployed here, see test_extra_headers_integration.py
+    api_base: "http://127.0.0.1:8124/v1"
+    api_key: "dummy-key"
+    model: "test-model"
+    default_args:
+      extra_headers:
+        X-Custom-Header: "custom-value"
+        X-Another-Header: "another-value"
+        X-Test-Id: "test-123"
+
+routing:
+  "*": "my_local_server.*"
+
+groups:
+  default:
+    api_keys: ["extra-headers-test"]

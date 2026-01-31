@@ -7,7 +7,7 @@ import secrets
 import time
 import hashlib
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Callable, Awaitable
 
 from fastapi import HTTPException
 from starlette.requests import Request
@@ -17,6 +17,7 @@ from .base_types import ChatCompletionRequest, RequestContext
 from .bootstrap import env
 from .config import Config
 from .utils import get_client_ip
+from .middleware import run_middleware_chain
 
 
 def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
@@ -64,7 +65,11 @@ def resolve_connection_and_model(
 
 
 async def process_stream(
-    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
+    async_llm_func,
+    request: ChatCompletionRequest,
+    llm_params,
+    ctx: RequestContext,
+    on_complete: Callable[[], Awaitable[None]] | None = None,
 ):
     """
     Streams the response from the LLM function.
@@ -97,7 +102,6 @@ async def process_stream(
     task = asyncio.create_task(async_llm_func(prompt, **llm_params, callback=callback))
 
     try:
-        # Initial chunk: role
         yield make_chunk(delta={"role": "assistant"})
 
         while not task.done():
@@ -107,7 +111,6 @@ async def process_stream(
             except asyncio.TimeoutError:
                 continue
 
-        # Drain any remaining
         while not queue.empty():
             block = await queue.get()
             yield make_chunk(content=block)
@@ -115,21 +118,19 @@ async def process_stream(
     finally:
         try:
             result = await task
-            log_entry.response = result
+            ctx.response = result
         except Exception as e:
-            log_entry.error = e
+            ctx.error = e
             yield make_chunk(error={"message": str(e), "type": type(e).__name__})
 
-    if log_entry.error:
-        yield make_chunk(finish_reason="error")
-    else:
-        yield make_chunk(finish_reason="stop")
+    yield make_chunk(finish_reason="error" if ctx.error else "stop")
     yield "data: [DONE]\n\n"
-    await log_non_blocking(log_entry)
-    if log_entry.error:
-        if env.debug:
-            raise log_entry.error
-        logging.error(log_entry.error)
+
+    if on_complete:
+        await on_complete()  # Middleware "after" + logging happens here
+
+    if ctx.error and env.debug:
+        raise ctx.error
 
 
 def read_api_key(request: Request) -> str:
@@ -205,15 +206,15 @@ async def chat_completions(
 ) -> Response:
     """
     Endpoint for chat completions that mimics OpenAI's API structure.
-    Streams the response from the LLM using microcore.
     """
     group, api_key, user_info = await check(raw_request)
     llm_params = request.model_dump(exclude={"messages"}, exclude_none=True)
     connection, llm_params["model"] = resolve_connection_and_model(
         env.config, llm_params.get("model", "default_model")
     )
-    log_entry = RequestContext(
+    ctx = RequestContext(
         request=request,
+        http_request=raw_request,
         api_key_id=api_key_id(api_key),
         group=group if isinstance(group, str) else None,
         remote_addr=get_client_ip(raw_request),
@@ -242,36 +243,61 @@ async def chat_completions(
         )
 
     async_llm_func = env.connections[connection]
-
     logging.info("Querying LLM... params: %s", llm_params)
+
     if request.stream:
+        stream_complete = asyncio.Event()
+        middleware_task: asyncio.Task | None = None
+
+        async def await_stream():
+            await stream_complete.wait()
+
+        async def on_stream_complete():
+            stream_complete.set()
+            if middleware_task:
+                await middleware_task
+            await log_non_blocking(ctx)  # After middleware
+
+        if env.middleware:
+            middleware_task = asyncio.create_task(
+                run_middleware_chain(env.middleware, ctx, await_stream)
+            )
+            await asyncio.sleep(0)
+            if middleware_task.done():
+                middleware_task.result()
+
         return StreamingResponse(
-            process_stream(async_llm_func, request, llm_params, log_entry),
+            process_stream(
+                async_llm_func, request, llm_params, ctx,
+                on_complete=on_stream_complete,
+            ),
             media_type="text/event-stream",
         )
 
+    # Non-streaming
+    async def execute_llm():
+        ctx.response = await async_llm_func(request.messages, **llm_params)
+        logging.info("LLM response: %s", ctx.response)
+
     try:
-        out = await async_llm_func(request.messages, **llm_params)
-        log_entry.response = out
-        logging.info("LLM response: %s", out)
+        await run_middleware_chain(env.middleware, ctx, execute_llm)
     except Exception as e:
-        log_entry.error = e
-        await log_non_blocking(log_entry)
+        ctx.error = e
         raise
-    await log_non_blocking(log_entry)
+    finally:
+        await log_non_blocking(ctx)  # Always log, after middleware
 
     return JSONResponse(
         {
             "choices": [
                 {
                     "index": 0,
-                    "message": {"role": "assistant", "content": str(out)},
+                    "message": {"role": "assistant", "content": str(ctx.response)},
                     "finish_reason": "stop",
                 }
             ]
         }
     )
-
 
 async def log(request_ctx: RequestContext):
     """

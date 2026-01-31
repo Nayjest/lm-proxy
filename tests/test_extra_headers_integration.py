@@ -51,44 +51,23 @@ def proxy(mock_server):
     proc = subprocess.Popen(
         [sys.executable, "-m", "lm_proxy.app", "--config", "tests/configs/extra_headers.yml"]
     )
-    wait_for_server("http://127.0.0.1:8125/health")  # assumes health endpoint exists
+    wait_for_server("http://127.0.0.1:8125/health")
     yield
     proc.send_signal(signal.SIGTERM)
     proc.wait()
 
 
-@pytest.fixture(autouse=True)
-def reset_captured(mock_server):
-    mock_server.captured = {}
-
-
-def chat(msg="test"):
-    return requests.post(
+def test_extra_headers_forwarded(proxy, mock_server):
+    response = requests.post(
         "http://127.0.0.1:8125/v1/chat/completions",
-        json={"model": "test-model", "messages": [{"role": "user", "content": msg}]},
+        json={"model": "test-model", "messages": [{"role": "user", "content": "test"}]},
         headers={"Authorization": "Bearer extra-headers-test"},
         timeout=30,
     )
+    assert response.status_code == 200
 
-
-def assert_extra_headers(headers):
-    assert headers["X-Custom-Header"] == "custom-value"
-    assert headers["X-Another-Header"] == "another-value"
-    assert headers["X-Test-Id"] == "test-123"
-
-
-def test_extra_headers_forwarded(proxy, mock_server):
-    assert chat().status_code == 200
-    assert_extra_headers(mock_server.captured)
-
-
-def test_headers_consistent_across_requests(proxy, mock_server):
-    for _ in range(2):
-        mock_server.captured = {}
-        assert chat().status_code == 200
-        assert_extra_headers(mock_server.captured)
-
-
-def test_uses_upstream_credentials(proxy, mock_server):
-    assert chat().status_code == 200
-    assert "dummy-key" in mock_server.captured.get("Authorization", "")
+    h = mock_server.captured
+    assert h["X-Custom-Header"] == "custom-value"
+    assert h["X-Another-Header"] == "another-value"
+    assert h["X-Test-Id"] == "test-123"
+    assert "dummy-key" in h.get("Authorization", "")

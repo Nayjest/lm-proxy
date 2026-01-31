@@ -7,12 +7,13 @@ import json
 import signal
 import subprocess
 import sys
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 
 import pytest
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 class HeaderCapturingHandler(BaseHTTPRequestHandler):
@@ -31,24 +32,34 @@ class HeaderCapturingHandler(BaseHTTPRequestHandler):
     def log_message(self, *_): pass
 
 
-@pytest.fixture
+def wait_for_server(url, timeout=10):
+    session = requests.Session()
+    session.mount("http://", HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.1)))
+    session.get(url, timeout=timeout)
+
+
+@pytest.fixture(scope="module")
 def mock_server():
     server = HTTPServer(("127.0.0.1", 8124), HeaderCapturingHandler)
     Thread(target=server.serve_forever, daemon=True).start()
-    time.sleep(0.5)
     yield HeaderCapturingHandler
     server.shutdown()
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def proxy(mock_server):
     proc = subprocess.Popen(
         [sys.executable, "-m", "lm_proxy.app", "--config", "tests/configs/extra_headers.yml"]
     )
-    time.sleep(3)
+    wait_for_server("http://127.0.0.1:8125/health")  # assumes health endpoint exists
     yield
     proc.send_signal(signal.SIGTERM)
     proc.wait()
+
+
+@pytest.fixture(autouse=True)
+def reset_captured(mock_server):
+    mock_server.captured = {}
 
 
 def chat(msg="test"):
@@ -67,7 +78,6 @@ def assert_extra_headers(headers):
 
 
 def test_extra_headers_forwarded(proxy, mock_server):
-    mock_server.captured = {}
     assert chat().status_code == 200
     assert_extra_headers(mock_server.captured)
 
@@ -80,6 +90,5 @@ def test_headers_consistent_across_requests(proxy, mock_server):
 
 
 def test_uses_upstream_credentials(proxy, mock_server):
-    mock_server.captured = {}
     assert chat().status_code == 200
     assert "dummy-key" in mock_server.captured.get("Authorization", "")

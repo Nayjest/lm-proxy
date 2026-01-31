@@ -4,16 +4,13 @@ See tests/configs/extra_headers.yml
 """
 
 import json
-import signal
-import subprocess
-import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 
 import pytest
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+
+from tests.conftest import start_proxy, stop_proxy
 
 
 class HeaderCapturingHandler(BaseHTTPRequestHandler):
@@ -32,12 +29,6 @@ class HeaderCapturingHandler(BaseHTTPRequestHandler):
     def log_message(self, *_): pass
 
 
-def wait_for_server(url, timeout=10):
-    session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.1)))
-    session.get(url, timeout=timeout)
-
-
 @pytest.fixture(scope="module")
 def mock_server():
     server = HTTPServer(("127.0.0.1", 8124), HeaderCapturingHandler)
@@ -48,13 +39,9 @@ def mock_server():
 
 @pytest.fixture(scope="module")
 def proxy(mock_server):
-    proc = subprocess.Popen(
-        [sys.executable, "-m", "lm_proxy.app", "--config", "tests/configs/extra_headers.yml"]
-    )
-    wait_for_server("http://127.0.0.1:8125/health")
+    proc = start_proxy("tests/configs/extra_headers.yml", 8125)
     yield
-    proc.send_signal(signal.SIGTERM)
-    proc.wait()
+    stop_proxy(proc)
 
 
 def test_extra_headers_forwarded(proxy, mock_server):

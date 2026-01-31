@@ -45,6 +45,7 @@ class Env:
     debug: bool
     components: dict
     loggers: list["TLogger"]
+    middleware: list["TMiddleware"]
 
     def _init_components(self):
         self.components = {}
@@ -67,6 +68,7 @@ class Env:
         env._init_components()
 
         env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
+        env.middleware = [resolve_instance_or_callable(m) for m in env.config.middleware]
 
         # initialize connections
         env.connections = {}

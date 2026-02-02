@@ -13,7 +13,7 @@ permissions:
   actions: write
 
 jobs:
-  process-comment:
+  check-pr:
     if: |
       github.event.issue.pull_request &&
       (
@@ -31,7 +31,10 @@ jobs:
         contains(github.event.comment.body, '@bot')
       )
     runs-on: ubuntu-latest
-
+    outputs:
+      is_fork: ${{ steps.pr.outputs.is_fork }}
+      head_ref: ${{ steps.pr.outputs.head_ref }}
+      head_repo: ${{ steps.pr.outputs.head_repo }}
     steps:
     - name: Get PR details
       id: pr
@@ -43,18 +46,20 @@ jobs:
             repo: context.repo.repo,
             pull_number: context.issue.number
           });
-          return {
-            head_ref: pr.data.head.ref,
-            head_sha: pr.data.head.sha,
-            base_ref: pr.data.base.ref
-          };
+          const isFork = pr.data.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`;
+          core.setOutput('is_fork', isFork);
+          core.setOutput('head_ref', pr.data.head.ref);
+          core.setOutput('head_repo', pr.data.head.repo.full_name);
 
+  process-comment:
+    needs: check-pr
+    environment: ${{ needs.check-pr.outputs.is_fork == 'true' && 'external-pr' || '' }}
+    runs-on: ubuntu-latest
+    steps:
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
-        repository: ${{ github.repository }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        ref: ${{ fromJson(steps.pr.outputs.result).head_ref }}
+        ref: refs/pull/${{ github.event.issue.number }}/head
         fetch-depth: 0
 
     - name: Set up Python
@@ -75,7 +80,7 @@ jobs:
 
     - name: Install Gito
       if: steps.cache.outputs.cache-hit != 'true'
-      run: pip install gito.bot~=3.6
+      run: pip install gito.bot~=4.0
 
     - name: Run Gito react
       env:

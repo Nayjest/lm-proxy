@@ -59,6 +59,7 @@ def test_extra_headers_from_config(proxy, mock_server):
     assert h["X-Test-Id"] == "test-123"
     assert "dummy-key" in h.get("Authorization", "")
 
+
 def test_extra_headers_forwarder(proxy, mock_server):
     response = requests.post(
         "http://127.0.0.1:8125/v1/chat/completions",

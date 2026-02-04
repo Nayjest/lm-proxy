@@ -8,7 +8,7 @@ import time
 import hashlib
 import inspect
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional
 
 from fastapi import HTTPException
 from starlette.requests import Request
@@ -282,6 +282,7 @@ async def chat_completions(
             ]
         }
     )
+
 
 async def log(request_ctx: RequestContext):
     """

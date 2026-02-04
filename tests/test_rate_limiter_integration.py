@@ -17,13 +17,15 @@ def proxy():
     yield
     stop_proxy(proc)
 
-def make_request(content = "test", api_key="rate-limiter-test") -> requests.Response:
+
+def make_request(content="test", api_key="rate-limiter-test") -> requests.Response:
     return requests.post(
         "http://127.0.0.1:8126/v1/chat/completions",
         json={"model": "test-model", "messages": [{"role": "user", "content": content}]},
         headers={"Authorization": f"Bearer {api_key}"},
         timeout=30,
     )
+
 
 def test_rate_limiter_blocks_over_limit(proxy):
     """Test that requests exceeding rate limit are blocked with 429."""
@@ -32,7 +34,7 @@ def test_rate_limiter_blocks_over_limit(proxy):
         response = make_request(f"test {i+1}")
         assert response.status_code == 200
 
-    response = make_request(f"test second key", api_key="key2")
+    response = make_request("test second key", api_key="key2")
     assert response.status_code == 200
 
     # 3rd and 4th requests with same key using first API key should be blocked

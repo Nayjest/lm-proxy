@@ -15,7 +15,7 @@ async def test_disabled():
     with pytest.raises(HTTPException, match="disabled"):
         await chat_completions(
             ChatCompletionRequest(model='model', messages=[mc.UserMsg('Hello')]),
-            Request(scope={"type": "http", "headers": [],})
+            Request(scope={"type": "http", "headers": []})
         )
 
 

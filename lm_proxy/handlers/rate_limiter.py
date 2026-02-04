@@ -52,6 +52,8 @@ class RateLimiter:
                 return ctx.remote_addr or "anon"
             case RateLimitScope.GLOBAL:
                 return "global"
+            case _:
+                raise ValueError(f"Invalid rate limit scope: {self.per}")
 
     async def __call__(self, ctx: RequestContext) -> None:
         """

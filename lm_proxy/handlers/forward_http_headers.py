@@ -47,7 +47,6 @@ class HTTPHeadersForwarder:
     white_list_headers: set[str] = field(default_factory=set)
 
     async def __call__(self, ctx: RequestContext) -> None:
-        print("!-- HTTPHeadersForwarder called ---")
         """
         Forward HTTP headers from the incoming request to the LLM provider,
         excluding headers and those in the ignore list.

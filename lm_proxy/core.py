@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
+from openai.types.chat.chat_completion import Choice
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response, StreamingResponse
 
@@ -19,6 +20,7 @@ from .base_types import ChatCompletionRequest, RequestContext
 from .bootstrap import env
 from .config import Config
 from .utils import get_client_ip
+from .errors import OpenAIHTTPException
 
 
 def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
@@ -269,9 +271,17 @@ async def chat_completions(
     except Exception as e:
         ctx.error = e
         await log_non_blocking(ctx)
-        raise
+        error_details = f" [{type(e).__name__}]: {e}" if env.debug else ""
+        logging.exception(e)
+        raise OpenAIHTTPException(
+            message="Error processing upstream provider response" + error_details,
+            status_code=502,
+            error_type="upstream_error",
+            code="upstream_error",
+        ) from e
     await log_non_blocking(ctx)
-
+    if hasattr(out, "choices") and len(out.choices) > 0 and isinstance(out.choices[0], Choice):
+        return JSONResponse({"choices": [c.model_dump(mode="json") for c in out.choices]})
     return JSONResponse(
         {
             "choices": [

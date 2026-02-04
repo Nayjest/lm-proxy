@@ -6,8 +6,9 @@ import logging
 import secrets
 import time
 import hashlib
+import inspect
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 
 from fastapi import HTTPException
 from starlette.requests import Request
@@ -64,7 +65,9 @@ def resolve_connection_and_model(
 
 
 async def process_stream(
-    async_llm_func, request: ChatCompletionRequest, llm_params, log_entry: RequestContext
+    async_llm_func,
+    request: ChatCompletionRequest,
+    ctx: RequestContext,
 ):
     """
     Streams the response from the LLM function.
@@ -94,10 +97,9 @@ async def process_stream(
             obj["choices"][0]["finish_reason"] = finish_reason
         return "data: " + json.dumps(obj) + "\n\n"
 
-    task = asyncio.create_task(async_llm_func(prompt, **llm_params, callback=callback))
+    task = asyncio.create_task(async_llm_func(prompt, **ctx.llm_params, callback=callback))
 
     try:
-        # Initial chunk: role
         yield make_chunk(delta={"role": "assistant"})
 
         while not task.done():
@@ -107,7 +109,6 @@ async def process_stream(
             except asyncio.TimeoutError:
                 continue
 
-        # Drain any remaining
         while not queue.empty():
             block = await queue.get()
             yield make_chunk(content=block)
@@ -115,21 +116,18 @@ async def process_stream(
     finally:
         try:
             result = await task
-            log_entry.response = result
+            ctx.response = result
         except Exception as e:
-            log_entry.error = e
+            ctx.error = e
             yield make_chunk(error={"message": str(e), "type": type(e).__name__})
 
-    if log_entry.error:
-        yield make_chunk(finish_reason="error")
-    else:
-        yield make_chunk(finish_reason="stop")
+    yield make_chunk(finish_reason="error" if ctx.error else "stop")
     yield "data: [DONE]\n\n"
-    await log_non_blocking(log_entry)
-    if log_entry.error:
+    await log_non_blocking(ctx)
+    if ctx.error:
         if env.debug:
-            raise log_entry.error
-        logging.error(log_entry.error)
+            raise ctx.error
+        logging.error(ctx.error)
 
 
 def read_api_key(request: Request) -> str:
@@ -154,15 +152,9 @@ def api_key_id(api_key: Optional[str]) -> str | None:
     ).hexdigest()
 
 
-async def check(request: Request) -> tuple[str, str, dict]:
+def fail_if_service_disabled():
     """
-    API key and service availability check for endpoints.
-    Args:
-        request (Request): The incoming HTTP request object.
-    Returns:
-        tuple[str, str, dict]: A tuple containing the group name, the API key and user_info object.
-    Raises:
-        HTTPException: If the service is disabled or the API key is invalid.
+    Raises HTTPException if the service is disabled.
     """
     if not env.config.enabled:
         raise HTTPException(
@@ -176,6 +168,18 @@ async def check(request: Request) -> tuple[str, str, dict]:
                 }
             },
         )
+
+
+async def check(request: Request) -> tuple[str, str, dict]:
+    """
+    API key and service availability check for endpoints.
+    Args:
+        request (Request): The incoming HTTP request object.
+    Returns:
+        tuple[str, str, dict]: A tuple containing the group name, the API key and user_info object.
+    Raises:
+        HTTPException: If the service is disabled or the API key is invalid.
+    """
     api_key = read_api_key(request)
     result = (env.config.api_key_check)(api_key)
     if isinstance(result, tuple):
@@ -205,20 +209,22 @@ async def chat_completions(
 ) -> Response:
     """
     Endpoint for chat completions that mimics OpenAI's API structure.
-    Streams the response from the LLM using microcore.
     """
+    fail_if_service_disabled()
     group, api_key, user_info = await check(raw_request)
     llm_params = request.model_dump(exclude={"messages"}, exclude_none=True)
     connection, llm_params["model"] = resolve_connection_and_model(
         env.config, llm_params.get("model", "default_model")
     )
-    log_entry = RequestContext(
+    ctx = RequestContext(
         request=request,
+        http_request=raw_request,
         api_key_id=api_key_id(api_key),
         group=group if isinstance(group, str) else None,
         remote_addr=get_client_ip(raw_request),
         connection=connection,
         model=llm_params["model"],
+        llm_params=llm_params,
         user_info=user_info,
     )
     logging.debug(
@@ -241,24 +247,29 @@ async def chat_completions(
             },
         )
 
+    for handler in env.before:
+        result = handler(ctx)
+        if inspect.isawaitable(result):
+            await result
+
     async_llm_func = env.connections[connection]
 
-    logging.info("Querying LLM... params: %s", llm_params)
+    logging.info("Querying LLM... params: %s", ctx.llm_params)
     if request.stream:
         return StreamingResponse(
-            process_stream(async_llm_func, request, llm_params, log_entry),
+            process_stream(async_llm_func, request, ctx),
             media_type="text/event-stream",
         )
 
     try:
-        out = await async_llm_func(request.messages, **llm_params)
-        log_entry.response = out
+        out = await async_llm_func(request.messages, **ctx.llm_params)
+        ctx.response = out
         logging.info("LLM response: %s", out)
     except Exception as e:
-        log_entry.error = e
-        await log_non_blocking(log_entry)
+        ctx.error = e
+        await log_non_blocking(ctx)
         raise
-    await log_non_blocking(log_entry)
+    await log_non_blocking(ctx)
 
     return JSONResponse(
         {
@@ -271,7 +282,6 @@ async def chat_completions(
             ]
         }
     )
-
 
 async def log(request_ctx: RequestContext):
     """

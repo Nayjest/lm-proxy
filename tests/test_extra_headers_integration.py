@@ -44,7 +44,7 @@ def proxy(mock_server):
     stop_proxy(proc)
 
 
-def test_extra_headers_forwarded(proxy, mock_server):
+def test_extra_headers_from_config(proxy, mock_server):
     response = requests.post(
         "http://127.0.0.1:8125/v1/chat/completions",
         json={"model": "test-model", "messages": [{"role": "user", "content": "test"}]},
@@ -58,3 +58,28 @@ def test_extra_headers_forwarded(proxy, mock_server):
     assert h["X-Another-Header"] == "another-value"
     assert h["X-Test-Id"] == "test-123"
     assert "dummy-key" in h.get("Authorization", "")
+
+def test_extra_headers_forwarder(proxy, mock_server):
+    response = requests.post(
+        "http://127.0.0.1:8125/v1/chat/completions",
+        json={"model": "test-model", "messages": [{"role": "user", "content": "test"}]},
+        headers={
+            "Authorization": "Bearer extra-headers-test",
+            "dyn-forwarded-header": "some-value",
+            "etag": "should-not-be-forwarded",
+        },
+        timeout=30,
+    )
+    assert response.status_code == 200
+
+    h = mock_server.captured
+    # headers from config
+    assert h["X-Custom-Header"] == "custom-value"
+    assert h["X-Another-Header"] == "another-value"
+    assert h["X-Test-Id"] == "test-123"
+    # auth
+    assert "dummy-key" in h.get("Authorization", "")
+    # forwarded header
+    assert h["dyn-forwarded-header"] == "some-value"
+    # not forwarded header
+    assert "etag" not in h

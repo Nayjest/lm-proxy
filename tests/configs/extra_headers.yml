@@ -7,11 +7,12 @@ connections:
     api_base: "http://127.0.0.1:8124/v1"
     api_key: "dummy-key"
     model: "test-model"
-    default_args:
-      extra_headers:
-        X-Custom-Header: "custom-value"
-        X-Another-Header: "another-value"
-        X-Test-Id: "test-123"
+    # Extra headers to be sent with each request
+    # Supported by all major remote API types (Google, Anthropic, OpenAI, etc.)
+    http_headers:
+      X-Custom-Header: "custom-value"
+      X-Another-Header: "another-value"
+      X-Test-Id: "test-123"
 
 routing:
   "*": "my_local_server.*"
@@ -19,3 +20,7 @@ routing:
 groups:
   default:
     api_keys: ["extra-headers-test"]
+
+before:
+  # Forwards headers from the incoming request to the backend connection
+  - class: "lm_proxy.handlers.HTTPHeadersForwarder"

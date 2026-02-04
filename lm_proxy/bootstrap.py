@@ -15,6 +15,7 @@ from .config import Config
 from .utils import resolve_instance_or_callable
 
 if TYPE_CHECKING:
+    from .base_types import THandler
     from .loggers import TLogger
 
 
@@ -45,6 +46,7 @@ class Env:
     debug: bool
     components: dict
     loggers: list["TLogger"]
+    before: list["THandler"]
 
     def _init_components(self):
         self.components = {}
@@ -67,6 +69,7 @@ class Env:
         env._init_components()
 
         env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
+        env.before = [resolve_instance_or_callable(handler) for handler in env.config.before]
 
         # initialize connections
         env.connections = {}

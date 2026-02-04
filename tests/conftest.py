@@ -1,3 +1,4 @@
+import logging
 import signal
 import subprocess
 import sys

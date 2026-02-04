@@ -10,6 +10,8 @@ import uvicorn
 from .bootstrap import env, bootstrap
 from .core import chat_completions
 from .models_endpoint import models
+from .errors import OpenAIHTTPException
+
 
 cli_app = typer.Typer()
 
@@ -56,6 +58,7 @@ def web_app():
     app = FastAPI(
         title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference"
     )
+    OpenAIHTTPException.register(app)
     app.add_api_route(
         path=f"{env.config.api_prefix}/chat/completions",
         endpoint=chat_completions,

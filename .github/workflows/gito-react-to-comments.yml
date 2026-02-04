@@ -59,9 +59,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
-        repository: ${{ needs.check-pr.outputs.head_repo }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        ref: ${{ needs.check-pr.outputs.head_ref }}
+        ref: refs/pull/${{ github.event.issue.number }}/head
         fetch-depth: 0
 
     - name: Set up Python

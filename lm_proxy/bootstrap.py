@@ -13,9 +13,10 @@ from microcore.configuration import get_bool_from_env
 from dotenv import load_dotenv
 
 from .config import Config
-from .utils import resolve_instance_or_callable, merge_headers
+from .utils import resolve_instance_or_callable
 
 if TYPE_CHECKING:
+    from .base_types import THandler
     from .loggers import TLogger
 
 
@@ -41,65 +42,14 @@ def setup_logging(log_level: int = logging.INFO):
     logging.basicConfig(level=log_level, handlers=[handler])
 
 
-def create_llm_wrapper(
-    llm_func: mc.types.LLMAsyncFunctionType,
-    extra_headers: dict[str, str] | None = None,
-) -> mc.types.LLMAsyncFunctionType:
-    """
-    Create a wrapper function that injects custom headers into LLM calls.
-
-    This wrapper intercepts calls to the underlying LLM function and adds
-    custom headers to the request via the extra_headers parameter.
-
-    Args:
-        llm_func: The underlying LLM async function to wrap
-        extra_headers: Dictionary of headers to inject into requests
-
-    Returns:
-        A wrapped LLM function that includes custom headers
-    """
-    if not extra_headers:
-        return llm_func
-
-    async def wrapper(prompt, **kwargs):
-        # Extract any request-level headers
-        request_headers = kwargs.pop("extra_headers", None)
-        # Merge config-level headers with request-level headers
-        # Request-level headers take precedence over config-level
-        merged_headers = merge_headers(extra_headers, request_headers)
-        if merged_headers:
-            kwargs["extra_headers"] = merged_headers
-        try:
-            return await llm_func(prompt, **kwargs)
-        except AttributeError as e:
-            # Handle case where upstream returns non-JSON response (e.g., HTML)
-            # microcore fails to parse and returns a string instead of response object
-            import logging
-
-            logging.error(
-                "Upstream provider returned non-JSON response. "
-                "Content-Type was likely 'text/html' instead of 'application/json'. "
-                "This is a provider issue, not a proxy issue. "
-                "Original error: %s",
-                e,
-            )
-            raise ValueError(
-                f"Upstream provider returned invalid response format. "
-                f"This often happens when the API returns HTML error page instead of JSON. "
-                f"Original error: {e}"
-            ) from e
-
-    return wrapper
-
-
 class Env:
     """Runtime environment singleton."""
-
     config: Config
     connections: dict[str, mc.types.LLMAsyncFunctionType]
     debug: bool
     components: dict
     loggers: list["TLogger"]
+    before: list["THandler"]
 
     def _init_components(self):
         self.components = {}
@@ -123,9 +73,8 @@ class Env:
 
         env._init_components()
 
-        env.loggers = [
-            resolve_instance_or_callable(logger) for logger in env.config.loggers
-        ]
+        env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
+        env.before = [resolve_instance_or_callable(handler) for handler in env.config.before]
 
         # initialize connections
         env.connections = {}
@@ -139,16 +88,10 @@ class Env:
                         conn_config
                     )
                 else:
-                    # Extract extra_headers before passing to microcore
-                    extra_headers = conn_config.pop("extra_headers", None)
                     mc.configure(
                         **conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
                     )
-                    llm_func = mc.env().llm_async_function
-                    # Wrap the LLM function to inject custom headers
-                    env.connections[conn_name] = create_llm_wrapper(
-                        llm_func, extra_headers
-                    )
+                    env.connections[conn_name] = mc.env().llm_async_function
             except mc.LLMConfigError as e:
                 raise ValueError(
                     f"Error in configuration for connection '{conn_name}': {e}"
@@ -166,17 +109,9 @@ def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debu
     def log_bootstrap():
         cfg_val = "dynamic" if isinstance(config, Config) else ui.blue(config)
         cfg_line = f"\n  - Config{ui.gray('......')}[ {cfg_val} ]"
-        env_line = (
-            f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]"
-            if env_file
-            else ""
-        )
-        dbg_line = (
-            f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""
-        )
-        message = (
-            f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}"
-        )
+        env_line = f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]" if env_file else ""
+        dbg_line = f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""
+        message = f"Bootstrapping {ui.magenta('LM-Proxy')}...{cfg_line}{env_line}{dbg_line}"
         logging.info(message)
 
     if env_file:

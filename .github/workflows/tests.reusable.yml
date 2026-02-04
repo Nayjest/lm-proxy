@@ -40,7 +40,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install poetry
-        poetry install
+        poetry install -E test
         echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
     - name: Test with pytest
       if: matrix.python-version != '3.13'

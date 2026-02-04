@@ -1,0 +1,24 @@
+# Rate limiter configuration for testing
+port: 8126
+connections:
+  my_local_server:
+    api_type: "function"
+    inference_func: "tests.conftest.llm_ok_connection"
+
+routing:
+  "*": "my_local_server.*"
+
+groups:
+  default:
+    api_keys: ["rate-limiter-test", "key2"]
+
+before:
+  - class: "lm_proxy.handlers.RateLimiter"
+    max_requests: 2
+    window_seconds: 2
+    per: "api_key"
+  - class: "lm_proxy.handlers.RateLimiter"
+    max_requests: 4
+    window_seconds: 60
+    per: "connection"
+

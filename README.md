@@ -41,7 +41,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Load Balancing Example](#load-balancing-example)
   - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
   - [Using Tokens from OIDC Provider as Virtual/Client API Keys](#using-tokens-from-oidc-provider-as-virtualclient-api-keys)
-- [Add-on Components](#add-on-components)
+- [Add-on Components](#-add-on-components)
   - [Database Connector](#database-connector) 
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
@@ -156,7 +156,7 @@ api_base = "https://api.openai.com/v1/"
 api_key = "env:OPENAI_API_KEY"
 
 [connections.google]
-api_type = "google_ai_studio"
+api_type = "google"
 api_key = "env:GOOGLE_API_KEY"
 
 [connections.anthropic]

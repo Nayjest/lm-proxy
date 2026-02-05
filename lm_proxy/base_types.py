@@ -2,7 +2,7 @@
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Awaitable, Callable, List, Optional, TYPE_CHECKING, Union
+from typing import Awaitable, Callable, List, Optional, Union, TYPE_CHECKING
 
 import microcore as mc
 from pydantic import BaseModel

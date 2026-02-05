@@ -14,7 +14,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "ai-microcore>=5.1.1,<6",
+    "ai-microcore>=5.1.2,<6",
     "fastapi>=0.121.3,<1",
     "uvicorn>=0.22.0",
     "typer>=0.16.1",

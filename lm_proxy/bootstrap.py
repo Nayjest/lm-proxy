@@ -1,4 +1,5 @@
 """Initialization and bootstrapping."""
+
 import sys
 import logging
 import inspect
@@ -15,13 +16,16 @@ from .config import Config
 from .utils import resolve_instance_or_callable
 
 if TYPE_CHECKING:
+    from .base_types import THandler
     from .loggers import TLogger
 
 
 def setup_logging(log_level: int = logging.INFO):
     """Setup logging format and level."""
+
     class CustomFormatter(logging.Formatter):
         """Custom log formatter with colouring."""
+
         def format(self, record):
             dt = datetime.fromtimestamp(record.created).strftime("%H:%M:%S")
             message, level_name = record.getMessage(), record.levelname
@@ -45,6 +49,7 @@ class Env:
     debug: bool
     components: dict
     loggers: list["TLogger"]
+    before: list["THandler"]
 
     def _init_components(self):
         self.components = {}
@@ -61,12 +66,15 @@ class Env:
             if isinstance(config, (str, PathLike)):
                 config = Config.load(config)
             else:
-                raise ValueError("config must be a path (str or PathLike) or Config instance")
+                raise ValueError(
+                    "config must be a path (str or PathLike) or Config instance"
+                )
         env.config = config
 
         env._init_components()
 
         env.loggers = [resolve_instance_or_callable(logger) for logger in env.config.loggers]
+        env.before = [resolve_instance_or_callable(handler) for handler in env.config.before]
 
         # initialize connections
         env.connections = {}
@@ -76,7 +84,9 @@ class Env:
                 if inspect.iscoroutinefunction(conn_config):
                     env.connections[conn_name] = conn_config
                 elif isinstance(conn_config, str):
-                    env.connections[conn_name] = resolve_instance_or_callable(conn_config)
+                    env.connections[conn_name] = resolve_instance_or_callable(
+                        conn_config
+                    )
                 else:
                     mc.configure(
                         **conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
@@ -95,8 +105,9 @@ env = Env()
 
 def bootstrap(config: str | Config = "config.toml", env_file: str = ".env", debug=None):
     """Bootstraps the LM-Proxy environment."""
+
     def log_bootstrap():
-        cfg_val = 'dynamic' if isinstance(config, Config) else ui.blue(config)
+        cfg_val = "dynamic" if isinstance(config, Config) else ui.blue(config)
         cfg_line = f"\n  - Config{ui.gray('......')}[ {cfg_val} ]"
         env_line = f"\n  - Env. File{ui.gray('...')}[ {ui.blue(env_file)} ]" if env_file else ""
         dbg_line = f"\n  - Debug{ui.gray('.......')}[ {ui.yellow('On')} ]" if debug else ""

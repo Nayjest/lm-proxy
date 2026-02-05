@@ -2,10 +2,12 @@
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, TYPE_CHECKING
+from typing import Awaitable, Callable, List, Optional, Union, TYPE_CHECKING
 
 import microcore as mc
 from pydantic import BaseModel
+from starlette.requests import Request
+
 
 if TYPE_CHECKING:
     from .config import Group
@@ -37,11 +39,13 @@ class RequestContext:  # pylint: disable=too-many-instance-attributes
     """
     id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
     request: Optional[ChatCompletionRequest] = field(default=None)
+    http_request: Optional[Request] = field(default=None)
     response: Optional[mc.LLMResponse] = field(default=None)
     error: Optional[Exception] = field(default=None)
     group: Optional["Group"] = field(default=None)
     connection: Optional[str] = field(default=None)
     model: Optional[str] = field(default=None)
+    llm_params: dict = field(default_factory=dict)  # kwargs for microcore.llm() call
     api_key_id: Optional[str] = field(default=None)
     remote_addr: Optional[str] = field(default=None)
     created_at: Optional[datetime] = field(default_factory=datetime.now)
@@ -52,6 +56,13 @@ class RequestContext:  # pylint: disable=too-many-instance-attributes
     def to_dict(self) -> dict:
         """Export as dictionary."""
         data = self.__dict__.copy()
+        del data["http_request"]
         if self.request:
             data["request"] = self.request.model_dump(mode="json")
         return data
+
+
+THandler = Callable[
+    [RequestContext],
+    Union[Awaitable[None], None]
+]

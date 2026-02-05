@@ -88,6 +88,7 @@ class Config(BaseModel):
         description="Additional metadata for /models endpoint",
     )
     components: dict[str, Union[str, Callable, dict]] = Field(default_factory=dict)
+    before: list[Union[str, Callable, dict]] = Field(default_factory=list)
 
     def __init__(self, **data):
         super().__init__(**data)

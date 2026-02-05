@@ -1,4 +1,5 @@
 """Common usage utility functions."""
+
 import os
 import json
 import inspect
@@ -63,6 +64,7 @@ class CustomJsonEncoder(json.JSONEncoder):
     """
     Custom JSON encoder that handles datetime / date / time, pydantic models, etc.
     """
+
     def default(self, o):
         if isinstance(o, (datetime, date, time)):
             return o.isoformat()

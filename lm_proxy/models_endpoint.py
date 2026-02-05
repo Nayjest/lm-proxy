@@ -6,7 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from .bootstrap import env
-from .core import check, parse_routing_rule
+from .core import check, parse_routing_rule, fail_if_service_disabled
 from .config import ModelListingMode, Group
 
 
@@ -14,6 +14,7 @@ async def models(request: Request) -> JSONResponse:
     """
     Lists available models based on routing rules and group permissions.
     """
+    fail_if_service_disabled()
     group_name, api_key, user_info = await check(request)
     group: Group = env.config.groups[group_name]
     models_list = []

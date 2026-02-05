@@ -71,6 +71,14 @@ Python 3.11 | 3.12 | 3.13
 ```bash
 pip install lm-proxy
 ```
+For proxying to Anthropic API or Google Gemini  via Vertex AI or Google AI Studio, install optional dependencies:
+```
+pip install lm-proxy[anthropic,google]
+```
+or
+```
+pip install lm-proxy[all]
+```
 
 ### Quick Start<a id="quick-start"></a>
 

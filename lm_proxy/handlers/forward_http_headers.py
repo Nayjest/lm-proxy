@@ -49,7 +49,7 @@ class HTTPHeadersForwarder:
     async def __call__(self, ctx: RequestContext) -> None:
         """
         Forward HTTP headers from the incoming request to the LLM provider,
-        excluding headers and those in the ignore list.
+        excluding headers in the ignore list.
         If white_list_headers is set, only those headers will be forwarded.
         """
         if not ctx.http_request or not ctx.http_request.headers:

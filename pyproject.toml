@@ -13,6 +13,19 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
 ]
+
+requires-python = ">=3.11,<4"
+
+authors = [
+    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
+]
+maintainers = [
+    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
+    { name = "Nikita Sahaidachnyi"},
+]
+
+license = { file = "LICENSE" }
+
 dependencies = [
     "ai-microcore>=5.1.2,<6",
     "fastapi>=0.121.3,<1",
@@ -22,15 +35,22 @@ dependencies = [
     "pydantic~=2.12.5",
 ]
 
-requires-python = ">=3.11,<4"
-
-authors = [
-    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
+[project.optional-dependencies]
+test = [
+   "pytest~=8.4.2",
+   "pytest-asyncio~=1.2.0",
+   "pytest-cov~=7.0.0"
 ]
-maintainers = [
-    { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
+google = [
+    "google-genai>=1.62.0,<2",
 ]
-license = { file = "LICENSE" }
+anthropic = [
+    "anthropic>=0.77,<1",
+]
+all = [
+    "google-genai>=1.62.0,<2",
+    "anthropic>=0.77,<1",
+]
 
 [project.urls]
 "Source Code" = "https://github.com/Nayjest/lm-proxy"
@@ -42,12 +62,6 @@ yml = "lm_proxy.config_loaders:load_yaml_config"
 yaml = "lm_proxy.config_loaders:load_yaml_config"
 json = "lm_proxy.config_loaders:load_json_config"
 
-[project.optional-dependencies]
-test = [
-   "pytest~=8.4.2",
-   "pytest-asyncio~=1.2.0",
-   "pytest-cov~=7.0.0"
-]
 
 [project.scripts]
 lm-proxy = "lm_proxy.app:cli_app"

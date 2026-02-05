@@ -29,7 +29,9 @@ maintainers = [
     { name = "Nikita Sahaidachnyi", email = "nikita.sahaidachnyi@gmail.com"},
     { name = "Dariia Stepanenko", email = "zozulinadarina97@gmail.com"},
 ]
-
+homepage = "https://github.com/Nayjest/lm-proxy"
+repository = "https://github.com/Nayjest/lm-proxy"
+documentation = "https://github.com/Nayjest/lm-proxy#readme"
 license = { file = "LICENSE" }
 
 dependencies = [
@@ -60,6 +62,7 @@ all = [
 
 [project.urls]
 "Source Code" = "https://github.com/Nayjest/lm-proxy"
+"Bug Tracker" = "https://github.com/Nayjest/ai-microcore/issues"
 
 [project.entry-points."config.loaders"]
 toml = "lm_proxy.config_loaders:load_toml_config"

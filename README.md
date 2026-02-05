@@ -45,6 +45,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Database Connector](#database-connector)
 - [Request Handlers (Middleware)](#-request-handlers--middleware)
 - [Guides & Reference](#-guides--reference)
+- [Known Limitations](#-known-limitations)
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -645,7 +646,14 @@ prefix = "SECURITY_AUDIT"
 For more detailed information, check out these articles:
 - [HTTP Header Management](https://github.com/Nayjest/lm-proxy/blob/main/doc/http_headers.md)
 
-## 🔍 Debugging
+
+## 🚧 Known Limitations<a id="-known-limitations"></a>
+
+- **Multiple generations (n > 1):** When proxying requests to Google or Anthropic APIs, only the first generation is returned. Multi-generation support is tracked in [#35](https://github.com/Nayjest/lm-proxy/issues/35).
+
+- **Model listing with wildcards / forwarding actual model metadata:** The `/v1/models` endpoint does not query upstream providers to expand wildcard patterns (e.g., `gpt*`) or fetch model metadata. Only explicitly defined model names are listed [#36](https://github.com/Nayjest/lm-proxy/issues/36).
+
+## 🔍 Debugging<a id="-debugging"></a>
 
 ### Overview
 When **debugging mode** is enabled,

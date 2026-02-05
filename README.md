@@ -42,7 +42,9 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
   - [Using Tokens from OIDC Provider as Virtual/Client API Keys](#using-tokens-from-oidc-provider-as-virtualclient-api-keys)
 - [Add-on Components](#-add-on-components)
-  - [Database Connector](#database-connector) 
+  - [Database Connector](#database-connector)
+- [Request Handlers (Middleware)](#-request-handlers--middleware)
+- [Guides & Reference](#-guides--reference)
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -543,6 +545,90 @@ Authorization = "Bearer {api_key}"
 
 Clients pass their OIDC access token as the API key when making requests to LM-Proxy.
 
+## 🪝 Request Handlers (Middleware)<a id="-request-handlers--middleware"></a>
+
+Handlers intercept and modify requests *before* they reach the upstream LLM provider. They enable cross-cutting concerns such as rate limiting, logging, auditing, and header manipulation.
+
+Handlers are defined in the `before` list within the configuration file and execute sequentially in the order specified.
+
+### Built-in Handlers
+
+LM-Proxy includes several built-in handlers for common operational needs.
+
+#### Rate Limiter
+
+The `RateLimiter` protects upstream credentials and manages traffic load using a sliding window algorithm.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `max_requests` | int | Maximum number of requests allowed per window |
+| `window_seconds` | int | Duration of the sliding window in seconds |
+| `per` | string | Scope of the limit: `api_key`, `ip`, `connection`, `group`, or `global` |
+
+**Configuration:**
+```toml
+[[before]]
+class = "lm_proxy.handlers.RateLimiter"
+max_requests = 10
+window_seconds = 60
+per = "api_key"
+
+[[before]]
+class = "lm_proxy.handlers.RateLimiter"
+max_requests = 1000
+window_seconds = 300
+per = "global"
+```
+
+#### HTTP Headers Forwarder
+
+The `HTTPHeadersForwarder` passes specific headers from incoming client requests to the upstream provider—useful for distributed tracing or tenant context propagation.
+
+Sensitive headers (`Authorization`, `Host`, `Content-Length`) are stripped by default to prevent protocol corruption and credential leaks.
+```toml
+[[before]]
+class = "lm_proxy.handlers.HTTPHeadersForwarder"
+white_list_headers = ["x-trace-id", "x-correlation-id", "x-tenant-id"]
+```
+See also [HTTP Header Management](https://github.com/Nayjest/lm-proxy/blob/main/doc/http_headers.md).
+
+### Custom Handlers
+
+Extend functionality by implementing custom handlers in Python. A handler is any callable (function or class instance) that accepts a `RequestContext`.
+
+#### Interface
+```python
+from lm_proxy.base_types import RequestContext
+
+async def my_custom_handler(ctx: RequestContext) -> None:
+    # Implementation here
+    pass
+```
+
+#### Example: Audit Logger
+```python
+# my_extensions.py
+import logging
+from lm_proxy.base_types import RequestContext
+
+class AuditLogger:
+    def __init__(self, prefix: str = "AUDIT"):
+        self.prefix = prefix
+
+    async def __call__(self, ctx: RequestContext) -> None:
+        user = ctx.user_info.get("name", "anonymous")
+        logging.info(f"[{self.prefix}] User '{user}' requested model '{ctx.model}'")
+```
+
+**Registration:**
+```toml
+[[before]]
+class = "my_extensions.AuditLogger"
+prefix = "SECURITY_AUDIT"
+```
+
 ## 🧩 Add-on Components
 
 ### Database Connector
@@ -553,6 +639,11 @@ Clients pass their OIDC access token as the API key when making requests to LM-P
 - Configure database connections directly through LM-Proxy configuration
 - Share database connections across components, extensions, and custom functions
 - Built-in database logger for structured logging of AI request data
+
+## 📚 Guides & Reference<a id="-guides--reference"></a>
+
+For more detailed information, check out these articles:
+- [HTTP Header Management](https://github.com/Nayjest/lm-proxy/blob/main/doc/http_headers.md)
 
 ## 🔍 Debugging
 

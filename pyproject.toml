@@ -3,7 +3,7 @@ name = "lm-proxy"
 version = "3.0.0.dev1"
 description = "LM-Proxy is an OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc."
 readme = "README.md"
-keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxy-server"]
+keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxy-server", "llm gateway", "openai", "anthropic", "google genai"]
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -12,14 +12,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
-]
-dependencies = [
-    "ai-microcore>=5.1.2,<6",
-    "fastapi>=0.121.3,<1",
-    "uvicorn>=0.22.0",
-    "typer>=0.16.1",
-    "requests~=2.32.5",
-    "pydantic~=2.12.5",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Development Status :: 5 - Production/Stable",
 ]
 
 requires-python = ">=3.11,<4"
@@ -29,8 +26,36 @@ authors = [
 ]
 maintainers = [
     { name = "Vitalii Stepanenko", email = "mail@vitaliy.in" },
+    { name = "Nikita Sahaidachnyi", email = "nikita.sahaidachnyi@gmail.com"},
 ]
+
 license = { file = "LICENSE" }
+
+dependencies = [
+    "ai-microcore>=5.1.2,<6",
+    "fastapi>=0.121.3,<1",
+    "uvicorn>=0.22.0",
+    "typer>=0.16.1",
+    "requests~=2.32.5",
+    "pydantic~=2.12.5",
+]
+
+[project.optional-dependencies]
+test = [
+   "pytest~=8.4.2",
+   "pytest-asyncio~=1.2.0",
+   "pytest-cov~=7.0.0"
+]
+google = [
+    "google-genai>=1.62.0,<2",
+]
+anthropic = [
+    "anthropic>=0.77,<1",
+]
+all = [
+    "google-genai>=1.62.0,<2",
+    "anthropic>=0.77,<1",
+]
 
 [project.urls]
 "Source Code" = "https://github.com/Nayjest/lm-proxy"
@@ -42,12 +67,6 @@ yml = "lm_proxy.config_loaders:load_yaml_config"
 yaml = "lm_proxy.config_loaders:load_yaml_config"
 json = "lm_proxy.config_loaders:load_json_config"
 
-[project.optional-dependencies]
-test = [
-   "pytest~=8.4.2",
-   "pytest-asyncio~=1.2.0",
-   "pytest-cov~=7.0.0"
-]
 
 [project.scripts]
 lm-proxy = "lm_proxy.app:cli_app"

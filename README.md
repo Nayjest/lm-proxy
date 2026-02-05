@@ -45,11 +45,13 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Database Connector](#database-connector)
 - [Request Handlers (Middleware)](#-request-handlers--middleware)
 - [Guides & Reference](#-guides--reference)
+- [Known Limitations](#-known-limitations)
 - [Debugging](#-debugging)
 - [Contributing](#-contributing)
 - [License](#-license)
 
-## ✨ Features
+
+## ✨ Features<a id="-features"></a>
 
 - **Provider Agnostic**: Connect to OpenAI, Anthropic, Google AI, local models, and more using a single API
 - **Unified Interface**: Access all models through the standard OpenAI API format
@@ -59,21 +61,28 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - **Easy Configuration**: Simple TOML/YAML/JSON/Python configuration files for setup
 - **Extensible by Design**: Minimal core with clearly defined extension points, enabling seamless customization and expansion without modifying the core system.
 
-## 🚀 Getting Started
+
+## 🚀 Getting Started<a id="-getting-started"></a>
 
 ### Requirements
 Python 3.11 | 3.12 | 3.13
 
-### Installation
-
+### Installation<a id="installation"></a>
 ```bash
 pip install lm-proxy
 ```
+For proxying to Anthropic API or Google Gemini  via Vertex AI or Google AI Studio, install optional dependencies:
+```
+pip install lm-proxy[anthropic,google]
+```
+or
+```
+pip install lm-proxy[all]
+```
 
-### Quick Start
+### Quick Start<a id="quick-start"></a>
 
 #### 1. Create a `config.toml` file:
-
 ```toml
 host = "0.0.0.0"
 port = 8000
@@ -100,7 +109,6 @@ api_keys = ["YOUR_API_KEY_HERE"]
 > To enhance security, consider storing upstream API keys in operating system environment variables rather than embedding them directly in the configuration file. You can reference these variables in the configuration using the env:<VAR_NAME> syntax.
 
 #### 2. Start the server:
-
 ```bash
 lm-proxy
 ```
@@ -110,7 +118,6 @@ python -m lm_proxy
 ```
 
 #### 3. Use it with any OpenAI-compatible client:
-
 ```python
 from openai import OpenAI
 
@@ -127,7 +134,6 @@ print(completion.choices[0].message.content)
 ```
 
 Or use the same endpoint with Claude models:
-
 ```python
 completion = client.chat.completions.create(
     model="claude-opus-4-1-20250805",  # This will be routed to Anthropic based on config
@@ -135,12 +141,12 @@ completion = client.chat.completions.create(
 )
 ```
 
-## 📝 Configuration
+
+## 📝 Configuration<a id="-configuration"></a>
 
 LM-Proxy is configured through a TOML/YAML/JSON/Python file that specifies connections, routing rules, and access control.
 
-### Basic Structure
-
+### Basic Structure<a id="basic-structure"></a>
 ```toml
 host = "0.0.0.0"  # Interface to bind to
 port = 8000       # Port to listen on
@@ -199,19 +205,18 @@ created_at = "created_at"
 duration = "duration"
 ```
 
-### Environment Variables
+### Environment Variables<a id="environment-variables"></a>
 
 You can reference environment variables in your configuration file by prefixing values with `env:`.  
 
 For example:
-
 ```toml
 [connections.openai]
 api_key = "env:OPENAI_API_KEY"
 ```
 
 At runtime, LM-Proxy automatically retrieves the value of the target variable
-(OPENAI_API_KEY) from your operating system’s environment or from a .env file, if present.
+(OPENAI_API_KEY) from your operating system's environment or from a .env file, if present.
 
 ### .env Files
 
@@ -231,7 +236,6 @@ LM_PROXY_DEBUG=no
 ```
 
 You can also control `.env` file usage with the `--env` command-line option:
-
 ```bash
 # Use a custom .env file path
 lm-proxy --env="path/to/your/.env"
@@ -239,7 +243,8 @@ lm-proxy --env="path/to/your/.env"
 lm-proxy --env=""
 ```
 
-## 🔑 Proxy API Keys vs. Provider API Keys
+
+## 🔑 Proxy API Keys vs. Provider API Keys<a id="-proxy-api-keys-vs-provider-api-keys"></a>
 
 LM-Proxy utilizes two distinct types of API keys to facilitate secure and efficient request handling.
 
@@ -260,18 +265,17 @@ This distinction ensures a clear separation of concerns:
 Virtual API Keys manage user authentication and access within the proxy, 
 while Upstream API Keys handle secure communication with external providers.
 
-## 🔌 API Usage
+
+## 🔌 API Usage<a id="-api-usage"></a>
 
 LM-Proxy implements the OpenAI chat completions API endpoint. You can use any OpenAI-compatible client to interact with it.
 
-### Chat Completions Endpoint
-
+### Chat Completions Endpoint<a id="chat-completions-endpoint"></a>
 ```http
 POST /v1/chat/completions
 ```
 
 #### Request Format
-
 ```json
 {
   "model": "gpt-3.5-turbo",
@@ -285,7 +289,6 @@ POST /v1/chat/completions
 ```
 
 #### Response Format
-
 ```json
 {
   "choices": [
@@ -302,12 +305,10 @@ POST /v1/chat/completions
 ```
 
 
-### Models List Endpoint
+### Models List Endpoint<a id="models-list-endpoint"></a>
 
 
 List and describe all models available through the API.
-
-
 ```http
 GET /v1/models
 ```
@@ -317,7 +318,6 @@ Routing keys can reference both **exact model names** and **model name patterns*
 
 By default, wildcard patterns are displayed as-is in the models list (e.g., `"gpt*"`, `"claude*"`).  
 This behavior can be customized via the `model_listing_mode` configuration option:
-
 ```
 model_listing_mode = "as_is" | "ignore_wildcards" | "expand_wildcards"
 ```
@@ -350,7 +350,6 @@ api_key  = "env:ANTHROPIC_API_KEY"
 
 
 #### Response Format
-
 ```json
 {
   "object": "list",
@@ -371,23 +370,22 @@ api_key  = "env:ANTHROPIC_API_KEY"
 }
 ```
 
-## 🔒 User Groups Configuration
+
+## 🔒 User Groups Configuration<a id="-user-groups-configuration"></a>
 
 The `[groups]` section in the configuration defines access control rules for different user groups.  
 Each group can have its own set of virtual API keys and permitted connections.
 
-### Basic Group Definition
-
+### Basic Group Definition<a id="basic-group-definition"></a>
 ```toml
 [groups.default]
 api_keys = ["KEY1", "KEY2"]
 allowed_connections = "*"  # Allow access to all connections
 ```
 
-### Group-based Access Control
+### Group-based Access Control<a id="group-based-access-control"></a>
 
 You can create multiple groups to segment your users and control their access:
-
 ```toml
 # Admin group with full access
 [groups.admin]
@@ -405,7 +403,7 @@ api_keys = ["FREE_KEY_1", "FREE_KEY_2"]
 allowed_connections = "openai"  # Only allowed to use OpenAI connection
 ```
 
-### Connection Restrictions
+### Connection Restrictions<a id="connection-restrictions"></a>
 
 The `allowed_connections` parameter controls which upstream providers a group can access:
 
@@ -419,7 +417,8 @@ This allows fine-grained control over which users can access which AI providers,
 - Implementing usage quotas per group
 - Billing and cost allocation by user group
 
-### Virtual API Key Validation
+
+### Virtual API Key Validation<a id="virtual-api-key-validation"></a>
 
 #### Overview
 
@@ -436,7 +435,6 @@ In the .py config representation, the validator function can be passed directly 
 #### Example configuration for external API key validation using HTTP request to Keycloak / OpenID Connect
 
 This example shows how to validate API keys against an external service (e.g., Keycloak):
-
 ```toml
 [api_key_check]
 class = "lm_proxy.api_key_check.CheckAPIKeyWithRequest"
@@ -453,7 +451,6 @@ Authorization = "Bearer {api_key}"
 
 For more advanced authentication needs,
 you can implement a custom validator function:
-
 ```python
 # my_validators.py
 def validate_api_key(api_key: str) -> str | None:
@@ -474,7 +471,6 @@ def validate_api_key(api_key: str) -> str | None:
 ```
 
 Then reference it in your config:
-
 ```toml
 api_key_check = "my_validators.validate_api_key"
 ```
@@ -482,11 +478,11 @@ api_key_check = "my_validators.validate_api_key"
 > In this case, the `api_keys` lists in groups are ignored, and the custom function is responsible for all validation logic.
 
 
-## 🛠️ Advanced Usage
-### Dynamic Model Routing
+## 🛠️ Advanced Usage<a id="-advanced-usage"></a>
+
+### Dynamic Model Routing<a id="dynamic-model-routing"></a>
 
 The routing section allows flexible pattern matching with wildcards:
-
 ```toml
 [routing]
 "gpt-4*" = "openai.gpt-4"           # Route gpt-4 requests to OpenAI GPT-4
@@ -499,18 +495,19 @@ The routing section allows flexible pattern matching with wildcards:
 Keys are model name patterns (with `*` wildcard support), and values are connection/model mappings.
 Connection names reference those defined in the `[connections]` section.
 
-### Load Balancing Example
+### Load Balancing Example<a id="load-balancing-example"></a>
 
 - [Simple load-balancer configuration](https://github.com/Nayjest/lm-proxy/blob/main/examples/load_balancer_config.py)  
   This example demonstrates how to set up a load balancer that randomly
 distributes requests across multiple language model servers using the lm_proxy.
 
-### Google Vertex AI Configuration Example
+### Google Vertex AI Configuration Example<a id="google-vertex-ai-configuration-example"></a>
 
 - [vertex-ai.toml](https://github.com/Nayjest/lm-proxy/blob/main/examples/vertex-ai.toml)
   This example demonstrates how to connect LM-Proxy to Google Gemini model via Vertex AI API
 
-### Using Tokens from OIDC Provider as Virtual/Client API Keys
+
+### Using Tokens from OIDC Provider as Virtual/Client API Keys<a id="using-tokens-from-oidc-provider-as-virtualclient-api-keys"></a>
 
 You can configure LM-Proxy to validate tokens from OpenID Connect (OIDC) providers like Keycloak, Auth0, or Okta as API keys.
 
@@ -544,6 +541,7 @@ Authorization = "Bearer {api_key}"
 **Usage:**
 
 Clients pass their OIDC access token as the API key when making requests to LM-Proxy.
+
 
 ## 🪝 Request Handlers (Middleware)<a id="-request-handlers--middleware"></a>
 
@@ -629,9 +627,10 @@ class = "my_extensions.AuditLogger"
 prefix = "SECURITY_AUDIT"
 ```
 
-## 🧩 Add-on Components
 
-### Database Connector
+## 🧩 Add-on Components<a id="-add-on-components"></a>
+
+### Database Connector<a id="database-connector"></a>
 
 [lm-proxy-db-connector](https://github.com/nayjest/lm-proxy-db-connector) is a lightweight SQLAlchemy-based connector that enables LM-Proxy to work with relational databases including PostgreSQL, MySQL/MariaDB, SQLite, Oracle, Microsoft SQL Server, and many others.
 
@@ -640,12 +639,21 @@ prefix = "SECURITY_AUDIT"
 - Share database connections across components, extensions, and custom functions
 - Built-in database logger for structured logging of AI request data
 
+
 ## 📚 Guides & Reference<a id="-guides--reference"></a>
 
 For more detailed information, check out these articles:
 - [HTTP Header Management](https://github.com/Nayjest/lm-proxy/blob/main/doc/http_headers.md)
 
-## 🔍 Debugging
+
+## 🚧 Known Limitations<a id="-known-limitations"></a>
+
+- **Multiple generations (n > 1):** When proxying requests to Google or Anthropic APIs, only the first generation is returned. Multi-generation support is tracked in [#35](https://github.com/Nayjest/lm-proxy/issues/35).
+
+- **Model listing with wildcards / forwarding actual model metadata:** The `/v1/models` endpoint does not query upstream providers to expand wildcard patterns (e.g., `gpt*`) or fetch model metadata. Only explicitly defined model names are listed [#36](https://github.com/Nayjest/lm-proxy/issues/36).
+
+
+## 🔍 Debugging<a id="-debugging"></a>
 
 ### Overview
 When **debugging mode** is enabled,
@@ -669,7 +677,7 @@ Alternatively, you can enable or disable debugging via the command-line argument
 > CLI arguments override environment variable settings.
 
 
-## 🤝 Contributing
+## 🤝 Contributing<a id="-contributing"></a>
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -680,7 +688,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 
-## 📄 License
+## 📄 License<a id="-license"></a>
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 © 2025–2026 [Vitalii Stepanenko](mailto:mail@vitaliy.in)

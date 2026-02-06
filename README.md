@@ -50,7 +50,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - [Contributing](#-contributing)
 - [License](#-license)
 
-<h href="#" align="center"><img alt="LLM Proxy Server / Gateway" src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/press-kit/assets/lm-proxy_1_hacker_1600x672.png"></a>
+<a href="#" align="center"><img alt="LLM Proxy Server / Gateway" src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/press-kit/assets/lm-proxy_1_hacker_1600x672.png"></a>
 
 
 ## ✨ Features<a id="-features"></a>

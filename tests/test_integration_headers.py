@@ -31,7 +31,7 @@ class HeaderCapturingHandler(BaseHTTPRequestHandler):
 
 @pytest.fixture(scope="session")
 def mock_server():
-    server = HTTPServer(("127.0.0.1", 8124), HeaderCapturingHandler)
+    server = HTTPServer(("127.0.0.1", 8131), HeaderCapturingHandler)
     Thread(target=server.serve_forever, daemon=True).start()
     yield HeaderCapturingHandler
     server.shutdown()
@@ -39,14 +39,14 @@ def mock_server():
 
 @pytest.fixture(scope="session")
 def proxy(mock_server):
-    proc = start_proxy("tests/configs/extra_headers.yml", 8125)
+    proc = start_proxy("tests/configs/extra_headers.yml", 8132)
     yield
     stop_proxy(proc)
 
 
 def test_extra_headers_from_config(proxy, mock_server):
     response = requests.post(
-        "http://127.0.0.1:8125/v1/chat/completions",
+        "http://127.0.0.1:8132/v1/chat/completions",
         json={"model": "test-model", "messages": [{"role": "user", "content": "test"}]},
         headers={"Authorization": "Bearer extra-headers-test"},
         timeout=30,
@@ -62,7 +62,7 @@ def test_extra_headers_from_config(proxy, mock_server):
 
 def test_extra_headers_forwarder(proxy, mock_server):
     response = requests.post(
-        "http://127.0.0.1:8125/v1/chat/completions",
+        "http://127.0.0.1:8132/v1/chat/completions",
         json={"model": "test-model", "messages": [{"role": "user", "content": "test"}]},
         headers={
             "Authorization": "Bearer extra-headers-test",

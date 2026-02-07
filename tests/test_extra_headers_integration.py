@@ -29,7 +29,7 @@ class HeaderCapturingHandler(BaseHTTPRequestHandler):
     def log_message(self, *_): pass
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def mock_server():
     server = HTTPServer(("127.0.0.1", 8124), HeaderCapturingHandler)
     Thread(target=server.serve_forever, daemon=True).start()
@@ -37,7 +37,7 @@ def mock_server():
     server.shutdown()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def proxy(mock_server):
     proc = start_proxy("tests/configs/extra_headers.yml", 8125)
     yield

@@ -1,7 +1,7 @@
-import microcore as mc
+import json
 import requests
 from openai import OpenAI
-
+import microcore as mc
 from tests.conftest import ServerFixture
 
 
@@ -56,3 +56,44 @@ def test_models(server_config_fn: ServerFixture):
     client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
     models = {m.id for m in client.models.list().data}
     assert models == {"my-gpt", "*"}
+
+def test_tools(server_config_fn: ServerFixture):
+    cfg = server_config_fn
+    client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the weather for a location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string", "description": "City name"}
+                },
+                "required": ["location"]
+            },
+        }
+    }]
+
+    r = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What's the weather in Paris?"}],
+        tools=tools,
+    )
+    msg = r.choices[0].message
+    call = msg.tool_calls[0]
+    assert call.function.name == "get_weather"
+    assert "paris" in json.loads(call.function.arguments)["location"].lower()
+    assert r.choices[0].finish_reason == "tool_calls"
+
+    r2 = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": "What's the weather in Paris?"},
+            msg,
+            {"role": "tool", "tool_call_id": call.id, "content": '{"temp":"18°C"}'},
+        ],
+        tools=tools,
+    )
+    assert "18" in r2.choices[0].message.content
+    assert r2.choices[0].finish_reason == "stop"

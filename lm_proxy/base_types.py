@@ -30,6 +30,29 @@ class ChatCompletionRequest(BaseModel):
     presence_penalty: Optional[float] = None
     frequency_penalty: Optional[float] = None
     user: Optional[str] = None
+    tools: Optional[List[dict]] = None
+    audio: Optional[Union[bool, dict]] = None
+    frequency_penalty: Optional[float] = None
+    logit_bias: Optional[dict] = None
+    logprobs: Optional[bool] = None
+    max_completion_tokens: Optional[int] = None
+    metadata: Optional[dict] = None
+    modalities: Optional[List[str]] = None
+    parallel_tool_calls: Optional[bool] = None
+    prediction: Optional[dict] = None
+    prompt_cache_key: Optional[str] = None
+    prompt_cache_retention: Optional[str] = None
+    reasoning_effort: Optional[str] = None
+    response_format: Optional[dict] = None
+    safety_identifier: Optional[str] = None
+    service_tier: Optional[str] = None
+    stop: Optional[Union[str,List[str]]] = None
+    store: Optional[bool] = None
+    stream_options: Optional[dict] = None
+    tool_choice: Optional[dict] = None
+    top_logprobs: Optional[int] = None
+    verbosity: Optional[str] = None
+    web_search_options: Optional[dict] = None
 
 
 @dataclass

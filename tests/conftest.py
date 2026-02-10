@@ -23,7 +23,7 @@ class ServerFixture:
 
 def wait_for_server(url, timeout=10):
     session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.05)))
+    session.mount("http://", HTTPAdapter(max_retries=Retry(total=40, backoff_factor=0.1, backoff_max=1)))
     session.get(url, timeout=timeout)
 
 

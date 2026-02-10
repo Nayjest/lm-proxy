@@ -46,7 +46,7 @@ class ChatCompletionRequest(BaseModel):
     response_format: Optional[dict] = None
     safety_identifier: Optional[str] = None
     service_tier: Optional[str] = None
-    stop: Optional[Union[str,List[str]]] = None
+    stop: Optional[Union[str, List[str]]] = None
     store: Optional[bool] = None
     stream_options: Optional[dict] = None
     tool_choice: Optional[dict] = None

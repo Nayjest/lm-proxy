@@ -57,6 +57,7 @@ def test_models(server_config_fn: ServerFixture):
     models = {m.id for m in client.models.list().data}
     assert models == {"my-gpt", "*"}
 
+
 def test_tools(server_config_fn: ServerFixture):
     cfg = server_config_fn
     client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")

@@ -62,7 +62,7 @@ all = [
 
 [project.urls]
 "Source Code" = "https://github.com/Nayjest/lm-proxy"
-"Bug Tracker" = "https://github.com/Nayjest/ai-microcore/issues"
+"Bug Tracker" = "https://github.com/Nayjest/lm-proxy/issues"
 
 [project.entry-points."config.loaders"]
 toml = "lm_proxy.config_loaders:load_toml_config"

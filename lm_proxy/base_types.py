@@ -26,13 +26,11 @@ class ChatCompletionRequest(BaseModel):
     temperature: Optional[float] = None
     top_p: Optional[float] = None
     n: Optional[int] = None
-    stop: Optional[List[str]] = None
     presence_penalty: Optional[float] = None
     frequency_penalty: Optional[float] = None
     user: Optional[str] = None
     tools: Optional[List[dict]] = None
     audio: Optional[Union[bool, dict]] = None
-    frequency_penalty: Optional[float] = None
     logit_bias: Optional[dict] = None
     logprobs: Optional[bool] = None
     max_completion_tokens: Optional[int] = None

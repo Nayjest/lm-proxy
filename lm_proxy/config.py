@@ -30,6 +30,7 @@ class ModelListingMode(StrEnum):
 
 class Group(BaseModel):
     """User group configuration."""
+
     api_keys: list[str] = Field(default_factory=list)
     allowed_connections: str = Field(default="*")  # Comma-separated list or "*"
 

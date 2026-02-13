@@ -1,4 +1,5 @@
 """LLM Request logging."""
+
 import abc
 import json
 import os
@@ -11,6 +12,7 @@ from .utils import CustomJsonEncoder, resolve_instance_or_callable, resolve_obj_
 
 class AbstractLogEntryTransformer(abc.ABC):  # pylint: disable=too-few-public-methods
     """Transform RequestContext into a dictionary of logged attributes."""
+
     @abc.abstractmethod
     def __call__(self, request_context: RequestContext) -> dict:
         raise NotImplementedError()
@@ -18,6 +20,7 @@ class AbstractLogEntryTransformer(abc.ABC):  # pylint: disable=too-few-public-me
 
 class AbstractLogWriter(abc.ABC):  # pylint: disable=too-few-public-methods
     """Writes the logged data to a destination."""
+
     @abc.abstractmethod
     def __call__(self, logged_data: dict):
         raise NotImplementedError()
@@ -29,6 +32,7 @@ class LogEntryTransformer(AbstractLogEntryTransformer):  # pylint: disable=too-f
     The mapping is provided as keyword arguments, where keys are the names of the
     logged attributes, and values are the paths to the attributes in RequestContext.
     """
+
     def __init__(self, **kwargs):
         self.mapping = kwargs
 
@@ -42,6 +46,7 @@ class LogEntryTransformer(AbstractLogEntryTransformer):  # pylint: disable=too-f
 @dataclass
 class BaseLogger:
     """Base LLM request logger."""
+
     log_writer: AbstractLogWriter | str | dict
     entry_transformer: AbstractLogEntryTransformer | str | dict = field(default=None)
 
@@ -69,6 +74,7 @@ class BaseLogger:
 @dataclass
 class JsonLogWriter(AbstractLogWriter):
     """Writes logged data to a JSON file."""
+
     file_name: str
 
     def __post_init__(self):

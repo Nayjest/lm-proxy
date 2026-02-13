@@ -21,12 +21,14 @@ class HeaderCapturingHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        self.wfile.write(json.dumps({
-            "choices": [{"message": {"role": "assistant", "content": "ok"}}],
-            "model": "test"
-        }).encode())
+        self.wfile.write(
+            json.dumps(
+                {"choices": [{"message": {"role": "assistant", "content": "ok"}}], "model": "test"}
+            ).encode()
+        )
 
-    def log_message(self, *_): pass
+    def log_message(self, *_):
+        pass
 
 
 @pytest.fixture(scope="session")

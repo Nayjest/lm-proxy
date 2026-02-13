@@ -1,6 +1,7 @@
 """
 LM-Proxy Application Entrypoint
 """
+
 import logging
 from typing import Optional
 from fastapi import FastAPI
@@ -19,9 +20,7 @@ cli_app = typer.Typer()
 @cli_app.callback(invoke_without_command=True)
 def run_server(
     config: Optional[str] = typer.Option(None, help="Path to the configuration file"),
-    debug: Optional[bool] = typer.Option(
-        None, help="Enable debug mode (more verbose logging)"
-    ),
+    debug: Optional[bool] = typer.Option(None, help="Enable debug mode (more verbose logging)"),
     env_file: Optional[str] = typer.Option(
         ".env",
         "--env",
@@ -55,9 +54,7 @@ def web_app():
     """
     Entrypoint for ASGI server
     """
-    app = FastAPI(
-        title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference"
-    )
+    app = FastAPI(title="LM-Proxy", description="OpenAI-compatible proxy server for LLM inference")
     OpenAIHTTPException.register(app)
     app.add_api_route(
         path=f"{env.config.api_prefix}/chat/completions",

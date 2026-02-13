@@ -26,16 +26,17 @@ def replace_name(old_names: list[str], new_names: list[str], files: list[str] = 
             p = Path(path)
             p.write_text(
                 re.sub(
-                    fr'(?<![\\/\w]){old_name}\b',
+                    rf"(?<![\\/\w]){old_name}\b",
                     new_name,
                     p.read_text(encoding="utf-8"),
-                    flags=re.M
-                ), encoding="utf-8"
+                    flags=re.M,
+                ),
+                encoding="utf-8",
             )
 
 
 prev = NAMES[0]
-for nxt in NAMES[1:]+[NAMES[0]]:
+for nxt in NAMES[1:] + [NAMES[0]]:
     print(f"Building for project name: {nxt[0]}...")
     replace_name(prev, nxt)
     subprocess.run(["poetry", "build"], check=True)

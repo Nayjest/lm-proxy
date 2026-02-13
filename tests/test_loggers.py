@@ -18,9 +18,7 @@ async def test_custom_config():
             loggers=[
                 {
                     "class": "lm_proxy.loggers.BaseLogger",
-                    "log_writer": lambda data: logs.append(
-                        json.dumps(data, cls=CustomJsonEncoder)
-                    ),
+                    "log_writer": lambda data: logs.append(json.dumps(data, cls=CustomJsonEncoder)),
                 }
             ],
         )

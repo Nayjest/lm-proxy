@@ -1,4 +1,5 @@
 """Base types used in LM-Proxy."""
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -17,6 +18,7 @@ class ChatCompletionRequest(BaseModel):
     """
     Request model for chat/completions endpoint.
     """
+
     model: str
     messages: List[mc.Msg | dict]
     # | dict --> support of messages with lists of dicts
@@ -58,6 +60,7 @@ class RequestContext:  # pylint: disable=too-many-instance-attributes
     """
     Stores information about a single LLM request/response cycle for usage in middleware.
     """
+
     id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
     request: Optional[ChatCompletionRequest] = field(default=None)
     http_request: Optional[Request] = field(default=None)
@@ -83,7 +86,4 @@ class RequestContext:  # pylint: disable=too-many-instance-attributes
         return data
 
 
-THandler = Callable[
-    [RequestContext],
-    Union[Awaitable[None], None]
-]
+THandler = Callable[[RequestContext], Union[Awaitable[None], None]]

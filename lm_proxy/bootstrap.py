@@ -44,6 +44,7 @@ def setup_logging(log_level: int = logging.INFO):
 
 class Env:
     """Runtime environment singleton."""
+
     config: Config
     connections: dict[str, mc.types.LLMAsyncFunctionType]
     debug: bool
@@ -66,9 +67,7 @@ class Env:
             if isinstance(config, (str, PathLike)):
                 config = Config.load(config)
             else:
-                raise ValueError(
-                    "config must be a path (str or PathLike) or Config instance"
-                )
+                raise ValueError("config must be a path (str or PathLike) or Config instance")
         env.config = config
 
         env._init_components()
@@ -84,18 +83,12 @@ class Env:
                 if inspect.iscoroutinefunction(conn_config):
                     env.connections[conn_name] = conn_config
                 elif isinstance(conn_config, str):
-                    env.connections[conn_name] = resolve_instance_or_callable(
-                        conn_config
-                    )
+                    env.connections[conn_name] = resolve_instance_or_callable(conn_config)
                 else:
-                    mc.configure(
-                        **conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE
-                    )
+                    mc.configure(**conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE)
                     env.connections[conn_name] = mc.env().llm_async_function
             except mc.LLMConfigError as e:
-                raise ValueError(
-                    f"Error in configuration for connection '{conn_name}': {e}"
-                ) from e
+                raise ValueError(f"Error in configuration for connection '{conn_name}': {e}") from e
 
         logging.info("Done initializing %d connections.", len(env.connections))
 

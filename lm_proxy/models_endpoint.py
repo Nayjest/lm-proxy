@@ -24,21 +24,18 @@ async def models(request: Request) -> JSONResponse:
             is_model_name = not ("*" in model_pattern or "?" in model_pattern)
             if not is_model_name:
                 if env.config.model_listing_mode != ModelListingMode.AS_IS:
-                    if (
-                        env.config.model_listing_mode
-                        == ModelListingMode.IGNORE_WILDCARDS
-                    ):
+                    if env.config.model_listing_mode == ModelListingMode.IGNORE_WILDCARDS:
                         continue
                     raise NotImplementedError(
                         f"'{env.config.model_listing_mode}' model listing mode "
                         f"is not implemented yet"
                     )
             model_data = {
-                    "id": model_pattern,
-                    "object": "model",
-                    "created": 0,
-                    "owned_by": connection_name,
-                }
+                "id": model_pattern,
+                "object": "model",
+                "created": 0,
+                "owned_by": connection_name,
+            }
 
             if aux_info := env.config.model_info.get(model_pattern):
                 model_data.update(aux_info)

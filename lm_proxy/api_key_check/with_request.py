@@ -1,6 +1,7 @@
 """
 API key check implementation using HTTP requests.
 """
+
 from typing import Optional
 from dataclasses import dataclass, field
 import requests
@@ -13,6 +14,7 @@ class CheckAPIKeyWithRequest:  # pylint: disable=too-many-instance-attributes
     """
     Validates a Client API key by making an HTTP request to a specified URL.
     """
+
     url: str = field()
     method: str = field(default="get")
     headers: dict = field(default_factory=dict)
@@ -45,10 +47,7 @@ class CheckAPIKeyWithRequest:  # pylint: disable=too-many-instance-attributes
                     for k, v in self.headers.items()
                 }
                 response = requests.request(
-                    method=self.method,
-                    url=url,
-                    headers=headers,
-                    timeout=self.timeout
+                    method=self.method, url=url, headers=headers, timeout=self.timeout
                 )
                 response.raise_for_status()
                 group = self.default_group

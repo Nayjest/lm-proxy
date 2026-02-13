@@ -46,9 +46,7 @@ def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
     return connection_name, model_part
 
 
-def resolve_connection_and_model(
-    config: Config, external_model: str
-) -> tuple[str, str]:
+def resolve_connection_and_model(config: Config, external_model: str) -> tuple[str, str]:
     """
     Resolves the connection name and model name based on routing rules.
     Args:
@@ -150,9 +148,7 @@ def api_key_id(api_key: Optional[str]) -> str | None:
     """
     if not api_key:
         return None
-    return hashlib.md5(
-        (api_key + env.config.encryption_key).encode("utf-8")
-    ).hexdigest()
+    return hashlib.md5((api_key + env.config.encryption_key).encode("utf-8")).hexdigest()
 
 
 def fail_if_service_disabled():
@@ -207,9 +203,7 @@ async def check(request: Request) -> tuple[str, str, dict]:
     return group, api_key, user_info
 
 
-async def chat_completions(
-    request: ChatCompletionRequest, raw_request: Request
-) -> Response:
+async def chat_completions(request: ChatCompletionRequest, raw_request: Request) -> Response:
     """
     Endpoint for chat completions that mimics OpenAI's API structure.
     """

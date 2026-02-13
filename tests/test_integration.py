@@ -61,20 +61,20 @@ def test_models(server_config_fn: ServerFixture):
 def test_tools(server_config_fn: ServerFixture):
     cfg = server_config_fn
     client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get the weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "location": {"type": "string", "description": "City name"}
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"location": {"type": "string", "description": "City name"}},
+                    "required": ["location"],
                 },
-                "required": ["location"]
             },
         }
-    }]
+    ]
 
     r = client.chat.completions.create(
         model="gpt-4o",

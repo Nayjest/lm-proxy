@@ -3,6 +3,7 @@ Rate limiting handler for LM-Proxy.
 
 Provides sliding window rate limiting per API key / IP address / connection / user group / global.
 """
+
 import threading
 import time
 from dataclasses import dataclass, field
@@ -33,6 +34,7 @@ class RateLimiter:
         per: Scope for rate limiting
             ("api_key", "connection", "group", "ip", "global").
     """
+
     max_requests: int = 60
     window_seconds: float = 60.0
     per: RateLimitScope = RateLimitScope.API_KEY
@@ -68,10 +70,7 @@ class RateLimiter:
 
         with self._lock:
             if len(self._buckets) > self.max_buckets:
-                self._buckets = {
-                    k: v for k, v in self._buckets.items()
-                    if v and v[-1] > cutoff
-                }
+                self._buckets = {k: v for k, v in self._buckets.items() if v and v[-1] > cutoff}
 
             timestamps = [t for t in self._buckets.get(key, []) if t > cutoff]
 

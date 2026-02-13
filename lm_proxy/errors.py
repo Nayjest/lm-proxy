@@ -6,6 +6,7 @@ class OpenAIHTTPException(Exception):
     """
     OpenAI API-compatible exception.
     """
+
     # HTTPException from FastAPI is not used directly to provide error response format
     # compatible with OpenAI API.
 

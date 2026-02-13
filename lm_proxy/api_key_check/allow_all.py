@@ -4,6 +4,7 @@ Permissive API key validator that accepts any key and assigns it to a default gr
 This module provides a simple authentication strategy for development or testing
 environments where all API keys should be accepted without validation.
 """
+
 from typing import Optional
 from dataclasses import dataclass
 
@@ -25,10 +26,7 @@ class AllowAll:
     group: str = "default"
     capture_api_key: bool = True
 
-    def __call__(
-        self,
-        api_key: Optional[str]
-    ) -> tuple[str, dict[str, Optional[str]]]:
+    def __call__(self, api_key: Optional[str]) -> tuple[str, dict[str, Optional[str]]]:
         """
         Validate an API key (accepts all keys without verification).
 

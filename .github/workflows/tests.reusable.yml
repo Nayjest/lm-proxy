@@ -42,6 +42,9 @@ jobs:
         pip install poetry
         poetry install -E test
         echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+    - name: Debug
+      run:
+        python -c "import site; import pathlib; [print(p) for p in pathlib.Path(site.getsitepackages()[0]).rglob('*http11*')]"
     - name: Test with pytest
       if: matrix.python-version != '3.13'
       env:

@@ -28,7 +28,7 @@ def wait_for_server(url, timeout=10):
 
 
 def start_proxy(config_path: str, port: int):
-    proc = subprocess.Popen([sys.executable, "-m", "lm_proxy.app", "--config", config_path])
+    proc = subprocess.Popen([sys.executable, "-m", "lm_proxy", "--config", config_path])
     wait_for_server(f"http://127.0.0.1:{port}/health")
     return proc
 

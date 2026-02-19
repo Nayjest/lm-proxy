@@ -2,7 +2,16 @@
 <p align="center">
   <b>Lightweight, OpenAI-compatible HTTP proxy server / gateway</b><br>unifying access to multiple <b>Large Language Model providers</b> and local inference <br>through a single, standardized API endpoint.  
 </p>
-<p align="center"><a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>&#8202;<a href="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>&#8202;<a href="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml/badge.svg" alt="Code Style"></a>&#8202;<img src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/coverage.svg" alt="Code Coverage">&#8202;<a href="https://github.com/vshymanskyy/StandWithUkraine/blob/main/README.md" target="_blank"><img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/refs/heads/main/badges/StandWithUkraine.svg" alt="Stand With Ukraine"></a>&#8202;<a href="https://www.bestpractices.dev/projects/11364"><img src="https://www.bestpractices.dev/projects/11364/badge"></a>&#8202;<a href="https://github.com/Nayjest/lm-proxy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Nayjest/lm-proxy?color=d08aff" alt="License"></a></p>
+<p align="center">
+  <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>
+  <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml/badge.svg" alt="Code Style"></a>
+  <img src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/coverage.svg" alt="Code Coverage">
+  <a href="https://www.bestpractices.dev/projects/11364"><img src="https://www.bestpractices.dev/projects/11364/badge"></a>
+  <br>
+  <a href="https://github.com/vshymanskyy/StandWithUkraine/blob/main/README.md"><img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/refs/heads/main/badges/StandWithUkraine.svg" alt="Stand With Ukraine"></a>
+  <a href="https://github.com/Nayjest/lm-proxy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Nayjest/lm-proxy?color=d08aff" alt="License"></a>
+</p>
 
 Built with Python, FastAPI and [MicroCore](https://github.com/Nayjest/ai-microcore), **LM-Proxy** seamlessly integrates cloud providers like Google, Anthropic, and OpenAI, as well as local PyTorch-based inference, while maintaining full compatibility with OpenAI's API format.  
 

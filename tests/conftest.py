@@ -1,6 +1,7 @@
 import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -21,21 +22,27 @@ class ServerFixture:
     model: str = field(default=None)
 
 
-def wait_for_server(url, timeout=10):
+def wait_for_server(url, timeout=26):
     session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.05)))
+    session.mount("http://", HTTPAdapter(max_retries=Retry(total=10, backoff_factor=0.1)))
     session.get(url, timeout=timeout)
 
 
 def start_proxy(config_path: str, port: int):
     proc = subprocess.Popen([sys.executable, "-m", "lm_proxy.app", "--config", config_path])
+    time.sleep(2)
     wait_for_server(f"http://127.0.0.1:{port}/health")
     return proc
 
 
 def stop_proxy(proc):
-    proc.send_signal(signal.SIGTERM)
-    proc.wait()
+    proc.terminate()
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=5)
+
 
 
 @pytest.fixture(scope="session")

@@ -4049,4 +4049,4 @@ test = ["pytest", "pytest-asyncio", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "8d3ea494853802ad7bf33af69c294d4f6ac586dba6d4cdbf7b50f03c45fd515f"
+content-hash = "843d062dcb0138db304cfab4c92cd61e61811c6153848399a7208260b2994d92"

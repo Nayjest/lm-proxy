@@ -22,7 +22,7 @@ class Fallback(BaseModel):
 
     @field_validator("connections")
     @classmethod
-    def validate_connections(cls, v: list[str] | dict[str]) -> dict[str]:
+    def validate_connections(cls, v: list[str] | dict[str]) -> dict[str, dict]:
         if len(v) < 2:
             raise ValueError("Fallback requires at least 2 connections")
         if isinstance(v, list):
@@ -40,7 +40,7 @@ class Fallback(BaseModel):
         for conn_name, override_params in self.connections.items():
             logging.info(
                 f"Fallback strategy: using \"{ui.green(conn_name)}\" connection"
-                + ((", overriden params: " + ui.yellow(override_params)) if override_params else "")
+                + ((", overridden params: " + ui.yellow(override_params)) if override_params else "")
             )
             if conn_name not in env.connections:
                 raise ValueError(

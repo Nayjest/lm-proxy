@@ -648,6 +648,7 @@ prefix = "SECURITY_AUDIT"
 
 For more detailed information, check out these articles:
 - [HTTP Header Management](https://github.com/Nayjest/lm-proxy/blob/main/doc/http_headers.md)
+- [Configuring fallbacks](https://github.com/Nayjest/lm-proxy/blob/main/doc/fallback.md)
 
 
 ## 🚧 Known Limitations<a id="-known-limitations"></a>

@@ -61,6 +61,12 @@ class Env:
     @staticmethod
     def init(config: Config | str | PathLike, debug: bool = False):
         """Initializes the LM-Proxy runtime environment singleton."""
+
+        def _is_async_callable(obj) -> bool:
+            return inspect.iscoroutinefunction(obj) or inspect.iscoroutinefunction(
+                getattr(obj, "__call__", None)
+            )
+
         env.debug = debug
 
         if not isinstance(config, Config):
@@ -78,12 +84,11 @@ class Env:
         # initialize connections
         env.connections = {}
         for conn_name, conn_config in env.config.connections.items():
-            logging.info("Initializing '%s' LLM proxy connection...", conn_name)
+            logging.info("Initializing \"%s\" LLM proxy connection...", ui.green(conn_name))
             try:
-                if inspect.iscoroutinefunction(conn_config):
-                    env.connections[conn_name] = conn_config
-                elif isinstance(conn_config, str):
-                    env.connections[conn_name] = resolve_instance_or_callable(conn_config)
+                fn_or_config = resolve_instance_or_callable(conn_config, allow_types=[dict])
+                if _is_async_callable(fn_or_config):
+                    env.connections[conn_name] = fn_or_config
                 else:
                     mc.configure(**conn_config, EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE)
                     env.connections[conn_name] = mc.env().llm_async_function

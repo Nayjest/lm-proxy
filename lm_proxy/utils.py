@@ -37,19 +37,45 @@ def resolve_instance_or_callable(
     allow_types: list[type] = None,
 ) -> Callable | object | None:
     """
-    Resolves a class instance or callable from various configuration formats.
+    Resolves a configuration value into a callable or an object instance.
+
+    Supports multiple input formats commonly used in configuration files:
+
+    - ``None`` or ``""``: Returns ``None``.
+    - ``dict`` with a class key: Instantiates the class with remaining dict entries as kwargs.
+      Example: ``{"class": "my_module.MyClass", "param": 42}`` → ``MyClass(param=42)``
+    - ``str``: Imports the dotted path. Classes are instantiated; functions are returned as-is.
+      Example: ``"my_module.my_func"`` → ``my_func``
+      Example: ``"my_module.MyClass"`` → ``MyClass()``
+    - ``class``: Instantiated with no arguments.
+    - ``callable``: Returned as-is (lambdas, function objects, callable instances).
+    - Other types: Accepted only if their type is listed in ``allow_types``.
+
+    Args:
+        item: The configuration value to resolve.
+        class_key: Key used to identify the class in dict configs (default: ``"class"``).
+        debug_name: Human-readable label for error messages
+            (e.g., ``"logger"``, ``"api_key_check"``).
+        allow_types: Additional types to accept as valid values without transformation.
+
+    Returns:
+        A callable, an object instance, or ``None``.
+
+    Raises:
+        ValueError: If the input cannot be resolved to a valid callable or instance.
     """
     if item is None or item == "":
         return None
     if isinstance(item, dict):
-        if class_key not in item:
+        if class_key in item:
+            args = dict(item)
+            class_name = args.pop(class_key)
+            constructor = resolve_callable(class_name)
+            return constructor(**args)
+        elif dict not in (allow_types or []):
             raise ValueError(
                 f"'{class_key}' key is missing in {debug_name or 'item'} config: {item}"
             )
-        args = dict(item)
-        class_name = args.pop(class_key)
-        constructor = resolve_callable(class_name)
-        return constructor(**args)
     if isinstance(item, str):
         fn = resolve_callable(item)
         return fn() if inspect.isclass(fn) else fn

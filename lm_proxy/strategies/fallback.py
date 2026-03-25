@@ -39,8 +39,12 @@ class Fallback(BaseModel):
     async def __call__(self, *args, **kwargs):
         for conn_name, override_params in self.connections.items():
             logging.info(
-                f"Fallback strategy: using \"{ui.green(conn_name)}\" connection"
-                + ((", overridden params: " + ui.yellow(override_params)) if override_params else "")
+                f'Fallback strategy: using "{ui.green(conn_name)}" connection'
+                + (
+                    (", overridden params: " + ui.yellow(override_params))
+                    if override_params
+                    else ""
+                )
             )
             if conn_name not in env.connections:
                 raise ValueError(
@@ -59,5 +63,7 @@ class Fallback(BaseModel):
                     raise
                 logging.warning(
                     "Connection '%s' failed (%s: %s), trying next one...",
-                    conn_name, type(e).__name__, e,
+                    conn_name,
+                    type(e).__name__,
+                    e,
                 )

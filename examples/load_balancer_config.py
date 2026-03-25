@@ -44,7 +44,8 @@ config = Config(
         server2={
             "api_type": "anthropic",
             "api_key": os.getenv("ANTHROPIC_API_KEY"),
-            "model": "claude-3-5-haiku-20241022",
+            "api_base": "https://api.anthropic.com",
+            "model": "claude-sonnet-4-6",
         },
     ),
     routing={"*": "load_balancer.*"},

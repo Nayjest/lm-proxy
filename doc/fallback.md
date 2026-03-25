@@ -15,6 +15,14 @@ If all connections fail, the last exception is re-raised.
 
 ## Quick Start
 
+**1. Install LM-Proxy**
+```
+pip install lm-proxy
+```
+**2. Create your configuration file**  
+*Supported formats: TOML, YAML, Python or JSON*
+
+**fallback_config.toml**
 ```toml
 [routing]
 "*" = "fallback.*"
@@ -35,9 +43,9 @@ init_params = { max_retries = 0 }
 class = "lm_proxy.strategies.Fallback"
 connections = ["local.openai/gpt-oss-20b", "openai.gpt-5.2"]
 ```
-
+**2. Start LM-Proxy**
 ```bash
-lm-proxy --config config.toml
+lm-proxy --config fallback_config.toml
 ```
 
 ## Configuration Formats

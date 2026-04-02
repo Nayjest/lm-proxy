@@ -1,6 +1,6 @@
 [project]
 name = "lm-proxy"
-version = "3.2.1"
+version = "3.2.2"
 description = "LM-Proxy is an OpenAI-compatible http proxy server for inferencing various LLMs capable of working with Google, Anthropic, OpenAI APIs, local PyTorch inference, etc."
 readme = "README.md"
 keywords = ["llm", "large language models", "ai", "gpt", "openai", "proxy", "http", "proxy-server", "llm gateway", "openai", "anthropic", "google genai"]
@@ -38,8 +38,8 @@ dependencies = [
     "ai-microcore>=5.1.2,<7",
     "fastapi>=0.121.3,<1",
     "uvicorn>=0.41.0",
-    "typer>=0.24.0",
-    "requests~=2.32.5",
+    "typer>=0.24.0,<1",
+    "requests>=2.32.5,<3",
     "pydantic~=2.12.5",
     "websockets>=14.0,<16",
 ]

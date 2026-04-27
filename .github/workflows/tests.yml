@@ -5,33 +5,16 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  pull_request_target:
-    branches: [ "main" ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  test-trusted-src:
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+  ci:
     uses: ./.github/workflows/tests.reusable.yml
     with:
       ref: ${{ github.ref }}
       update-badge: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    secrets: inherit
-
-  test-fork-pr:
-    if: |
-      github.event_name == 'pull_request_target' &&
-      github.event.pull_request.head.repo.full_name != github.repository
-    uses: ./.github/workflows/tests.reusable.yml
-    with:
-      ref: ${{ github.event.pull_request.head.sha }}
-      # "external-pr" GitHub env. requires workflow execution approval by maintainers
-      # to mitigate exfiltration attacks via malicious PR code.
-      # (!) Always carefully review external PRs before approving workflow runs.
-      # Blocks exfiltration attacks via malicious PR code
-      environment: external-pr
-    secrets: inherit  # Required for passing secrets to reusable workflow.
+      skip-ci: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') }}
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

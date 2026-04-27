@@ -6,7 +6,7 @@
   <a href="https://pypi.org/project/lm-proxy/"><img src="https://img.shields.io/pypi/v/lm-proxy?color=blue" alt="PyPI"></a>
   <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
   <a href="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml"><img src="https://github.com/Nayjest/lm-proxy/actions/workflows/code-style.yml/badge.svg" alt="Code Style"></a>
-  <img src="https://raw.githubusercontent.com/Nayjest/lm-proxy/main/coverage.svg" alt="Code Coverage">
+  <img src="https://raw.githubusercontent.com/Nayjest/lm-proxy/coverage-badge/coverage.svg" alt="Code Coverage">
   <a href="https://www.bestpractices.dev/projects/11364"><img src="https://www.bestpractices.dev/projects/11364/badge"></a>
   <br>
   <a href="https://github.com/vshymanskyy/StandWithUkraine/blob/main/README.md"><img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/refs/heads/main/badges/StandWithUkraine.svg" alt="Stand With Ukraine"></a>

@@ -9,7 +9,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test-trusted-src:
@@ -20,7 +20,9 @@ jobs:
     with:
       ref: ${{ github.ref }}
       update-badge: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    secrets: inherit
+      skip-ci: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') }}
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   test-fork-pr:
     if: |
@@ -34,4 +36,5 @@ jobs:
       # (!) Always carefully review external PRs before approving workflow runs.
       # Blocks exfiltration attacks via malicious PR code
       environment: external-pr
-    secrets: inherit  # Required for passing secrets to reusable workflow.
+      skip-ci: false
+    # No secrets on fork PRs: reusable workflow handles this path without API keys.

@@ -35,8 +35,8 @@ documentation = "https://github.com/Nayjest/lm-proxy#readme"
 license = { file = "LICENSE" }
 
 dependencies = [
-    "ai-microcore>=5.1.2,<7",
-    "fastapi>=0.121.3,<1",
+    "ai-microcore>=6.2.1,<7",
+    "fastapi>=0.136.3,<1",
     "uvicorn>=0.41.0",
     "typer>=0.24.0,<1",
     "requests>=2.32.5,<3",

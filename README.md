@@ -26,6 +26,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - [Getting Started](#-getting-started)
   - [Installation](#installation)
   - [Quick Start](#quick-start)
+  - [Run with Docker](#run-with-docker)
 - [Configuration](#-configuration)
   - [Basic Structure](#basic-structure)
   - [Environment Variables](#environment-variables)
@@ -143,6 +144,39 @@ completion = client.chat.completions.create(
     model="claude-opus-4-1-20250805",  # This will be routed to Anthropic based on config
     messages=[{"role": "user", "content": "Hello, world!"}]
 )
+```
+
+### Run with Docker<a id="run-with-docker"></a>
+
+Official images are published to GitHub Container Registry on every release
+(`latest`, `3`, `3.2`, `3.2.2`, …; `edge` tracks the `main` branch).
+They include the Anthropic and Google connectors and YAML config support out of the box.
+
+Mount your `config.toml` and provide API keys via an `.env` file:
+
+```bash
+docker run -d --name lm-proxy \
+    -p 8000:8000 \
+    -v ./config.toml:/app/config.toml:ro \
+    --env-file .env \
+    ghcr.io/nayjest/lm-proxy:latest
+```
+
+Any value referenced in the config as `env:<VAR_NAME>` (upstream provider keys,
+client API keys, etc.) can be defined in the `.env` file:
+
+```ini
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+See [examples/docker-compose.yml](examples/docker-compose.yml) for a Docker Compose setup.
+
+To bake additional Python packages into the image (e.g. for
+[database log storage](#database-connector)), build it with the `EXTRA_PIP_PACKAGES` argument:
+
+```bash
+docker build --build-arg EXTRA_PIP_PACKAGES="lm-proxy-db-connector sqlalchemy psycopg2-binary" -t lm-proxy .
 ```
 
 

@@ -9,7 +9,6 @@ import microcore as mc
 from pydantic import BaseModel
 from starlette.requests import Request
 
-
 if TYPE_CHECKING:
     from .config import Group
 

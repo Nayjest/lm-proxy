@@ -84,7 +84,7 @@ class Env:
         # initialize connections
         env.connections = {}
         for conn_name, conn_config in env.config.connections.items():
-            logging.info("Initializing \"%s\" LLM proxy connection...", ui.green(conn_name))
+            logging.info("Initializing '%s' LLM proxy connection...", ui.green(conn_name))
             try:
                 fn_or_config = resolve_instance_or_callable(conn_config, allow_types=[dict])
                 if _is_async_callable(fn_or_config):

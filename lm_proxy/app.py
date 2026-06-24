@@ -13,7 +13,6 @@ from .core import chat_completions
 from .models_endpoint import models
 from .errors import OpenAIHTTPException
 
-
 cli_app = typer.Typer()
 
 

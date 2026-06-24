@@ -1,0 +1,7 @@
+# Allowlist: only files needed to build the package go into the build context.
+*
+!pyproject.toml
+!LICENSE
+!README.md
+!lm_proxy/
+lm_proxy/**/__pycache__/

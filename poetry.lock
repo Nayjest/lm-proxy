@@ -2,14 +2,14 @@
 
 [[package]]
 name = "ai-microcore"
-version = "6.0.0"
+version = "6.3.0"
 description = "# Minimalistic Foundation for AI Applications"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "ai_microcore-6.0.0-py3-none-any.whl", hash = "sha256:3d827cad467be8c8e8a87b6e14b9eb43e55d99d2b58dee1f1f8b22598889fa14"},
-    {file = "ai_microcore-6.0.0.tar.gz", hash = "sha256:f34619b236fedd9495542804009b28130b7820c2678ee0f2cc245ece7f80cd36"},
+    {file = "ai_microcore-6.3.0-py3-none-any.whl", hash = "sha256:742c0725d217998b59c6dc05da03559ebe423bf575cd4ec5af607781a9cabf5d"},
+    {file = "ai_microcore-6.3.0.tar.gz", hash = "sha256:b583ee1384e98bfc23c48d0a41f09b84164769a85726a02dde3430a24c30e904"},
 ]
 
 [package.dependencies]
@@ -20,9 +20,9 @@ fastmcp = ">=2.10.2,<3.0"
 httpx = ">=0.28.1,<0.29.0"
 Jinja2 = ">=3.1.2,<3.2.0"
 mcp = ">=1.10.1,<2.0"
-openai = ">=0.28.1,<2"
+openai = ">=0.28.1,<3"
 pydantic = ">=2.12.5,<2.13.0"
-python-dotenv = ">=1.1.0,<=1.2.2"
+python-dotenv = ">=1.2.2,<1.3.0"
 PyYAML = ">=6.0,<7.0"
 tiktoken = ">=0.7.0,<1.0"
 
@@ -848,14 +848,14 @@ valkey = ["valkey (>=6) ; python_version >= \"3.8\""]
 
 [[package]]
 name = "fastapi"
-version = "0.135.3"
+version = "0.136.3"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.135.3-py3-none-any.whl", hash = "sha256:9b0f590c813acd13d0ab43dd8494138eb58e484bfac405db1f3187cfc5810d98"},
-    {file = "fastapi-0.135.3.tar.gz", hash = "sha256:bd6d7caf1a2bdd8d676843cdcd2287729572a1ef524fc4d65c17ae002a1be654"},
+    {file = "fastapi-0.136.3-py3-none-any.whl", hash = "sha256:3d2a69bdf04b7e9f3afa292c3bc7a98816bbfafa10bc9b45f3f3700d2f761620"},
+    {file = "fastapi-0.136.3.tar.gz", hash = "sha256:e487fae93ad408e6f47641ee4dfe389864fd7bec92e547ea8498fc13f43e83ab"},
 ]
 
 [package.dependencies]
@@ -867,7 +867,7 @@ typing-inspection = ">=0.4.2"
 
 [package.extras]
 all = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "pyyaml (>=5.3.1)", "uvicorn[standard] (>=0.12.0)"]
-standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
+standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "fastar (>=0.9.0)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
 standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[standard-no-fastapi-cloud-cli] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
@@ -2250,7 +2250,7 @@ name = "python-dotenv"
 version = "1.2.2"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
     {file = "python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a"},
@@ -3185,4 +3185,4 @@ test = ["pytest", "pytest-asyncio", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "a5fe311252e884cd411396ba2c40f0376507c8915a1945993ccf38b8acc1e3db"
+content-hash = "9ea3cd701497398eb100f57546d1a68e2f8a1b1de76bb460be63ab15cae9585e"

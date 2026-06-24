@@ -159,7 +159,7 @@ docker run -d --name lm-proxy \
     -p 8000:8000 \
     -v ./config.toml:/app/config.toml:ro \
     --env-file .env \
-    ghcr.io/nayjest/lm-proxy:latest
+    lmproxy/lmproxy:edge
 ```
 
 Any value referenced in the config as `env:<VAR_NAME>` (upstream provider keys,

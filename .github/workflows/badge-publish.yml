@@ -1,0 +1,48 @@
+name: Publish Coverage Badge
+
+# Runs after the Tests workflow completes. Decoupled so that Tests itself can stay
+# contents: read — this workflow always runs in the repo's own context (not the PR's)
+# and is the only place granted contents: write to push the coverage-badge branch.
+on:
+  workflow_run:
+    workflows: ["Tests"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  publish-badge:
+    # Only publish when the triggering Tests run was a successful push to main.
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push'
+      && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: coverage-badge
+        fetch-depth: 1
+        # persist-credentials intentionally true (default) - git push relies on it
+
+    - name: Download coverage badge artifact from Tests run
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-badge
+        path: badge
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push coverage.svg to orphan branch coverage-badge
+      run: |
+        set -euo pipefail
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        cp badge/coverage.svg coverage.svg
+        git add coverage.svg
+        git diff --cached --quiet || git commit -m "Update coverage badge [skip ci]"
+        git push origin HEAD:coverage-badge

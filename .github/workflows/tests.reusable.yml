@@ -96,35 +96,3 @@ jobs:
         path: coverage.svg
         if-no-files-found: error
         retention-days: 1
-
-  # Isolated job: token write only for publishing coverage-badge branch.
-  update-coverage-badge:
-    needs: test
-    if: >-
-      inputs.update-badge
-      && !inputs.skip-ci
-      && needs.test.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v6
-      with:
-        ref: coverage-badge
-        fetch-depth: 1
-        token: ${{ secrets.GITHUB_TOKEN }}
-        # persist-credentials intentionally true (default) - git push relies on it
-    - uses: actions/download-artifact@v4
-      with:
-        name: coverage-badge
-        path: badge
-    - name: Push coverage.svg to orphan branch coverage-badge
-      run: |
-        set -euo pipefail
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config user.name "github-actions[bot]"
-        cp badge/coverage.svg coverage.svg
-        git add coverage.svg
-        git diff --cached --quiet || git commit -m "Update coverage badge [skip ci]"
-        git push origin HEAD:coverage-badge

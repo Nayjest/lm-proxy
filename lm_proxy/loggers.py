@@ -73,7 +73,13 @@ class BaseLogger:
 
 @dataclass
 class JsonLogWriter(AbstractLogWriter):
-    """Writes logged data to a JSON file."""
+    """Writes logged data to a JSON file.
+
+    Keeps a single file handle open for the lifetime of the writer instead of
+    opening and closing it on every write.  This avoids the repeated open/close
+    syscall overhead, which is noticeable when many requests are logged in quick
+    succession.
+    """
 
     file_name: str
 
@@ -81,13 +87,21 @@ class JsonLogWriter(AbstractLogWriter):
         dir_path = os.path.dirname(self.file_name)
         if dir_path:
             os.makedirs(dir_path, exist_ok=True)
-        # Create the file if it doesn't exist
-        with open(self.file_name, "a", encoding="utf-8"):
-            pass
+        # Open once; reuse the handle for all subsequent writes.
+        self._file = open(self.file_name, "a", encoding="utf-8")  # noqa: SIM115
 
     def __call__(self, logged_data: dict):
-        with open(self.file_name, "a", encoding="utf-8") as f:
-            f.write(json.dumps(logged_data, cls=CustomJsonEncoder) + "\n")
+        self._file.write(json.dumps(logged_data, cls=CustomJsonEncoder) + "\n")
+        self._file.flush()
+
+    def close(self) -> None:
+        """Flush and close the underlying file handle."""
+        if hasattr(self, "_file") and not self._file.closed:
+            self._file.flush()
+            self._file.close()
+
+    def __del__(self) -> None:
+        self.close()
 
 
 TLogger = Union[BaseLogger, Callable[[RequestContext], None]]

@@ -69,3 +69,32 @@ async def test_json(tmp_path):
         log_data = json.loads(lines[0])
         assert log_data["request"]["model"] == "gpt-3.5-turbo"
         assert log_data["response"] == "Test response message"
+
+
+def test_json_writer_reuses_file_handle(tmp_path):
+    """JsonLogWriter should keep one file handle open across multiple writes."""
+    from lm_proxy.loggers import JsonLogWriter
+
+    log_file = tmp_path / "reuse_test.log"
+    writer = JsonLogWriter(file_name=str(log_file))
+
+    # File handle should be open after construction
+    assert not writer._file.closed
+
+    writer({"event": "first"})
+    writer({"event": "second"})
+
+    # Handle remains open between writes
+    assert not writer._file.closed
+
+    # Explicit close works
+    writer.close()
+    assert writer._file.closed
+
+    # Double-close is safe
+    writer.close()
+
+    lines = log_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    assert json.loads(lines[0])["event"] == "first"
+    assert json.loads(lines[1])["event"] == "second"

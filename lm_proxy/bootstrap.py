@@ -94,7 +94,8 @@ class Env:
                     env.connections[conn_name] = mc.env().llm_async_function
             except mc.LLMConfigError as e:
                 raise ValueError(f"Error in configuration for connection '{conn_name}': {e}") from e
-
+        if config.print_stream:
+            mc.use_logging(stream=True)
         logging.info("Done initializing %d connections.", len(env.connections))
 
 

@@ -9,6 +9,9 @@ api_key_check="lm_proxy.api_key_check.check_api_key_in_config"
 
 model_listing_mode = "as_is"
 
+# Prints LLM requests and responses to stdout, use for local development / debugging only
+# print_stream = true
+
 [connections]
 
 [connections.openai]

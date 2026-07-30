@@ -96,6 +96,8 @@ class Env:
                 raise ValueError(f"Error in configuration for connection '{conn_name}': {e}") from e
         if config.print_stream:
             mc.use_logging(stream=True)
+            # Proxied prompts are printed in full, without "...(output was truncated)..."
+            mc.logging.LoggingConfig.STRIP_REQUEST_LINES = None
         logging.info("Done initializing %d connections.", len(env.connections))
 
 

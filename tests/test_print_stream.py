@@ -14,10 +14,10 @@ def remove_colors(text: str) -> str:
     return re.sub(r"\x1b\[\d+m", "", text)
 
 
-def make_request() -> ChatCompletionRequest:
+def make_request(content: str = "Hi") -> ChatCompletionRequest:
     return ChatCompletionRequest(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": "Hi"}],
+        messages=[{"role": "user", "content": content}],
         stream=True,
     )
 
@@ -64,3 +64,21 @@ async def test_print_stream(capsys):
     assert out.endswith("\n")
     assert ctx.response == "Hello"
     assert chunks[-1] == "data: [DONE]\n\n"
+
+
+async def test_long_prompt_is_printed_without_truncation(capsys):
+    mc.configure(USE_DOT_ENV=False, LLM_API_KEY="test", EMBEDDING_DB_TYPE=mc.EmbeddingDbType.NONE)
+    bootstrap(Config(connections={}, print_stream=True))
+    prompt_lines = [f"line {i}" for i in range(100)]
+    try:
+        ctx = RequestContext(request=make_request("\n".join(prompt_lines)))
+        print_llm_request(ctx)
+    finally:
+        mc.config().CALLBACKS.clear()
+        mc.env().llm_before_handlers.clear()
+        mc.env().llm_after_handlers.clear()
+
+    out = remove_colors(capsys.readouterr().out)
+    assert "(output was truncated)" not in out
+    for line in prompt_lines:
+        assert line in out

@@ -11,6 +11,7 @@ import inspect
 from datetime import datetime
 from typing import Optional
 
+import microcore as mc
 from fastapi import HTTPException
 from openai.types.chat.chat_completion import Choice
 from starlette.requests import Request
@@ -63,6 +64,30 @@ def resolve_connection_and_model(config: Config, external_model: str) -> tuple[s
         f"No routing rule matched model '{external_model}'. "
         'Add a catch-all rule like "*" = "openai.gpt-3.5-turbo" if desired.'
     )
+
+
+def print_llm_request(ctx: RequestContext):
+    """
+    Prints the LLM request to stdout when the `print_stream` option is enabled.
+
+    LM-Proxy queries the LLM API function directly instead of using microcore.allm(),
+    so microcore request / response handlers are triggered explicitly.
+    """
+    if env.config.print_stream:
+        for handler in mc.env().llm_before_handlers:
+            handler(ctx.request.messages, **ctx.llm_params)
+
+
+def finish_printing_llm_response(ctx: RequestContext):
+    """
+    Completes printing of the LLM response to stdout, in particular terminates
+    the line of the streamed output, when the `print_stream` option is enabled.
+
+    See print_llm_request().
+    """
+    if env.config.print_stream:
+        for handler in mc.env().llm_after_handlers:
+            handler(ctx.response)
 
 
 async def process_stream(
@@ -121,6 +146,7 @@ async def process_stream(
         except Exception as e:
             ctx.error = e
             yield make_chunk(error={"message": str(e), "type": type(e).__name__})
+        finish_printing_llm_response(ctx)
 
     yield make_chunk(finish_reason="error" if ctx.error else "stop")
     yield "data: [DONE]\n\n"
@@ -252,6 +278,7 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
     async_llm_func = env.connections[connection]
 
     logging.info("Querying LLM... params: %s", ctx.llm_params)
+    print_llm_request(ctx)
     if request.stream:
         return StreamingResponse(
             process_stream(async_llm_func, request, ctx),
@@ -261,9 +288,11 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
     try:
         out = await async_llm_func(request.messages, **ctx.llm_params)
         ctx.response = out
+        finish_printing_llm_response(ctx)
         logging.info("LLM response: %s", out)
     except Exception as e:
         ctx.error = e
+        finish_printing_llm_response(ctx)
         await log_non_blocking(ctx)
         error_details = f" [{type(e).__name__}]: {e}" if env.debug else ""
         logging.exception(e)

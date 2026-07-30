@@ -50,6 +50,8 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
 - [Guides & Reference](#-guides--reference)
 - [Known Limitations](#-known-limitations)
 - [Debugging](#-debugging)
+  - [Debugging Mode](#debugging-mode)
+  - [Printing LLM Requests and Responses](#printing-llm-requests-and-responses)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -189,6 +191,7 @@ LM-Proxy is configured through a TOML/YAML/JSON/Python file that specifies conne
 host = "0.0.0.0"  # Interface to bind to
 port = 8000       # Port to listen on
 dev_autoreload = false  # Enable for development
+print_stream = false    # Print LLM requests / responses to stdout, see "Debugging"
 
 # API key validation function (optional)
 api_key_check = "lm_proxy.api_key_check.check_api_key_in_config"
@@ -695,7 +698,9 @@ For more detailed information, check out these articles:
 
 ## 🔍 Debugging<a id="-debugging"></a>
 
-### Overview
+### Debugging Mode<a id="debugging-mode"></a>
+
+#### Overview
 When **debugging mode** is enabled,
 LM-Proxy provides detailed logging information to help diagnose issues:
 - Stack traces for exceptions are shown in the console
@@ -704,7 +709,7 @@ LM-Proxy provides detailed logging information to help diagnose issues:
 > **Warning** ⚠️  
 > Never enable debugging mode in production environments, as it may expose sensitive information to the application logs.
 
-### Enabling Debugging Mode
+#### Enabling Debugging Mode
 To enable debugging, set the `LM_PROXY_DEBUG` environment variable to a truthy value (e.g., "1", "true", "yes").
 > **Tip** 💡  
 > Environment variables can also be defined in a `.env` file.
@@ -715,6 +720,30 @@ Alternatively, you can enable or disable debugging via the command-line argument
 
 > **Note** ℹ️   
 > CLI arguments override environment variable settings.
+
+### Printing LLM Requests and Responses<a id="printing-llm-requests-and-responses"></a>
+
+The `print_stream` configuration option makes LM-Proxy print every LLM request
+and response to stdout, with the response appearing token by token as it is generated:
+
+```toml
+print_stream = true
+```
+
+```text
+Requesting LLM gpt-5:
+    [User]:
+        What is the capital of France?
+LLM Response:
+    The capital of France is Paris.
+```
+
+This works for both streaming and non-streaming client requests.
+
+> **Warning** ⚠️  
+> Intended for local development and troubleshooting only.
+> Prompts and generated content are written to the console in plain text,
+> and the output of requests processed in parallel is interleaved.
 
 
 ## 🤝 Contributing<a id="-contributing"></a>

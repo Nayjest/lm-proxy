@@ -90,6 +90,10 @@ class Config(BaseModel):
     )
     components: dict[str, Union[str, Callable, dict]] = Field(default_factory=dict)
     before: list[Union[str, Callable, dict]] = Field(default_factory=list)
+    print_stream: bool = Field(
+        default=False,
+        description="Prints LLM requests / responses to stdout"
+    )
 
     def __init__(self, **data):
         super().__init__(**data)

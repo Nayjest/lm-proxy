@@ -151,7 +151,7 @@ completion = client.chat.completions.create(
 ### Run with Docker<a id="run-with-docker"></a>
 
 Official images are published to GitHub Container Registry on every release
-(`latest`, `3`, `3.2`, `3.2.2`, …; `edge` tracks the `main` branch).
+(`latest`, `3`, `3.3`, `3.3.0`, …; `edge` tracks the `main` branch).
 They include the Anthropic and Google connectors and YAML config support out of the box.
 
 Mount your `config.toml` and provide API keys via an `.env` file:

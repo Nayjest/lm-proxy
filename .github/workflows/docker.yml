@@ -5,12 +5,13 @@ name: Docker
 #   - docker.io/lmproxy/lmproxy -- only when the
 #     DOCKERHUB_TOKEN repository secret is configured.
 #
-# Invoked by the release workflow (release.yml) when a release is published
+# Runs when a GitHub release is published
 # (producing X.Y.Z, X.Y, X and latest tags from the release tag "vX.Y.Z");
 # pushes to main produce "edge".
 
 on:
-  workflow_call:
+  release:
+    types: [ published ]
   push:
     branches: [ main ]
   workflow_dispatch:

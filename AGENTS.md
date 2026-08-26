@@ -58,3 +58,5 @@ Extension points (all configured by reference, no core changes needed):
 - Streaming errors are not HTTP errors: they arrive as a final SSE chunk carrying an `error` object and `finish_reason: "error"`, followed by `data: [DONE]`.
 - `config.encryption_key` salts the MD5 `api_key_id` hash used to identify keys in logs — client API keys are never logged raw.
 - Supported Python: 3.11–3.13.
+- Never attribute work to an AI tool: no assistant/model/vendor names or "AI-generated" markers in branch names, commit messages, PR text, comments, or docs.
+- Keep it simple (KISS). Be laconic: minimal code, minimal docs, minimal PR/commit text.

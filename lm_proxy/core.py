@@ -145,7 +145,7 @@ async def process_stream(
             ctx.response = result
         except Exception as e:
             ctx.error = e
-            yield make_chunk(error={"message": str(e), "type": type(e).__name__})
+            yield make_chunk(error=e)
         finish_printing_llm_response(ctx)
 
     yield make_chunk(finish_reason="error" if ctx.error else "stop")

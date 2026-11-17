@@ -11,7 +11,7 @@ async def llm_failing(_prompt, callback=None, **_kwargs):
 
 
 async def test_stream_error_chunk_carries_exception_message_and_type():
-    bootstrap(Config(connections={}))
+    bootstrap(Config(connections={}), debug=False)
     request = ChatCompletionRequest(
         model="gpt-3.5-turbo", messages=[{"role": "user", "content": "Hi"}], stream=True
     )

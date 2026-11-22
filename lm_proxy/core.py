@@ -106,11 +106,6 @@ async def process_stream(
     async def callback(chunk):
         await queue.put(chunk)
 
-    async def on_openai_chunk(chunk):
-        await queue.put(chunk)
-
-    callback.on_openai_chunk = on_openai_chunk
-
     def make_chunk(delta=None, content=None, finish_reason=None, error=None) -> str:
         if delta is None:
             delta = {"content": str(content)} if content is not None else {}
@@ -129,21 +124,6 @@ async def process_stream(
         return "data: " + json.dumps(obj) + "\n\n"
 
     task = asyncio.create_task(async_llm_func(prompt, **ctx.llm_params, callback=callback))
-    finish_reason = None
-
-    def stream_chunk(block):
-        nonlocal finish_reason
-        if not isinstance(block, dict) or block.get("object") != "chat.completion.chunk":
-            return None if isinstance(block, dict) else make_chunk(content=block)
-        choices = block.get("choices") or []
-        if not choices:
-            return None
-        choice = choices[0]
-        finish_reason = choice.get("finish_reason") or finish_reason
-        delta = choice.get("delta") or {}
-        if "tool_calls" in delta:
-            return make_chunk(delta=delta)
-        return None
 
     try:
         yield make_chunk(delta={"role": "assistant"})
@@ -151,15 +131,13 @@ async def process_stream(
         while not task.done():
             try:
                 block = await asyncio.wait_for(queue.get(), timeout=0.1)
-                if streamed := stream_chunk(block):
-                    yield streamed
+                yield make_chunk(content=block)
             except asyncio.TimeoutError:
                 continue
 
         while not queue.empty():
             block = await queue.get()
-            if streamed := stream_chunk(block):
-                yield streamed
+            yield make_chunk(content=block)
 
     finally:
         try:
@@ -170,7 +148,22 @@ async def process_stream(
             yield make_chunk(error=e)
         finish_printing_llm_response(ctx)
 
-    yield make_chunk(finish_reason="error" if ctx.error else finish_reason or "stop")
+    if tool_calls := getattr(ctx.response, "tool_calls", None):
+        yield make_chunk(
+            delta={
+                "tool_calls": [
+                    {
+                        "index": i,
+                        "id": call.id,
+                        "type": "function",
+                        "function": {"name": call.name, "arguments": call.arguments},
+                    }
+                    for i, call in enumerate(tool_calls)
+                ]
+            }
+        )
+    finish_reason = getattr(ctx.response, "finish_reason", None) or "stop"
+    yield make_chunk(finish_reason="error" if ctx.error else finish_reason)
     yield "data: [DONE]\n\n"
     await log_non_blocking(ctx)
     if ctx.error:

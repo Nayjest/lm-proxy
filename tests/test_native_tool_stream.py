@@ -8,88 +8,56 @@ from lm_proxy.config import Config
 from lm_proxy.core import process_stream
 
 
-def native_chunk(delta=None, finish_reason=None, choices=True):
-    return {
-        "object": "chat.completion.chunk",
-        "choices": (
-            []
-            if not choices
-            else [
-                {"index": 0, "delta": delta or {}, "finish_reason": finish_reason}
-            ]
-        ),
-    }
-
-
 async def llm_tool_call(_prompt, callback=None, **_kwargs):
-    await callback.on_openai_chunk(
-        native_chunk(
-            {
-                "tool_calls": [
-                    {"index": 0, "function": {"name": "ping", "arguments": "{"}}
-                ]
-            }
-        )
+    return mc.LLMResponse(
+        "",
+        tool_calls=[mc.ToolCall(name="ping", arguments='{"host": "a"}', id="call_1")],
+        finish_reason="tool_calls",
     )
-    await callback.on_openai_chunk(
-        native_chunk(
-            {"tool_calls": [{"index": 0, "function": {"arguments": "}"}}]},
-            "tool_calls",
-        )
-    )
-    await callback.on_openai_chunk(native_chunk(choices=False))
-    await callback("ignored")
-    return mc.LLMResponse("")
 
 
-async def llm_text(_prompt, callback=None):
-    await callback.on_openai_chunk(native_chunk({"content": "Hello"}))
+async def llm_text(_prompt, callback=None, **_kwargs):
     await callback("Hello")
-    await callback.on_openai_chunk(native_chunk(finish_reason="stop"))
-    return mc.LLMResponse("Hello")
+    return mc.LLMResponse("Hello", finish_reason="length")
 
 
-async def events(llm):
+async def llm_plain_string(_prompt, callback=None, **_kwargs):
+    await callback("Hello")
+    return "Hello"
+
+
+async def chunks(llm):
     bootstrap(Config(connections={}))
     request = ChatCompletionRequest(
         model="test", messages=[{"role": "user", "content": "Ping"}], stream=True
     )
-    return [
-        event async for event in process_stream(llm, request, RequestContext(request=request))
+    events = [e async for e in process_stream(llm, request, RequestContext(request=request))]
+    assert events[-1] == "data: [DONE]\n\n"
+    return [json.loads(e[6:])["choices"][0] for e in events[:-1]]
+
+
+async def test_tool_calls_are_streamed():
+    output = await chunks(llm_tool_call)
+    assert [c["delta"]["tool_calls"] for c in output if "tool_calls" in c["delta"]] == [
+        [
+            {
+                "index": 0,
+                "id": "call_1",
+                "type": "function",
+                "function": {"name": "ping", "arguments": '{"host": "a"}'},
+            }
+        ]
     ]
+    assert output[-1]["finish_reason"] == "tool_calls"
 
 
-def chunks(events):
-    return [
-        json.loads(event[6:]) for event in events if event.startswith("data: {")
-    ]
+async def test_text_stream_reports_finish_reason():
+    output = await chunks(llm_text)
+    assert [c["delta"].get("content") for c in output].count("Hello") == 1
+    assert not any("tool_calls" in c["delta"] for c in output)
+    assert output[-1]["finish_reason"] == "length"
 
 
-async def test_native_tool_call_stream_is_preserved():
-    output = await events(llm_tool_call)
-    tool_chunks = [
-        chunk
-        for chunk in chunks(output)
-        if "tool_calls" in chunk["choices"][0]["delta"]
-    ]
-
-    assert len(tool_chunks) == 2
-    assert (
-        tool_chunks[0]["choices"][0]["delta"]["tool_calls"][0]["function"]["name"]
-        == "ping"
-    )
-    assert (
-        tool_chunks[1]["choices"][0]["delta"]["tool_calls"][0]["function"]["arguments"]
-        == "}"
-    )
-    assert tool_chunks[-1]["id"] == tool_chunks[0]["id"]
-    assert chunks(output)[-1]["choices"][0]["finish_reason"] == "tool_calls"
-    assert output[-1] == "data: [DONE]\n\n"
-
-
-async def test_native_text_chunks_are_not_duplicated():
-    output = await events(llm_text)
-    content = [chunk["choices"][0]["delta"].get("content") for chunk in chunks(output)]
-
-    assert content.count("Hello") == 1
-    assert chunks(output)[-1]["choices"][0]["finish_reason"] == "stop"
+async def test_custom_connection_returning_plain_string():
+    output = await chunks(llm_plain_string)
+    assert output[-1]["finish_reason"] == "stop"

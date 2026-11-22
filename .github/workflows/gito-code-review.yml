@@ -9,6 +9,9 @@ on:
         required: true
 jobs:
   review:
+    # Dependabot PRs touch only the lockfile, which .gito/config.toml excludes,
+    # so there is nothing to review; they also get no Actions secrets.
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions: { contents: read, pull-requests: write } # 'write' for leaving the summary comment
     steps:

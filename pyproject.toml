@@ -40,7 +40,7 @@ dependencies = [
     "typer>=0.27.1,<1",
     "requests>=2.34.2,<3",
     "pydantic~=2.12.5",
-    "websockets>=14.0,<18",
+    "websockets>=14.0,<17",
 ]
 
 [project.optional-dependencies]

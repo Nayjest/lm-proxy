@@ -1,14 +1,13 @@
 import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import pytest
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 import microcore as mc
 
@@ -21,15 +20,28 @@ class ServerFixture:
     model: str = field(default=None)
 
 
-def wait_for_server(url, timeout=10):
-    session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.05)))
-    session.get(url, timeout=timeout)
+def wait_for_server(url, proc=None, timeout=30):
+    """Wait for the server, failing at once if its process is already gone."""
+    deadline = time.monotonic() + timeout
+    while True:
+        if proc is not None and proc.poll() is not None:
+            raise RuntimeError(f"proxy exited with code {proc.returncode} before serving {url}")
+        try:
+            requests.get(url, timeout=2)
+            return
+        except requests.RequestException:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.1)
 
 
 def start_proxy(config_path: str, port: int):
     proc = subprocess.Popen([sys.executable, "-m", "lm_proxy", "--config", config_path])
-    wait_for_server(f"http://127.0.0.1:{port}/health")
+    try:
+        wait_for_server(f"http://127.0.0.1:{port}/health", proc)
+    except Exception:
+        proc.kill()
+        raise
     return proc
 
 

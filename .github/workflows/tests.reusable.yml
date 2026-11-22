@@ -21,8 +21,8 @@ on:
           before accessing secrets, preventing malicious code from exfiltrating credentials.
     secrets:
       OPENAI_API_KEY:
-        description: Available when repo secrets are exposed to the workflow (not on fork pull_request).
-        required: false
+        description: Required. Fork PRs receive it only after 'external-pr' approval.
+        required: true
 
 permissions:
   contents: read
@@ -42,9 +42,18 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         ref: ${{ inputs.ref }}
+        # Checking out PR head is what lets fork PRs be tested at all.
+        #
+        # (!) SECURITY: this exposes secrets to fork code. Mitigated by the 'external-pr'
+        # environment on this job, which holds the run until a maintainer approves it.
+        # Review fork PRs for secret exfiltration before approving.
+        #
+        # Note: "Approval for running fork pull request workflows"
+        # (Settings -> Actions -> General) does NOT gate 'pull_request_target'.
+        allow-unsafe-pr-checkout: true
         persist-credentials: false
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
@@ -55,23 +64,16 @@ jobs:
         pip install poetry
         poetry install -E test
         echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
-    # Keep fork PRs secret-free: tests run without API keys when external-pr environment is used.
-    - name: Test with pytest (external PR - no secrets)
-      if: matrix.python-version != '3.13' && inputs.environment == 'external-pr'
-      run: |
-        pytest
-    - name: Test with pytest (trusted - with secrets)
-      if: matrix.python-version != '3.13' && inputs.environment != 'external-pr'
+    # The integration tests need a live upstream, so every path gets the key.
+    # Fork PRs reach this only after the 'external-pr' environment is approved.
+    - name: Test with pytest
+      if: matrix.python-version != '3.13'
       env:
         LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         pytest
-    - name: Test with pytest +coverage (external PR - no secrets)
-      if: matrix.python-version == '3.13' && inputs.environment == 'external-pr'
-      run: |
-        pytest --cov=lm_proxy --cov-report=xml
-    - name: Test with pytest +coverage (trusted - with secrets)
-      if: matrix.python-version == '3.13' && inputs.environment != 'external-pr'
+    - name: Test with pytest +coverage
+      if: matrix.python-version == '3.13'
       env:
         LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |

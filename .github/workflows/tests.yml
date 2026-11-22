@@ -37,4 +37,5 @@ jobs:
       # Blocks exfiltration attacks via malicious PR code
       environment: external-pr
       skip-ci: false
-    # No secrets on fork PRs: reusable workflow handles this path without API keys.
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

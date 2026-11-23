@@ -21,7 +21,7 @@ from .base_types import ChatCompletionRequest, RequestContext
 from .bootstrap import env
 from .config import Config
 from .utils import get_client_ip
-from .errors import OpenAIHTTPException
+from .errors import OpenAIHTTPException, upstream_status
 
 
 def parse_routing_rule(rule: str, config: Config) -> tuple[str, str]:
@@ -313,7 +313,7 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
         logging.exception(e)
         raise OpenAIHTTPException(
             message="Error processing upstream provider response" + error_details,
-            status_code=502,
+            status_code=upstream_status(e),
             error_type="upstream_error",
             code="upstream_error",
         ) from e

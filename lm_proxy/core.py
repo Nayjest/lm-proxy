@@ -60,9 +60,11 @@ def resolve_connection_and_model(config: Config, external_model: str) -> tuple[s
             resolved_model = external_model if model_part == "*" else model_part
             return connection_name, resolved_model
 
-    raise ValueError(
+    raise OpenAIHTTPException(
         f"No routing rule matched model '{external_model}'. "
-        'Add a catch-all rule like "*" = "openai.gpt-3.5-turbo" if desired.'
+        'Add a catch-all rule like "*" = "openai.gpt-3.5-turbo" if desired.',
+        status_code=404,
+        code="model_not_found",
     )
 
 

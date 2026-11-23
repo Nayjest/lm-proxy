@@ -42,6 +42,7 @@ It works as a drop-in replacement for OpenAI's API, allowing you to switch betwe
   - [Virtual API Key Validation](#virtual-api-key-validation)
 - [Advanced Usage](#%EF%B8%8F-advanced-usage)
   - [Dynamic Model Routing](#dynamic-model-routing)
+  - [Default Request Parameters](#default-request-parameters)
   - [Load Balancing Example](#load-balancing-example)
   - [Google Vertex AI Example](#google-vertex-ai-configuration-example)
   - [Using Tokens from OIDC Provider as Virtual/Client API Keys](#using-tokens-from-oidc-provider-as-virtualclient-api-keys)
@@ -536,6 +537,20 @@ The routing section allows flexible pattern matching with wildcards:
 ```
 Keys are model name patterns (with `*` wildcard support), and values are connection/model mappings.
 Connection names reference those defined in the `[connections]` section.
+
+### Default Request Parameters<a id="default-request-parameters"></a>
+
+`default_args` of a connection are sent to the provider with every request;
+parameters given by the client take precedence. Not supported by `google` connections.
+
+For example, `extra_body` pins the upstream host of an OpenRouter model:
+```toml
+[connections.deepseek-baidu]
+api_type = "open_ai"
+api_base = "https://openrouter.ai/api/v1"
+api_key = "env:OPENROUTER_API_KEY"
+default_args = { extra_body = { provider = { only = ["Baidu"], allow_fallbacks = false } } }
+```
 
 ### Load Balancing Example<a id="load-balancing-example"></a>
 

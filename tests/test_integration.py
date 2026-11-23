@@ -4,6 +4,21 @@ from openai import OpenAI
 import microcore as mc
 from tests.conftest import ServerFixture
 
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the weather for a location",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string", "description": "City name"}},
+                "required": ["location"],
+            },
+        },
+    }
+]
+
 
 def configure_mc_to_use_local_proxy(cfg: ServerFixture):
     mc.configure(
@@ -61,25 +76,11 @@ def test_models(server_config_fn: ServerFixture):
 def test_tools(server_config_fn: ServerFixture):
     cfg = server_config_fn
     client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
-    tools = [
-        {
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get the weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"location": {"type": "string", "description": "City name"}},
-                    "required": ["location"],
-                },
-            },
-        }
-    ]
-
     r = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": "What's the weather in Paris?"}],
-        tools=tools,
+        tools=TOOLS,
+        tool_choice="auto",
     )
     msg = r.choices[0].message
     call = msg.tool_calls[0]
@@ -94,7 +95,25 @@ def test_tools(server_config_fn: ServerFixture):
             msg,
             {"role": "tool", "tool_call_id": call.id, "content": '{"temp":"18°C"}'},
         ],
-        tools=tools,
+        tools=TOOLS,
     )
     assert "18" in r2.choices[0].message.content
     assert r2.choices[0].finish_reason == "stop"
+
+
+def test_streamed_tools(server_config_fn: ServerFixture):
+    cfg = server_config_fn
+    client = OpenAI(api_key=cfg.api_key, base_url=f"http://127.0.0.1:{cfg.port}/v1")
+    chunks = list(
+        client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": "What's the weather in Paris?"}],
+            tools=TOOLS,
+            tool_choice="auto",
+            stream=True,
+        )
+    )
+    calls = [call for chunk in chunks for call in chunk.choices[0].delta.tool_calls or []]
+    assert calls[0].function.name == "get_weather"
+    assert "paris" in json.loads(calls[0].function.arguments)["location"].lower()
+    assert chunks[-1].choices[0].finish_reason == "tool_calls"

@@ -48,7 +48,7 @@ class ChatCompletionRequest(BaseModel):
     stop: Optional[Union[str, List[str]]] = None
     store: Optional[bool] = None
     stream_options: Optional[dict] = None
-    tool_choice: Optional[dict] = None
+    tool_choice: Optional[Union[str, dict]] = None
     top_logprobs: Optional[int] = None
     verbosity: Optional[str] = None
     web_search_options: Optional[dict] = None

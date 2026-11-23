@@ -31,7 +31,8 @@ async def chunks(llm):
     request = ChatCompletionRequest(
         model="test", messages=[{"role": "user", "content": "Ping"}], stream=True
     )
-    events = [e async for e in process_stream(llm, request, RequestContext(request=request))]
+    stream = await process_stream(llm, request, RequestContext(request=request))
+    events = [e async for e in stream]
     assert events[-1] == "data: [DONE]\n\n"
     return [json.loads(e[6:])["choices"][0] for e in events[:-1]]
 

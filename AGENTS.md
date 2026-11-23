@@ -55,7 +55,7 @@ Extension points (all configured by reference, no core changes needed):
 
 - Errors surfaced to clients use OpenAI's error envelope (`{"error": {"message","type","param","code"}}`); see `errors.py:OpenAIHTTPException`.
 - Debug mode (`LM_PROXY_DEBUG` env or `--debug`) raises full tracebacks and sets DEBUG logging; otherwise exceptions are logged and a sanitized error returned. CLI flags override env.
-- Streaming errors are not HTTP errors: they arrive as a final SSE chunk carrying an `error` object and `finish_reason: "error"`, followed by `data: [DONE]`.
+- A provider failure before the first streamed chunk is an HTTP error, as for non-streamed requests. Later errors arrive as a final SSE chunk carrying an `error` object and `finish_reason: "error"`, followed by `data: [DONE]`.
 - `config.encryption_key` salts the MD5 `api_key_id` hash used to identify keys in logs — client API keys are never logged raw.
 - Supported Python: 3.11–3.13.
 - Never attribute work to an AI tool: no assistant/model/vendor names or "AI-generated" markers in branch names, commit messages, PR text, comments, or docs.

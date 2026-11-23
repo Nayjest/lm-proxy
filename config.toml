@@ -49,6 +49,7 @@ file_name = 'storage/json.log'
 class = 'lm_proxy.loggers.LogEntryTransformer'
 completion_tokens = "response.usage.completion_tokens"
 prompt_tokens = "response.usage.prompt_tokens"
+cached_tokens = "response.usage.cache_read_input_tokens"
 prompt = "request.messages"
 response = "response"
 group = "group"

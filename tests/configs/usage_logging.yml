@@ -1,0 +1,23 @@
+# Logs the token usage reported by the provider
+port: 8134
+connections:
+  openai:
+    api_type: "openai"
+    api_key: "env:LLM_API_KEY"
+
+routing:
+  "*": "openai.gpt-5-nano"
+
+groups:
+  default:
+    api_keys: ["usage-logging-test"]
+
+loggers:
+  - class: "lm_proxy.loggers.BaseLogger"
+    log_writer:
+      class: "lm_proxy.loggers.JsonLogWriter"
+      file_name: "storage/usage_logging_test.log"
+    entry_transformer:
+      class: "lm_proxy.loggers.LogEntryTransformer"
+      prompt_tokens: "response.usage.prompt_tokens"
+      cached_tokens: "response.usage.cache_read_input_tokens"

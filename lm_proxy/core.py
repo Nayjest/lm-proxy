@@ -148,7 +148,22 @@ async def process_stream(
             yield make_chunk(error=e)
         finish_printing_llm_response(ctx)
 
-    yield make_chunk(finish_reason="error" if ctx.error else "stop")
+    if tool_calls := getattr(ctx.response, "tool_calls", None):
+        yield make_chunk(
+            delta={
+                "tool_calls": [
+                    {
+                        "index": i,
+                        "id": call.id,
+                        "type": "function",
+                        "function": {"name": call.name, "arguments": call.arguments},
+                    }
+                    for i, call in enumerate(tool_calls)
+                ]
+            }
+        )
+    finish_reason = getattr(ctx.response, "finish_reason", None) or "stop"
+    yield make_chunk(finish_reason="error" if ctx.error else finish_reason)
     yield "data: [DONE]\n\n"
     await log_non_blocking(ctx)
     if ctx.error:

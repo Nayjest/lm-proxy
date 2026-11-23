@@ -34,7 +34,7 @@ documentation = "https://github.com/Nayjest/lm-proxy#readme"
 license = "MIT"
 
 dependencies = [
-    "ai-microcore>=6.7.2,<7",
+    "ai-microcore>=6.10.0,<7",
     "fastapi>=0.141.1,<1",
     "uvicorn>=0.52.4",
     "typer>=0.27.1,<1",

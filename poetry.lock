@@ -2,14 +2,14 @@
 
 [[package]]
 name = "ai-microcore"
-version = "6.7.2"
+version = "6.10.0"
 description = "# Minimalistic Foundation for AI Applications"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "ai_microcore-6.7.2-py3-none-any.whl", hash = "sha256:ff7af7f7f3728a75b7611a1ccbed012be1eb6e9b90889cfe2de54d7fb6b9c765"},
-    {file = "ai_microcore-6.7.2.tar.gz", hash = "sha256:677a7f56baaaa161c612fe202fb510e867835b2ee8b7a95f860506175f8dc541"},
+    {file = "ai_microcore-6.10.0-py3-none-any.whl", hash = "sha256:403f0b71deb86b0185da13b5b0ce1768d4f3e0d3c47a1e3c5a3f29b9c26cc6fb"},
+    {file = "ai_microcore-6.10.0.tar.gz", hash = "sha256:7399bf6b3732e8bb96ef6a4bc74334ddd668677303d9c47db6964af62cfd0bf6"},
 ]
 
 [package.dependencies]
@@ -3334,4 +3334,4 @@ test = ["pytest", "pytest-asyncio", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "ae48697202a5472bb2be5d3102cb87080176ec58fd04cf1f6362f12b779e7051"
+content-hash = "10fde22d89220f809910a794e5957f0d31ab0280b73d8d3c1d689a74d07b2465"

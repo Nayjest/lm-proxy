@@ -1,0 +1,26 @@
+# The connection makes the provider answer in a JSON format the client does not ask for
+port: 8133
+connections:
+  openai:
+    api_type: "openai"
+    api_key: "env:LLM_API_KEY"
+    default_args:
+      extra_body:
+        response_format:
+          type: "json_schema"
+          json_schema:
+            name: "answer"
+            strict: true
+            schema:
+              type: "object"
+              properties:
+                capital: {type: "string"}
+              required: ["capital"]
+              additionalProperties: false
+
+routing:
+  "*": "openai.gpt-5-nano"
+
+groups:
+  default:
+    api_keys: ["default-args-test"]

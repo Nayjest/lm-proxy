@@ -2,6 +2,16 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 
+def upstream_status(e: Exception) -> int:
+    """HTTP status the upstream provider answered with, 502 if it gave none."""
+    statuses = (
+        getattr(e, "status_code", None),  # OpenAI, Anthropic
+        getattr(e, "code", None),  # Google
+        getattr(getattr(e, "response", None), "status_code", None),  # httpx, requests
+    )
+    return next((s for s in statuses if isinstance(s, int) and 400 <= s < 600), 502)
+
+
 class OpenAIHTTPException(Exception):
     """
     OpenAI API-compatible exception.

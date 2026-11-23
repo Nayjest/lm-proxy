@@ -34,7 +34,8 @@ def openai_error(status: int) -> openai.APIStatusError:
         (RuntimeError("no status"), 502),
     ],
 )
-async def test_upstream_status_is_passed_through(error, status):
+@pytest.mark.parametrize("stream", [False, True])
+async def test_upstream_status_is_passed_through(error, status, stream):
     async def failing_connection(*_args, **_kwargs):
         raise error
 
@@ -46,20 +47,21 @@ async def test_upstream_status_is_passed_through(error, status):
         ),
         debug=False,
     )
+    request = ChatCompletionRequest(
+        model="any", messages=[{"role": "user", "content": "Hi"}], stream=stream
+    )
     with pytest.raises(OpenAIHTTPException) as exc_info:
-        await chat_completions(
-            ChatCompletionRequest(model="any", messages=[{"role": "user", "content": "Hi"}]),
-            Request(scope={"type": "http", "headers": []}),
-        )
+        await chat_completions(request, Request(scope={"type": "http", "headers": []}))
     assert exc_info.value.status_code == status
 
 
-def test_provider_rejection_keeps_its_status(server_config_fn: ServerFixture):
+@pytest.mark.parametrize("stream", [False, True])
+def test_provider_rejection_keeps_its_status(server_config_fn: ServerFixture, stream):
     """The provider refuses a request without messages."""
     cfg = server_config_fn
     response = requests.post(
         f"http://127.0.0.1:{cfg.port}/v1/chat/completions",
-        json={"model": cfg.model, "messages": []},
+        json={"model": cfg.model, "messages": [], "stream": stream},
         headers={"Authorization": f"Bearer {cfg.api_key}"},
         timeout=120,
     )

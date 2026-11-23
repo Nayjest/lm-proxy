@@ -96,10 +96,12 @@ async def process_stream(
     ctx: RequestContext,
 ):
     """
-    Streams the response from the LLM function.
+    Starts the LLM function and returns the stream of its response.
+    Raises its error if it fails before streaming anything.
     """
     prompt = request.messages
     queue = asyncio.Queue()
+    end = object()  # marks the end of the stream in the queue
     stream_id = f"chatcmpl-{secrets.token_hex(12)}"
     created = int(time.time())
 
@@ -124,52 +126,50 @@ async def process_stream(
         return "data: " + json.dumps(obj) + "\n\n"
 
     task = asyncio.create_task(async_llm_func(prompt, **ctx.llm_params, callback=callback))
+    task.add_done_callback(lambda _: queue.put_nowait(end))
+    first_block = await queue.get()
+    if first_block is end and task.exception():
+        raise task.exception()
 
-    try:
-        yield make_chunk(delta={"role": "assistant"})
-
-        while not task.done():
-            try:
-                block = await asyncio.wait_for(queue.get(), timeout=0.1)
-                yield make_chunk(content=block)
-            except asyncio.TimeoutError:
-                continue
-
-        while not queue.empty():
-            block = await queue.get()
-            yield make_chunk(content=block)
-
-    finally:
+    async def stream(block):
         try:
-            result = await task
-            ctx.response = result
-        except Exception as e:
-            ctx.error = e
-            yield make_chunk(error=e)
-        finish_printing_llm_response(ctx)
+            yield make_chunk(delta={"role": "assistant"})
+            while block is not end:
+                yield make_chunk(content=block)
+                block = await queue.get()
+        finally:
+            try:
+                result = await task
+                ctx.response = result
+            except Exception as e:
+                ctx.error = e
+                yield make_chunk(error=e)
+            finish_printing_llm_response(ctx)
 
-    if tool_calls := getattr(ctx.response, "tool_calls", None):
-        yield make_chunk(
-            delta={
-                "tool_calls": [
-                    {
-                        "index": i,
-                        "id": call.id,
-                        "type": "function",
-                        "function": {"name": call.name, "arguments": call.arguments},
-                    }
-                    for i, call in enumerate(tool_calls)
-                ]
-            }
-        )
-    finish_reason = getattr(ctx.response, "finish_reason", None) or "stop"
-    yield make_chunk(finish_reason="error" if ctx.error else finish_reason)
-    yield "data: [DONE]\n\n"
-    await log_non_blocking(ctx)
-    if ctx.error:
-        if env.debug:
-            raise ctx.error
-        logging.error(ctx.error)
+        if tool_calls := getattr(ctx.response, "tool_calls", None):
+            yield make_chunk(
+                delta={
+                    "tool_calls": [
+                        {
+                            "index": i,
+                            "id": call.id,
+                            "type": "function",
+                            "function": {"name": call.name, "arguments": call.arguments},
+                        }
+                        for i, call in enumerate(tool_calls)
+                    ]
+                }
+            )
+        finish_reason = getattr(ctx.response, "finish_reason", None) or "stop"
+        yield make_chunk(finish_reason="error" if ctx.error else finish_reason)
+        yield "data: [DONE]\n\n"
+        await log_non_blocking(ctx)
+        if ctx.error:
+            if env.debug:
+                raise ctx.error
+            logging.error(ctx.error)
+
+    return stream(first_block)
 
 
 def read_api_key(request: Request) -> str:
@@ -294,13 +294,12 @@ async def chat_completions(request: ChatCompletionRequest, raw_request: Request)
 
     logging.info("Querying LLM... params: %s", ctx.llm_params)
     print_llm_request(ctx)
-    if request.stream:
-        return StreamingResponse(
-            process_stream(async_llm_func, request, ctx),
-            media_type="text/event-stream",
-        )
-
     try:
+        if request.stream:
+            return StreamingResponse(
+                await process_stream(async_llm_func, request, ctx),
+                media_type="text/event-stream",
+            )
         out = await async_llm_func(request.messages, **ctx.llm_params)
         ctx.response = out
         finish_printing_llm_response(ctx)

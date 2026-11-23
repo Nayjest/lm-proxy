@@ -34,7 +34,7 @@ async def llm_hello(_prompt, callback=None, **_kwargs):
 async def test_stream_is_not_printed_by_default(capsys):
     bootstrap(Config(connections={}))
     request = make_request()
-    async for _ in process_stream(llm_hello, request, RequestContext(request=request)):
+    async for _ in await process_stream(llm_hello, request, RequestContext(request=request)):
         pass
     assert capsys.readouterr().out == ""
 
@@ -46,7 +46,7 @@ async def test_print_stream(capsys):
         request = make_request()
         ctx = RequestContext(request=request, llm_params={"model": "gpt-3.5-turbo"})
         print_llm_request(ctx)
-        chunks = [chunk async for chunk in process_stream(llm_hello, request, ctx)]
+        chunks = [chunk async for chunk in await process_stream(llm_hello, request, ctx)]
     finally:
         mc.config().CALLBACKS.clear()
         mc.env().llm_before_handlers.clear()
